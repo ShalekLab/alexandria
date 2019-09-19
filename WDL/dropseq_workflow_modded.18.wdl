@@ -1,15 +1,15 @@
 # Modified by jgatter [at] broadinstitute.org, created August 
 # DESC: Exposes two subworkflow outputs as workflow outputs.
-# https://portal.firecloud.org/?return=terra#methods/dropseq_workflow_modded/dropseq_workflow_modded/15
-# https://api.firecloud.org/ga4gh/v1/tools/dropseq_workflow_modded:dropseq_workflow_modded/versions/15/plain-WDL/descriptor
-# Based on dropseq_workflow snapshot 16 by jgould [at] broadinstitute.org:
+# https://portal.firecloud.org/?return=terra#methods/dropseq_workflow_modded/dropseq_workflow_modded/18
+# https://api.firecloud.org/ga4gh/v1/tools/dropseq_workflow_modded:dropseq_workflow_modded/versions/18/plain-WDL/descriptor
+# Based on dropseq_workflow snapshots 14 and 16 by jgould [at] broadinstitute.org:
 
-import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:bcl2fastq/versions/2/plain-WDL/descriptor" as bcl2fastq_wdl # Haven't tested this yet.
+import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_align/versions/5/plain-WDL/descriptor" as dropseq_align_wdl
+import "https://api.firecloud.org/ga4gh/v1/tools/dropseq_scCloud_workflow:bcl2fastq_modded/versions/12/plain-WDL/descriptor" as bcl2fastq_wdl
+import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_count/versions/4/plain-WDL/descriptor" as dropseq_count_wdl
+import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_prepare_fastq/versions/3/plain-WDL/descriptor" as dropseq_prepare_fastq_wdl
+import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_qc/versions/5/plain-WDL/descriptor" as dropseq_qc_wdl
 import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropest/versions/4/plain-WDL/descriptor" as dropest_wdl
-import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_align/versions/6/plain-WDL/descriptor" as dropseq_align_wdl
-import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_count/versions/6/plain-WDL/descriptor" as dropseq_count_wdl
-import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_prepare_fastq/versions/4/plain-WDL/descriptor" as dropseq_prepare_fastq_wdl
-import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_qc/versions/6/plain-WDL/descriptor" as dropseq_qc_wdl
 
 workflow dropseq_workflow {
 	# Either a list of flowcell URLS or sample_id tab r1 tab r2
@@ -78,27 +78,20 @@ workflow dropseq_workflow {
 	Int? bcl2fastq_cpu = 64
 	String? bcl2fastq_memory = "57.6G"
 	Int? bcl2fastq_disk_space = 1500
-	Int bcl2fastq_minimum_trimmed_read_length = 10
-    Int bcl2fastq_mask_short_adapter_reads = 10
-	String? dropest_memory = "104G"
+	String? dropest_memory = "52G"
 	String? zones = "us-east1-d us-west1-a us-west1-b"
 	String? drop_seq_tools_version = "2.3.0"
 	String? bcl2fastq_version = "2.20.0.422"
 	String? dropest_version = "0.8.6"
 	String? merge_bam_alignment_memory="13G"
 	Int? sort_bam_max_records_in_ram = 2000000
-	String? drop_deq_tools_prep_bam_memory = "3750M"
-    String? drop_deq_tools_dge_memory = "3750M"
-
 	if (run_bcl2fastq) {
 		scatter (row in input_tsv) {
-			call bcl2fastq_wdl.bcl2fastq {
+			call bcl2fastq_wdl.dropseq_bcl2fastq as bcl2fastq {
 				input:
 					input_bcl_directory = row[0],
 					output_directory = output_directory_stripped,
 					delete_input_bcl_directory = delete_input_bcl_directory,
-					minimum_trimmed_read_length = bcl2fastq_minimum_trimmed_read_length,
-                    mask_short_adapter_reads = bcl2fastq_mask_short_adapter_reads,
 					zones = zones,
 					num_cpu = bcl2fastq_cpu,
 					memory = bcl2fastq_memory,
@@ -187,12 +180,10 @@ workflow dropseq_workflow {
 				}
 			}
 
-			if(run_dropseq_tools) {
+			if(run_dropseq_tools) { #19 for #75
 				call dropseq_count_wdl.dropseq_count as dropseq_count {
 					input:
 						sample_id = row[0],
-						dge_prep_memory = drop_deq_tools_prep_bam_memory,
-                        dge_memory = drop_deq_tools_dge_memory,
 						drop_seq_tools_version=drop_seq_tools_version,
 						output_directory = output_directory_stripped + '/' + row[0],
 						input_bam = dropseq_align.aligned_tagged_bam,
@@ -201,21 +192,18 @@ workflow dropseq_workflow {
 						zones = zones,
 						preemptible = preemptible
 				}
+				call dropseq_qc_wdl.dropseq_qc as dropseq_qc {
+					input:
+						sample_id = row[0],
+						input_bam = dropseq_align.aligned_tagged_bam,
+						cell_barcodes=dropseq_count.cell_barcodes,
+						refflat=generate_count_config.refflat,
+						drop_seq_tools_version=drop_seq_tools_version,
+						output_directory = output_directory_stripped + '/' + row[0],
+						zones = zones,
+						preemptible = preemptible
+				}
 			}
-
-
-			call dropseq_qc_wdl.dropseq_qc as dropseq_qc {
-				input:
-					sample_id = row[0],
-					input_bam = dropseq_align.aligned_tagged_bam,
-					cell_barcodes=dropseq_count.cell_barcodes,
-					refflat=generate_count_config.refflat,
-					drop_seq_tools_version=drop_seq_tools_version,
-					output_directory = output_directory_stripped + '/' + row[0],
-					zones = zones,
-					preemptible = preemptible
-			}
-
 		}
 
 
@@ -235,13 +223,10 @@ workflow dropseq_workflow {
 		}
 	}
 	output {
-		Array[String?]? sample_IDs=dropseq_align.output_sample_id
-		Array[String?]? dge_summaries=dropseq_count.dge_summary
+		Array[String?]? sample_IDs = dropseq_align.output_sample_id
+		Array[String?]? dge = dropseq_count.dge
 	}
 }
-
-
-
 
 task collect_summary {
 	Array[String] sample_id
@@ -281,13 +266,11 @@ task collect_summary {
 		bootDiskSizeGb: 12
 		disks: "local-disk 2 HDD"
 		memory:"1GB"
-		docker: "sccloud/dropseq:${drop_seq_tools_version}"
+		docker: "regevlab/dropseq-${drop_seq_tools_version}"
 		zones: zones
 		preemptible: "${preemptible}"
 	}
 }
-
-
 
 task generate_count_config {
 	File input_csv_file
@@ -397,7 +380,7 @@ task generate_count_config {
 		bootDiskSizeGb: 12
 		disks: "local-disk 1 HDD"
 		memory:"1GB"
-		docker: "sccloud/dropseq:${drop_seq_tools_version}"
+		docker: "regevlab/dropseq-${drop_seq_tools_version}"
 		zones: zones
 		preemptible: "${preemptible}"
 	}

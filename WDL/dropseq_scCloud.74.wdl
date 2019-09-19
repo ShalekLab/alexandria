@@ -2,7 +2,7 @@
 # https://portal.firecloud.org/?return=terra#methods/dropseq_scCloud_workflow/dropseq_scCloud_workflow/66/wdl
 # Incorporates subworkflows made by jgould [at] broadinstitute.org
 
-import "https://api.firecloud.org/ga4gh/v1/tools/dropseq_workflow_modded:dropseq_workflow_modded/versions/15/plain-WDL/descriptor" as dropseq
+import "https://api.firecloud.org/ga4gh/v1/tools/dropseq_workflow_modded:dropseq_workflow_modded/versions/19/plain-WDL/descriptor" as dropseq
 import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:scCloud/versions/23/plain-WDL/descriptor" as sc
 
 workflow dropseq_scCloud_workflow {
@@ -19,6 +19,7 @@ workflow dropseq_scCloud_workflow {
 
 	# Output object, seems to be a path/to/dir in the bucket.
 	# TODO: Test if can point to non-workspace buckets.
+	# TODO! Make every task in the file work for empty strings. Probably should keep below lines but append +'/' after the sub().
 	String bucket
 	String bucket_stripped = sub(bucket, "/+$", "")
 	String dropseq_output_directory
@@ -29,10 +30,7 @@ workflow dropseq_scCloud_workflow {
 	String dropseq_default_directory_stripped = bucket_stripped+'/'+sub(dropseq_default_directory, "/+$", "")
 
 	# "hg19" or another reference.
-	File reference
-
-	# TODO: Support overriding of setup_scCloud with user-inputted count_matrix.csv
-	#File? count_matrix_override
+	String reference
 
 	# At least one of the following Booleans must be set as true
 	# Set true to run alignment by dropseq
@@ -44,8 +42,10 @@ workflow dropseq_scCloud_workflow {
 
 	# Version numbers to select the specified runtime dockerfile.
 	String? dropseq_tools_version = "2.3.0"
-	String? scCloud_version = "0.8.0"
+	String? scCloud_version = "0.8.0:v1.0"
 	String alexandria_version = "0.1"
+	Int? preemptible = 2
+	String? zones = "us-east1-d us-west1-a us-west1-b"
 
 	# Number of cpus per scCloud job
 	Int? scCloud_cpu = 64
@@ -62,6 +62,7 @@ workflow dropseq_scCloud_workflow {
 				reference=reference,
 				dropseq_output_directory_stripped=dropseq_output_directory_stripped,
 				dropseq_default_directory_stripped=dropseq_default_directory_stripped,
+				preemptible=preemptible,
 				alexandria_version=alexandria_version
 			#output:
 			#	File dropseq_locations = "dropseq_locations.tsv"
@@ -73,9 +74,11 @@ workflow dropseq_scCloud_workflow {
 				run_bcl2fastq=is_bcl,
 				output_directory=dropseq_output_directory_stripped,
 				reference=reference,
+				zones=zones,
+				preemptible=preemptible,
 				drop_seq_tools_version=dropseq_tools_version # Varname drop_seq_tools_version in the subwdl.
 			#output:
-			#	Array[File?]? dge_summaries
+			#	Array[File?]? dge
 			#	Array[File?]? sample_IDs
 		}
 	}
@@ -83,14 +86,15 @@ workflow dropseq_scCloud_workflow {
 	if (run_scCloud) {
 		call setup_scCloud{
 			input: 
-				dge_summaries=dropseq.dge_summaries, #OPTIONAL
+				dges=dropseq.dge, #OPTIONAL
 				sample_IDs=dropseq.sample_IDs, #OPTIONAL
 				run_dropseq=run_dropseq, # If false then do general setup and build count_matrix from dirs in dropseq_output_directory_stripped?
-				is_bcl=is_bcl, #is_bcl? If dropseq=false and =true then build count_matrix from sample_sheets
+				#is_bcl=is_bcl, #is_bcl? If dropseq=false and =true then build count_matrix from sample_sheets
 				#count_matrix_override=count_matrix_override, #OPTIONAL, allow override of count_matrix, don't support until later?
 				input_csv_file=input_csv_file,
 				reference=reference,
 				alexandria_version=alexandria_version,
+				preemptible=preemptible,
 				bucket_stripped=bucket_stripped,
 				dropseq_output_directory_stripped=dropseq_output_directory_stripped,
 				scCloud_output_directory_stripped=scCloud_output_directory_stripped,
@@ -109,6 +113,8 @@ workflow dropseq_scCloud_workflow {
 				num_cpu=scCloud_cpu,
 				memory=scCloud_memory,
 				disk_space=scCloud_disk_space,
+				preemptible=preemptible,
+				zones=zones,
 				sccloud_version=scCloud_version # Varname sccloud in the subwdl.
 			#output:
 			#	Array[File] output_scp_files
@@ -116,22 +122,24 @@ workflow dropseq_scCloud_workflow {
 		call scp_outputs {
 			input:
 				input_csv_file=input_csv_file,
+				preemptible=preemptible,
 				alexandria_version=alexandria_version,
 				scCloud_output_directory_stripped=scCloud_output_directory_stripped,
+				scCloud_output_prefix=scCloud_output_prefix,
 				output_scp_files=scCloud.output_scp_files,
 				cluster_file=scCloud_output_directory_stripped+'/'+scCloud_output_prefix+".scp.X_fitsne.coords.txt"
 			#output:
-			#	Array[File] coordinate_files
-			#	File metadata
-			#	File dense_matrix
+			##	File pca_coords
+			##	File fitnse_coords
+			##	File dense_matrix
 			#	File alexandria_metadata
 		}
 	}
 	output {
-		Array[File]? coordinate_files = scp_outputs.coordinate_files
-		File? metadata = scp_outputs.metadata
-		File? dense_matrix = scp_outputs.dense_matrix
 		File? alexandria_metadata = scp_outputs.alexandria_metadata
+		File? pca_coords = scCloud_output_directory_stripped+'/'+scCloud_output_prefix+".scp.X_diffmap_pca.coords.txt"
+		File? fitsne_coords = scCloud_output_directory_stripped+'/'+scCloud_output_prefix+".scp.X_fitsne.coords.txt"
+		File? dense_matrix = scCloud_output_directory_stripped+'/'+scCloud_output_prefix+".scp.expr.txt"
 	}
 }
 
@@ -144,7 +152,8 @@ task setup_dropseq {
 	String dropseq_output_directory_stripped
 	String dropseq_default_directory_stripped
 	String alexandria_version
-	
+	Int preemptible
+
 	command {
 		set -e
 		export TMPDIR=/tmp
@@ -174,38 +183,47 @@ task setup_dropseq {
 			if not col in mtm["ATTRIBUTE"].tolist(): sys.exit("ERROR: Metadata \""+col+"\" is not a valid metadata type")
 
 		# TODO: Address edge case of having more than one R1/R2/BCL_Path?
-		is_bcl=${true='True' false='False' is_bcl}
+
 		dsl = pd.DataFrame()
-		if is_bcl is True:
-			location_override = False
-			if "BCL_Path" in csv.columns: location_override = True
-			else: csv["BCL_Path"] = csv["Sample"].replace(csv["Sample"], np.nan)
-			def get_bcl_location(element, csv, location_override):
-				path = csv.loc[csv.Sample == element, "BCL_Path"].to_string(index=False).strip()
-				if location_override is False or path == "NaN":
-					BCL_path = "${dropseq_default_directory_stripped}/"+element
-				else: BCL_path = "${bucket_stripped}/"+path
-				try: sp.check_call(args=["gsutil", "ls", BCL_path], stdout=sp.DEVNULL)
-				except sp.CalledProcessError: sys.exit("ERROR: "+BCL_path+" was not found.")
-				return BCL_path
-			dsl["BCL_Path"] = csv["Sample"].apply(func=get_bcl_location, args=(csv, location_override))
+		is_bcl=${true='True' false='False' is_bcl}
+		if is_bcl:
+			if not "BCL_Path" in csv.columns: sys.exit("ERROR: Missing required column \"BCL_Path\" for is_bcl=true.")
+			dsl["BCL_Path"] = csv["BCL_Path"].apply(func=lambda path: "${bucket_stripped}/"+path).unique()
+
+			def check_BCL(bcl_path, csv):
+				try: sp.check_call(args=["gsutil", "ls", bcl_path], stdout=sp.DEVNULL)
+				except sp.CalledProcessError: sys.exit("ERROR: "+bcl_path+" was not found.")
+				samples = csv.loc[csv.BCL_Path == bcl_path.replace("${bucket_stripped}/", ''), "Sample"]
+				if len(samples) is 0: sys.exit("ERROR: BCL path \""+bcl_path.replace("${bucket_stripped}/", '')+"\" in input_csv_file does not match any samples listed in input_csv_file.")
+				def check_sample(sample, bcl_path):
+					sample_sheet_path = bcl_path.strip('/')+"/SampleSheet.csv"
+					try: sample_sheet = sp.check_output(args=["gsutil", "cat", sample_sheet_path]).strip().decode()
+					except sp.CalledProcessError: sys.exit("ERROR: Checked path \""+sample_sheet_path+"\", was not found.")
+					with open("sample_sheet.csv", 'w') as ss:
+						ss.write(sample_sheet.split("[Data]")[-1]) # Trims sample sheet...
+					ss = pd.read_csv("sample_sheet.csv", dtype=str, header=1) # ...to everything below "[Data]"
+					if not ss.Sample_Name.str.contains(sample, regex=False).any(): 
+						sys.exit("ERROR: Sample \""+sample+"\" in input_csv_file does not match any samples listed in "+sample_sheet_path)
+				samples.apply(func=check_sample, args=(bcl_path,))
+				return bcl_path.strip('/').split('/')[-1] # Return basename of bcl_path, which is the sample name.
+
+			dsl["BCL_Path"].apply(func=check_BCL, args=(csv,))
 		else:
 			dsl["Sample"] = csv["Sample"]
+			#TODO: consider adding confirmation message, "Will be overriding from R1_Path and R2_Path"
 			location_override = False
-			if "R1_Path" in csv.columns and "R2_Path" in csv.columns: location_override = True #TODO: consider adding confirmation message, "Will be overriding from R1_Path and R2_Path"
+			if "R1_Path" in csv.columns and "R2_Path" in csv.columns: location_override = True
 			else: csv["R1_Path"] = csv["R2_Path"] = csv["Sample"].replace(csv["Sample"], np.nan)
-			def get_fastq_location(element, csv, location_override, read):
-				path = csv.loc[csv.Sample == element, read+"_Path"].to_string(index=False).strip()
+			
+			def get_fastq_location(sample, csv, location_override, read):
+				path = csv.loc[csv.Sample == sample, read+"_Path"].to_string(index=False).strip()
 				if location_override is False or path == "NaN":
-					fastq_path = "${dropseq_default_directory_stripped}/"+element+'*'+read+"*.fastq.gz"
+					fastq_path = "${dropseq_default_directory_stripped}/"+sample+'*'+read+"*.fastq.gz"
 				else: fastq_path = "${bucket_stripped}/"+path
-				try:
-					sp.check_call(args=["gsutil", "ls", fastq_path], stdout=sp.DEVNULL) # Checks existence on gcloud and raises error
-					path = sp.Popen(args=["gsutil", "ls", fastq_path], stdout=sp.PIPE) # Runs it again for stdout to path
-				except sp.CalledProcessError: # Error potentially raised by check_call.
-					sys.exit("ERROR: Checked path \""+fastq_path+"\", was not found.") # TODO: Give a more detailed error message here!
-				path = (path.communicate())[0].strip().decode('ascii') # Processes the byte literal output into a stripped string #should strip be called after decode?
+				try: path = sp.check_output(args=["gsutil", "ls", fastq_path]).strip().decode()
+				except sp.CalledProcessError: sys.exit("ERROR: Checked path \""+fastq_path+"\", was not found.")
 				return path
+
 			dsl["R1_Path"] = csv["Sample"].apply(func=get_fastq_location, args=(csv, location_override, "R1"))
 			dsl["R2_Path"] = csv["Sample"].apply(func=get_fastq_location, args=(csv, location_override, "R2"))
 		dsl.to_csv("dropseq_locations.tsv", sep='\t', header=None, index=False)
@@ -218,9 +236,8 @@ task setup_dropseq {
 		File dropseq_locations = "dropseq_locations.tsv"
 	}
 	runtime {
-		#docker: "regevlab/dropseq-${dropseq_tools_version}"
 		docker: "shaleklab/alexandria:${alexandria_version}"
-		preemptible: 2
+		preemptible: "${preemptible}"
 	}
 }
 
@@ -231,32 +248,35 @@ task ds_dummy {
 	String output_directory
 	String reference
 	String drop_seq_tools_version
-	
+	Int preemptible
+	String zones
+
 	command {
 		echo "Run ds_dummy"
 	}
 	output {
-		Array[String] dge_summaries = ["${output_directory}/B0_2/B0_2_dge.txt.gz"]
-		Array[String] sample_IDs = ["B0_2"]
+		#Array[String] dge = ["${output_directory}/B0_2/B0_2_dge.txt"]
+		#Array[String] sample_IDs = ["B0_2"]
+		Array[String] dge = ["${output_directory}/190712_non2/190712_non2_dge.txt.gz", "${output_directory}/3July19PB/3July19PB_dge.txt.gz", "${output_directory}/3July19BM/3July19BM_dge.txt.gz"]
+		Array[String] sample_IDs = ["190712_non2", "3July19PB", "3July19BM"]
 	}
 	runtime {
-		docker: "regevlab/dropseq-${drop_seq_tools_version}"
-		preemptible: 2
+		docker: "regevlab/dropseq-${drop_seq_tools_version}" # Only tag is latest for 2.3.0
+		preemptible: "${preemptible}"
 	}
 }
 
 task setup_scCloud {
-	Array[String?]? dge_summaries
+	Array[String?]? dges
 	Array[String?]? sample_IDs
-	Boolean run_dropseq # If false then do general setup and build count_matrix from dirs in dropseq_output_directory_stripped?
-	Boolean is_bcl #is_bcl? If dropseq=false and =true then build count_matrix from sample_sheets
-	#File? count_matrix_override
+	Boolean run_dropseq # If false then do general setup
 	File input_csv_file
 	String reference
 	String bucket_stripped
 	String alexandria_version
 	String dropseq_output_directory_stripped
 	String scCloud_output_directory_stripped
+	Int preemptible
 	
 	command <<<
 		set -e
@@ -268,22 +288,10 @@ task setup_scCloud {
 		import numpy as np
 		import subprocess as sp
 
-		run_dropseq=${true='True' false='False' run_dropseq}
-		is_bcl=${true='True' false='False' is_bcl}
-		
-		# TODO: Support metadata appending for BCL samples required for visualization.
-		if is_bcl is True: sys.exit("ERROR: Appending of metadata for BCL samples is not yet supported. You can build a new input_csv_file for the produced fastq's and run with run_dropseq=false, is_bcl=false, and run_scCloud=true.")
-
-		# TODO: Support count_matrix_override?
-		# if "count_matrix_override" is '': # Indent everything after. # RE-ADD THE INTERPOLATION TO THIS LINE.
-		
-		if run_dropseq is True:
-			samples = "${sep=',' sample_IDs}".split(',')
-			dge_summaries = "${sep=',' dge_summaries}".split(',')
-			samples = list(filter(lambda x: x.strip() != '', samples))
-			dge_summaries = list(filter(lambda x: x.strip() != '', dge_summaries))
-			cm = pd.DataFrame({"Sample":samples, "Location":dge_summaries})
-		else: # scCloud solo
+		csv = pd.read_csv("${input_csv_file}", dtype=str, header=0)
+		run_dropseq=${true='True' false='False' run_dropseq}		
+	
+		if run_dropseq is False:
 			try: sp.check_call(args=["gsutil", "ls", "${bucket_stripped}"], stdout=sp.DEVNULL)
 			except sp.CalledProcessError: sys.exit("ERROR: Bucket \"${bucket_stripped}\" was not found.")
 			
@@ -292,7 +300,6 @@ task setup_scCloud {
 			if "${reference}" not in valid_references:
 				sys.exit("ERROR: ${reference} does not match a valid reference: (\"hg19\", \"mm10\", \"hg19_mm10\", and \"mmul_8.0.1\").")
 			
-			csv = pd.read_csv("${input_csv_file}", dtype=str, header=0)
 			for col in csv.columns: csv[col] = csv[col].str.strip()
 			if "Sample" not in csv.columns: sys.exit("ERROR: Required column 'Sample' was not found in ${input_csv_file}.")
 			csv = csv.dropna(subset=['Sample'])
@@ -302,24 +309,15 @@ task setup_scCloud {
 				if col == "Sample" or col == "R1_Path" or col == "BCL_Path" or col == "R2_Path": continue
 				if not col in mtm["ATTRIBUTE"].tolist(): sys.exit("ERROR: Metadata \""+col+"\" is not a valid metadata type")
 
-			# TODO: Support metadata appending for BCL samples required for visualization.
-			#if is_bcl:
-				# find all sample sheets based on csv
-				# merge all sample sheet samples into a count_matrix.
-
-			cm = pd.DataFrame()
-			cm["Sample"] = csv["Sample"]
-			def get_dge_location(element, run_dropseq):
-				location = "${dropseq_output_directory_stripped}/"+element+'/'+element+"_dge.txt.gz"
-				try: sp.check_call(args=["gsutil", "ls", location], stdout=sp.DEVNULL)
-				except sp.CalledProcessError: sys.exit("ERROR: "+location+" was not found.")
-				return location
-			cm["Location"] = csv["Sample"].apply(func=get_dge_location, args=(run_dropseq,))	
-		cm.to_csv("count_matrix.csv", header=True, index=False) # Scope might need to change if count_matrix_override is supported.
-		
-		# TODO: Support count_matrix_override?		
-		#else: #validate countmatrixoverride.
-
+		cm = pd.DataFrame()
+		cm["Sample"] = csv["Sample"]
+		def get_dge_location(sample, run_dropseq):
+			location = "${dropseq_output_directory_stripped}/"+sample+'/'+sample+"_dge.txt.gz"
+			try: sp.check_call(args=["gsutil", "ls", location], stdout=sp.DEVNULL)
+			except sp.CalledProcessError: sys.exit("ERROR: "+location+" was not found.")
+			return location
+		cm["Location"] = csv["Sample"].apply(func=get_dge_location, args=(run_dropseq,))	
+		cm.to_csv("count_matrix.csv", header=True, index=False)
 		CODE
 		
 		gsutil -q -m cp count_matrix.csv ${scCloud_output_directory_stripped}/
@@ -330,7 +328,7 @@ task setup_scCloud {
 	}
 	runtime {
 		docker: "shaleklab/alexandria:${alexandria_version}"
-		preemptible: 2
+		preemptible: "${preemptible}"
 	}
 }
 
@@ -346,6 +344,8 @@ task sc_dummy {
 	String? memory
 	Int? disk_space
 	String sccloud_version
+	Int preemptible
+	String zones
 
 	command {
 		echo "Run sc_dummy"
@@ -355,7 +355,7 @@ task sc_dummy {
 	}
 	runtime {
 		docker: "regevlab/sccloud-${sccloud_version}"
-		preemptible: 2
+		preemptible: "${preemptible}"
 	}
 }
 
@@ -364,7 +364,9 @@ task scp_outputs {
 	String alexandria_version
 	String scCloud_output_directory_stripped
 	Array[File] output_scp_files
+	Int preemptible
 	File cluster_file
+	String scCloud_output_prefix
 
 	command {
 		set -e
@@ -373,17 +375,6 @@ task scp_outputs {
 		python <<CODE
 		import pandas as pd
 
-		files = '${sep="," output_scp_files}'.split(',')
-		with open('coordinates.txt', 'wt') as c, open('metadata.txt', 'wt') as m, open('dense_matrix.txt', 'wt') as d:
-			for file in files:
-				if file.endswith(".coords.txt"):
-					c.write(file + '\n')
-				elif file.endswith(".scp.metadata.txt"):
-					m.write(file + '\n')
-				elif file.endswith(".scp.expr.txt"):
-					d.write(file + '\n')
-
-		# TODO: Make the bottom two chunks a separate task that can run concurrently with this one?
 		amd = pd.read_csv("${cluster_file}", dtype=str, sep='\t', header=0)
 		amd = amd.drop(columns=['X','Y'])
 		def get_sample(element):
@@ -396,7 +387,7 @@ task scp_outputs {
 		if "R1_Path" in csv.columns and "R2_Path" in csv.columns: csv = csv.drop(columns=["R1_Path", "R2_Path"])
 		if "BCL_Path" in csv.columns: csv = csv.drop(columns=["BCL_Path"])
 		def get_metadata(element, csv, metadata, mtm):
-			# TODO: Type cast data to validate that numeric is int/float, group is whatever.
+			# TODO: Support outside metadata? Type cast data to validate that numeric is int/float, group is whatever.
 			if element == "group": return mtm.loc[mtm.ATTRIBUTE == metadata, "TYPE"].to_string(index=False).strip() #For TYPE row, search for type in map
 			else: return csv.loc[csv.Sample == element, metadata].to_string(index=False).strip()
 		for metadata in csv.columns:
@@ -408,13 +399,10 @@ task scp_outputs {
 		gsutil -q -m cp alexandria_metadata.txt ${scCloud_output_directory_stripped}/
 	}
 	output {
-		Array[File] coordinate_files = read_lines('coordinates.txt')
-		File metadata = read_lines('metadata.txt')[0]
-		File dense_matrix = read_lines('dense_matrix.txt')[0]
 		File alexandria_metadata = "alexandria_metadata.txt"
 	}
 	runtime {
 		docker: "shaleklab/alexandria:${alexandria_version}"
-		preemptible: 2
+		preemptible: "${preemptible}"
 	}
 }
