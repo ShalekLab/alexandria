@@ -5,4 +5,4 @@ nav:
   - 'Introduction': 'index.md'
 theme: readthedocs
 docs_dir: 'docs'
-site_dir: '/tmp/site'
+site_dir: '../site'
