@@ -1,1 +1,8 @@
-site_name: My Docs
+site_name: Alexandria - scRNA Data Library
+repo_url: https://github.com/ShalekLab/alexandria
+site_author: Shalek Lab
+nav:
+  - 'Introduction': 'index.md'
+theme: readthedocs
+docs_dir: 'docs'
+site_dir: 'site'
