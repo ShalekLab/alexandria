@@ -4,5 +4,3 @@ site_author: Shalek Lab
 nav:
   - 'Introduction': 'index.md'
 theme: readthedocs
-docs_dir: 'docs'
-site_dir: '../site'
