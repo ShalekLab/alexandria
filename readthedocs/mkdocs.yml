@@ -4,3 +4,4 @@ site_author: Shalek Lab
 nav:
   - 'Introduction': 'index.md'
 theme: readthedocs
+site_dir: '/home/docs/checkouts/readthedocs.org/user_builds/alexandria-scrna-data-library/checkouts/html/'
