@@ -7,7 +7,13 @@ The Alexandria workflow version of dropseq_scCloud is intended as a user-accessi
 Those who would like more options for running the workflow should [use the Terra version](/terra/) of the workflow and then transfer/sync the outputs to your Alexandria workspace study bucket.  
   
 If you truly would like certain parameters to be exposed, please contact jgatter@broadinstitute.org.
-  
+
+### KNOWN BUGS IN v7:
+
+* Do not upload sequence files into the root of the bucket, instead use `gsutil` to move them into a folder on your bucket. Example: `gsutil -m cp -r local/mouse_fastqs gs://[bucket ID]/mouse_fastqs`. `gsutil -m mv gs://[bucket ID]/*.fastq.gz gs://[bucket ID]/mouse_fastqs` can be used to move all FASTQs already on the bucket to a directory mouse_fastqs that will be automatically created.
+
+* `is_bcl=true`/`run_bcl2fastq=true` is broken due to regevlab changing their docker repo for the tool.
+
 ### 1. Sign In
 Visit the [Alexandria](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and at the top-right click "Sign In". Sign in using your broadinstitute.org email account and allow permissions. ![](imgs/alexandria/sign_in.png)
   
