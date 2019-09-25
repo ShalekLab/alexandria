@@ -3,5 +3,8 @@ repo_url: https://github.com/ShalekLab/alexandria
 site_author: Shalek Lab
 nav:
   - 'Introduction': 'index.md'
+  - 'dropseq_scCloud Inputs/Outputs': 'dropseq_scCloud.md'
+  - 'dropseq_scCloud on Alexandria': 'alexandria.md'
+  - 'dropseq_scCloud on the Single Cell Portal': 'scp.md'
+  - 'dropseq_scCloud on Terra': 'terra.md'
 theme: readthedocs
-site_dir: '/home/docs/checkouts/readthedocs.org/user_builds/alexandria-scrna-data-library/checkouts/html/'
