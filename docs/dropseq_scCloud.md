@@ -1,6 +1,6 @@
 ## Formatting Your input_csv_file
 
-The input CSV file is a user-written comma-separated values (.csv) file that contains the following in whatever order:
+The input CSV file is a user-written comma-separated values (.csv) file with column headers and contains the following in whatever order:
 
 * **(REQUIRED)** the 'Sample' column, the sample names that prefix the respective .fastq.gz files/BCL directories and the count matrices outputted by Drop-seq pipeline.
 
@@ -8,20 +8,18 @@ The input CSV file is a user-written comma-separated values (.csv) file that con
 
 * (OPTIONAL) 'BCL_Path' column, the paths to the BCL directories on the bucket. If not included or if cells are left blank, will check dropseq_default_directory by default.
 
-* (OPTIONAL) Other metadata columns that will be appended to the alexandria_metadata.txt (tab-delimited) file generated after running scCloud. Column labels MUST match the names of the ATTRIBUTE list in the Alexandria Metadata Convention. Labels outside of this convention will be supported in the future
+* (OPTIONAL) Other metadata columns that will be appended to the alexandria_metadata.txt (tab-delimited) file generated after running scCloud. Column labels MUST match the names of the ATTRIBUTE list in the [Alexandria Metadata Convention](https://github.com/ShalekLab/alexandria/blob/master/Docker/metadata_type_map.tsv). Labels outside of this convention will be supported in the future
 
 If made in a spreadsheet manipulation program such as Microsoft Excel, make sure to save your file as a .csv file.
 ![](imgs/csv.png)
   
-In the above example spreadsheet, there are four samples which each have two FASTQ reads. All FASTQ files are located in a folder located at the root of the bucket called mouse_fastqs. 
-  
 #### Understanding dropseq_default_directory
-The use of this variable is not necessary and is only meant to help users write their CSV faster. If the snapshot you are using requires `dropseq_default_directory`,  just enter an empty string: `""`.
+The use of this variable is not essential and is only meant to help users write their CSV faster. If the snapshot you are using requires `dropseq_default_directory` and you do not wish to use it, just enter an empty string: `""`.
 
-Since they are all located in the same directory, one could set mouse_fastqs as the `dropseq_default_directory` and remove the R1_Path and R2_Path columns if they wished. ![](imgs/csv2.png) 
+Refer to the above spreadsheet example. There are four samples which each have two FASTQ reads. All FASTQ files are found in a folder located at the root of the bucket called mouse_fastqs. Since they are all located in the same directory, one could set mouse_fastqs as the `dropseq_default_directory` and no longer need to have R1_Path and R2_Path columns. ![](imgs/csv2.png) 
   
-If `dropseq_default_directory` is still unclear, examine the following extreme example. ![](imgs/csv3.png)
-Here the pipeline will search the gs://[bucket ID]/mouse_fastqs directory for any spreadsheet cells left blank; DMSO_R2.fastq.gz, LGD_R1.fastq.gz, LKS_CGP_R1.fastq.gz, and LKS_CGP_R2.fastq.gz.
+If the user has R1_Path and R2_Path columns but leaves spreadsheet cells left blank, the pipeline will search in the `dropseq_default_directory` for the corresponding sample ![](imgs/csv3.png)
+Here the pipeline will search the gs://[bucket ID]/mouse_fastqs directory for any spreadsheet cells left blank; DMSO_R2.fastq.gz, LGD_R1.fastq.gz, LKS_CGP_R1.fastq.gz, and LKS_CGP_R2.fastq.gz. The specific pattern the pipeline searches for is "[Sample Name]\*[R1 or R2]\*.fastq.gz".
 
 ## Inputs of the dropseq_scCloud Workflow
 #### Basic Usage
@@ -51,6 +49,7 @@ scCloud\_version, default=“0.8.0:v1.0” | Version of the [regevlab/](https://
 
 See the [Drop-seq Pipeline workflow documentation](https://sccloud.readthedocs.io/en/latest/drop_seq.html#inputs).  
 *NOTE: dropEst does not account for strandedness and therefore its usage is not recommended.*
+*NOTE: 
   
 See the [scCloud workflow documentation](https://sccloud.readthedocs.io/en/latest/scCloud.html#aggregate-matrix).
 

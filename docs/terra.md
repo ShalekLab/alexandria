@@ -21,10 +21,10 @@ If you do not have a billing group, look [into creating a billing account](https
 The authorization domain] is the group of users who will be able to access your workspace. You can create an authorization domain by following the instructions [here](https://support.terra.bio/hc/en-us/articles/360026775691).
   
 ### 3. Add Your Sequence Data and Input CSV File
-
-Before uploading, make sure your input CSV file adheres to the criteria specified in the [documentation](placeholderlink!). It is recommended that you first upload the sequence data to your bucket then copy those paths into your input CSV file's R1_Path and R2_Path or BCL_Path columns. Specifically, after uploading sequence data find your sequence data files and click on them to view their URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file`. The locations you should enter in your input CSV file should be all characters following the bucket ID and trailing slash, in this case `path/to/file`. Then return to the "Miscellaneous Tab" of the "Upload/Edit Data" page. ![](imgs/scp/bucket2.png)
   
-There are two methods of uploading files to your workspace Google Bucket. Before proceeding, find your workspace bucket by visiting your workspace's "Dashboard" tab. In the bottom-right corner of the dashboard, you will see your Google Bucket ID which you can copy by clicking the adjacent clipboard button. You can visit the bucket interface by clicking the "Open in Browser" hyperlink.
+There are three methods of uploading files to your workspace Google Bucket. Before proceeding, find your workspace bucket by visiting your workspace's "Dashboard" tab. In the bottom-right corner of the dashboard, you will see your Google Bucket ID which you can copy by clicking the adjacent clipboard button. You can visit the bucket interface by clicking the "Open in Browser" hyperlink.
+ 
+First upload your sequence data files using one of the methods below.
   
 1. `gsutil` **HIGHLY RECOMMENDED**: Through your computer's console, install the `gsutil` tool by following the [installation guide](https://cloud.google.com/storage/docs/gsutil_install). An example command that would transfer files from your computer to the workspace bucket would be:  
 `gsutil -m cp local/path/to/file.fastq.gz gs://[Bucket ID]/destination/directory/`  
@@ -33,7 +33,11 @@ For an entire folder of sequence data, copy it recursively through using the com
   
 2. You can also manually upload data to the Google Bucket, but note that this process take much more time than `gsutil`. At the bottom right of your workspace's "Dashboard" tab, click the "Open in Browser" hyperlink to visit your bucket. Click either the "Upload File" or "Upload Folder" button to navigate to and upload your files or a folder containing your files respectively. ![](imgs/terra/bucket.png)
   
-3. Alternatively to `gsutil` and Google Bucket file uploading, users can manually upload data one file at a time through the Terra interface. This method is painfully slow so you should consider using `gsutil`. Go to the "Data" tab and click the plus button towards the bottom-right of the page. Navigate to and select your file and hit open. Repeat the process for however many files. ![](imgs/terra/add_file.png)
+3. Alternatively to `gsutil` and Google Bucket file uploading, users can manually upload data one file at a time through the Terra interface. This method is painfully slow so you should strongly consider using `gsutil`. Go to the "Data" tab and click the plus button towards the bottom-right of the page. Navigate to and select your file and hit open. Repeat the process for however many files. ![](imgs/terra/add_file.png)
+  
+Before uploading your input CSV file, it is recommended that you make certain that it adheres to the criteria specified in the [documentation](/dropseq_scCloud/#formatting-your-input_csv_file). To verify that the paths you listed in the file are correct, navigate to your bucket using the instructions listed [above](/terra/#3-add-your-sequence-data-and-input-csv-file) and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files. The locations you should enter in the path columns of your input CSV file should be all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`. ![](imgs/scp/bucket2.png)
+  
+When finished, upload your input CSV file to the bucket.
 
 ### 4. Import the dropseq_scCloud Workflow
 
