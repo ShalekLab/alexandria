@@ -5,6 +5,5 @@ nav:
   - 'Introduction': 'index.md'
   - 'dropseq_scCloud Inputs/Outputs': 'dropseq_scCloud.md'
   - 'dropseq_scCloud on Alexandria': 'alexandria.md'
-  - 'dropseq_scCloud on the Single Cell Portal': 'scp.md'
   - 'dropseq_scCloud on Terra': 'terra.md'
 theme: readthedocs

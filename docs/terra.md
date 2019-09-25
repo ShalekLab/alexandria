@@ -57,9 +57,9 @@ To do this, click the failed job in "Job History" tab and click "View" on the ne
   
 Evaluate the error based on the message and decide whether you need to alter variables, move files in your bucket, or change and reupload your input CSV file.
 
-### 7. Uploading scCloud Output Files to Single Cell Portal for Visualization
+### 7. Uploading scCloud Output Files to Alexandria for Visualization
 
-The explicit workflow outputs of dropseq_scCloud_workflow are the alexandria metadata file (alexandria_metadata.txt), the dense expression matrix (ends with .scp.expr.txt), and the two coordinate files (end with .scp.X_diffmap_pca.coords.txt and .scp.X_fitsne.coords.txt). Download these to your computer by visiting your Google Bucket through the workspace dashboard and then reupload via the first four tabs of the Upload/Edit Study page of the Single Cell Portal (See [Running dropseq_scCloud on the Single Cell Portal](/scp/#3-uploading-sequence-data-files) for a better understanding). Alternatively, use `gsutil` to transfer the files from your Terra bucket to your Single Cell Portal bucket
+The explicit workflow outputs of dropseq_scCloud_workflow are the alexandria metadata file (alexandria_metadata.txt), the dense expression matrix (ends with .scp.expr.txt), and the two coordinate files (end with .scp.X_diffmap_pca.coords.txt and .scp.X_fitsne.coords.txt). Download these to your computer by visiting your Google Bucket through the workspace dashboard and then reupload via the first four tabs of the Upload/Edit Study page of the Alexandria workspace (See [Running dropseq_scCloud on the Alexandria](/alexandria/) for a better understanding). Alternatively, use `gsutil` to transfer the files from your Terra bucket to your Alexandria bucket
 
-Synchronize your Single Cell Portal study to account for the added files. Visualize the study by clicking the "Explore" tab and then the "View Options" hyperlink to gain more options for analysis. ![](imgs/scp/explore.png)
+Synchronize your Single Cell Portal study to account for the added files. Visualize the study by clicking the "Explore" tab and then the "View Options" hyperlink to gain more options for analysis. ![](imgs/alexandria/visualization.png)
 

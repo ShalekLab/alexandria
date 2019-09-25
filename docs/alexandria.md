@@ -51,7 +51,7 @@ Here you will eventually know if the job ran succesfully. Provided the job does 
 
 ### 6. Advice for Troubleshooting on Alexandria/SCP
 If the job fails it is recommended you navigate to and read the log file of the task that failed.  
-To do this, click the ID hyperlink of the failed job. ![](imgs/scp/fail.png)
+To do this, click the Link URL of the failed job. ![](imgs/alexandria/troubleshooting.png)
   
 Navigate to the log file of the failed task, which in this case is setup_dropseq. ![](imgs/scp/fail2.png)
 
