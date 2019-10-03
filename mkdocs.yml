@@ -3,7 +3,7 @@ repo_url: https://github.com/ShalekLab/alexandria
 site_author: Shalek Lab
 nav:
   - 'Introduction': 'index.md'
-  - 'dropseq_scCloud Inputs/Outputs': 'dropseq_scCloud.md'
   - 'dropseq_scCloud on Alexandria': 'alexandria.md'
   - 'dropseq_scCloud on Terra': 'terra.md'
+  - 'dropseq_scCloud Inputs/Outputs': 'dropseq_scCloud.md'
 theme: readthedocs

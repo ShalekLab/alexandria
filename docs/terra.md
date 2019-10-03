@@ -3,7 +3,9 @@
 The Terra version of the workflow has gives the user access to all workflow parameters as it is intended for users with advanced knowledge of the single-cell field.
   
 ### KNOWN BUGS IN SNAPSHOT 74:
-* Do not upload sequence files into the root of the bucket, instead use `gsutil` to move them into a folder on your bucket. Example: `gsutil -m cp -r local/mouse_fastqs gs://[bucket ID]/mouse_fastqs`. `gsutil -m mv gs://[bucket ID]/*.fastq.gz gs://[bucket ID]/mouse_fastqs` can be used to move all FASTQs already on the bucket to a directory mouse_fastqs that will be automatically created.
+* Do not upload sequence files into the root of the bucket, instead use `gsutil` to move them into a folder on your bucket. Example:  
+`gsutil -m cp -r local/mouse_fastqs gs://[bucket ID]/mouse_fastqs`  
+`gsutil -m mv gs://[bucket ID]/*.fastq.gz gs://[bucket ID]/mouse_fastqs` can be used to move all FASTQs already on the bucket to a directory mouse_fastqs that will be automatically created.
 
 * `is_bcl=true`/`run_bcl2fastq=true` is broken due to regevlab changing their docker repo for the tool.
 
