@@ -95,8 +95,6 @@ workflow dropest {
 
 }
 
-
-
 task run_dropest {
 	String memory
 	File input_bam

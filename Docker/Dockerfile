@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3:4.7.10
 
-ADD https://raw.githubusercontent.com/ShalekLab/alexandria/master/miniconda3/metadata_type_map.tsv /tmp/metadata_type_map.tsv
+ADD https://raw.githubusercontent.com/ShalekLab/alexandria/master/Docker/metadata_type_map.tsv /tmp/
 
 RUN apt-get update && \
 apt-get install --no-install-recommends -y curl dpkg-dev gnupg lsb-release procps && \
