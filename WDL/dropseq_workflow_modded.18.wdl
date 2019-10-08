@@ -5,7 +5,7 @@
 # Based on dropseq_workflow snapshots 14 and 16 by jgould [at] broadinstitute.org:
 
 import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_align/versions/5/plain-WDL/descriptor" as dropseq_align_wdl
-import "https://api.firecloud.org/ga4gh/v1/tools/dropseq_scCloud_workflow:bcl2fastq_modded/versions/12/plain-WDL/descriptor" as bcl2fastq_wdl
+import "https://api.firecloud.org/ga4gh/v1/tools/dropseq_scCloud_workflow:bcl2fastq_modded/versions/15/plain-WDL/descriptor" as bcl2fastq_wdl
 import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_count/versions/4/plain-WDL/descriptor" as dropseq_count_wdl
 import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_prepare_fastq/versions/3/plain-WDL/descriptor" as dropseq_prepare_fastq_wdl
 import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:dropseq_qc/versions/5/plain-WDL/descriptor" as dropseq_qc_wdl
@@ -100,7 +100,6 @@ workflow dropseq_workflow {
 					bcl2fastq_version=bcl2fastq_version
 			}
 		}
-
 	}
 
 	if(run_aligner) {
