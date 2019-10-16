@@ -94,7 +94,7 @@ required | Whether the attribute **MUST** be included as a column in the metadat
 default | The default value which you should include in the metadata file for a required value if it does not apply to your data. _There is currently no system to automatically fill this data._
 type | The datatype of the attribute that Alexandria expects. `strings` can be text without quotation marks  `booleans` can be either `True` or `False`. `numbers` are any numeric character, e.g. 0, 1, 2, ...
 array | TRUE if the metadata is an array-valued metadata type.
-class | The class of a string-type metadata attribute. [blank]: no class, ontology: this attribute should be an ontology ID ontology_label: This attribute should be the human-readable label corresponding to it's ontology ID enum: a value from a controlled list. unit_label: the name of the unit, either a free-text string or the ontology label from the unit ontology
+class | The class of a string-type metadata attribute. <ul><li>**[blank]**: no class, ontology: this attribute should be an ontology ID.</li><li>**ontology_label**: This attribute should be the human-readable label corresponding to it's ontology ID.</li><li>**enum**: a value from a controlled list.</li><li>**unit_label**: the name of the unit, either a free-text string or the ontology label from the unit ontology</li></ul>
 ontology | A URL to the ontology entry on the European Bioinformatics Insitute domain.
 ontology_root | The highest value in the ontology tree applicable to this metadata attribute
 controlled_list_entries | For attributes of class enum, the value is expected to be one value from the list of entries displayed here.
