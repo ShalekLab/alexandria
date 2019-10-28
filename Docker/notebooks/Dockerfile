@@ -25,6 +25,7 @@ RUN conda config \
 	anndata=0.6.22 \
 	r-seurat=3.0.2 \
 	rpy2=2.9.4 \
+	tzlocal-2.0.0 \
 	ipywidgets=7.5.1
 
 WORKDIR /notebook/

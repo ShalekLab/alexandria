@@ -1,13 +1,23 @@
-# By jgatter [at] broadinstitute.org, created October 11th, 2019
+# By jgatter [at] broadinstitute.org, created October 22nd, 2019
 # https://portal.firecloud.org/?return=terra#methods/alexandria/dropseq_scCloud/
 # Incorporates subworkflows made by jgould [at] broadinstitute.org and Regev Lab / Klarnan Cell Observatory
-
-#import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:dropseq_workflow/versions/1/plain-WDL/descriptor" as dropseq #TERRA
-#import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:scCloud/versions/1/plain-WDL/descriptor" as scCloud #TERRA
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# TODO
+# Update to dropseq_cumulus
+# Use updated WDLs where dropseq and cumulus docker parameters are exposed.
+# Make hg38 work
+# Implement various error catching
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# SNAPSHOT 75
+# Updated dropseq_workflow WDL to cumulus/dropseq_workflow/1
+# bcl2fastq functional again, for legal reasons now requires broadinstitute.org email account to use
+# Changed how paths are written to allow searches to find files in the root of the bucket
+# Made alexandria docker repo an optional parameter
+# Various changes including altering existing error messages
+# ------------------------------------------------------------------------------------------------------------------------------------------
 
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/1/plain-WDL/descriptor" as dropseq #TERRA
 #import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:scCloud/versions/2/plain-WDL/descriptor" as scCloud #TERRA
-#import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:scCloud/versions/25/plain-WDL/descriptor" as scCloud
 import "https://api.firecloud.org/ga4gh/v1/tools/scCloud:scCloud/versions/23/plain-WDL/descriptor" as scCloud
 
 workflow dropseq_scCloud {
@@ -21,7 +31,7 @@ workflow dropseq_scCloud {
 	#File metadata_type_map #LOCAL
 
 	#The file name assigned to the scCloud outputs.
-	String scCloud_output_prefix = "scCloud"
+	String scCloud_output_prefix = "sco"
 
 	# Output object, seems to be a path/to/dir in the bucket.
 	# TODO: Test if can point to non-workspace buckets.
@@ -49,7 +59,8 @@ workflow dropseq_scCloud {
 	# Version numbers to select the specified runtime dockerfile.
 	String? dropseq_tools_version = "2.3.0"
 	#String? cumulus_version = "0.10.0"
-	String? scCloud_version = "0.9.1"
+	String? scCloud_version = "0.8.0:v1.0" #"0.9.1"
+	String alexandria_docker_repo = "shaleklab/alexandria"
 	String alexandria_version = "0.1"
 	Int? preemptible = 2
 	String? zones = "us-east1-d us-west1-a us-west1-b"
@@ -66,6 +77,7 @@ workflow dropseq_scCloud {
 				dropseq_default_directory_slash=dropseq_default_directory_slash,
 				preemptible=preemptible,
 				#metadata_type_map=metadata_type_map, #LOCAL
+				alexandria_docker_repo=alexandria_docker_repo,
 				alexandria_version=alexandria_version
 			#output:
 			#	File dropseq_locations = "dropseq_locations.tsv"
@@ -97,6 +109,7 @@ workflow dropseq_scCloud {
 				bucket_slash=bucket_slash,
 				dropseq_output_directory_slash=dropseq_output_directory_slash,
 				#metadata_type_map=metadata_type_map, #LOCAL
+				alexandria_docker_repo=alexandria_docker_repo,
 				scCloud_output_directory_slash=scCloud_output_directory_slash,
 			#output:
 			#	File count_matrix
@@ -122,6 +135,7 @@ workflow dropseq_scCloud {
 				input_csv_file=input_csv_file,
 				preemptible=preemptible,
 				bucket_slash=bucket_slash,
+				alexandria_docker_repo=alexandria_docker_repo,
 				alexandria_version=alexandria_version,
 				scCloud_output_directory_slash=scCloud_output_directory_slash,
 				scCloud_output_prefix=scCloud_output_prefix,
@@ -152,6 +166,7 @@ task setup_dropseq {
 	String reference
 	String dropseq_output_directory_slash
 	String dropseq_default_directory_slash
+	String alexandria_docker_repo
 	String alexandria_version
 	Int preemptible
 	#File metadata_type_map #LOCAL
@@ -220,12 +235,14 @@ task setup_dropseq {
 				print("ALEXANDRIA: Will be overriding from R1_Path and R2_Path of ${input_csv_file}.")
 			else: csv["R1_Path"] = csv["R2_Path"] = csv["Sample"].replace(csv["Sample"], np.nan)
 			
+			#TODO: Check that fastq's end in .gz and give error message if not
 			def get_fastq_location(sample, csv, location_override, read):
 				path = csv.loc[csv.Sample == sample, read+"_Path"].to_string(index=False).strip()
 				if location_override is False or path == "NaN":
 					fastq_path = "${bucket_slash}${dropseq_default_directory_slash}"+sample+'*'+read+"*.fastq.gz"
 				else: fastq_path = "${bucket_slash}"+path
 				try: path = sp.check_output(args=["gsutil", "ls", fastq_path]).strip().decode()
+				#TODO: if bucketslash_defaultdirectoryslash is different than fastq_path, inform and test that before failing?
 				except sp.CalledProcessError: sys.exit("ALEXANDRIA: Checked path "+fastq_path+", the fastq.gz was not found.")
 				return path
 
@@ -241,7 +258,7 @@ task setup_dropseq {
 		File dropseq_locations = "dropseq_locations.tsv"
 	}
 	runtime {
-		docker: "shaleklab/alexandria:${alexandria_version}"
+		docker: "${alexandria_docker_repo}:${alexandria_version}"
 		preemptible: "${preemptible}"
 	}
 }
@@ -263,7 +280,7 @@ task ds_dummy {
 		Array[String] dge = if run_bcl2fastq == false then ["${output_directory}/B0_2/B0_2_dge.txt"] else ["${output_directory}/190712_non2/190712_non2_dge.txt.gz", "${output_directory}/3July19PB/3July19PB_dge.txt.gz", "${output_directory}/3July19BM/3July19BM_dge.txt.gz"]
 	}
 	runtime {
-		docker: "cumulusprod/dropseq:${drop_seq_tools_version}" # Only tag is latest for 2.3.0
+		docker: "cumulusprod/dropseq:${drop_seq_tools_version}"
 		preemptible: "${preemptible}"
 	}
 }
@@ -274,6 +291,7 @@ task setup_scCloud {
 	File input_csv_file
 	String reference
 	String bucket_slash
+	String alexandria_docker_repo
 	String alexandria_version
 	String dropseq_output_directory_slash
 	String scCloud_output_directory_slash
@@ -314,6 +332,7 @@ task setup_scCloud {
 
 		cm = pd.DataFrame()
 		cm["Sample"] = csv["Sample"]
+		#TODO: Check that dge's end in txt.gz and give error message if not
 		def get_dge_location(sample, run_dropseq):
 			location = "${bucket_slash}${dropseq_output_directory_slash}"+sample+'/'+sample+"_dge.txt.gz"
 			try: sp.check_call(args=["gsutil", "ls", location], stdout=sp.DEVNULL)
@@ -329,7 +348,7 @@ task setup_scCloud {
 		File count_matrix = "count_matrix.csv"
 	}
 	runtime {
-		docker: "shaleklab/alexandria:${alexandria_version}"
+		docker: "${alexandria_docker_repo}:${alexandria_version}"
 		preemptible: "${preemptible}"
 	}
 }
@@ -360,6 +379,7 @@ task scCloud_dummy {
 
 task scp_outputs {
 	File input_csv_file
+	String alexandria_docker_repo
 	String alexandria_version
 	String scCloud_output_directory_slash
 	Array[String] output_scp_files
@@ -404,7 +424,7 @@ task scp_outputs {
 		File alexandria_metadata = "alexandria_metadata.txt"
 	}
 	runtime {
-		docker: "shaleklab/alexandria:${alexandria_version}"
+		docker: "${alexandria_docker_repo}:${alexandria_version}"
 		preemptible: "${preemptible}"
 	}
 }

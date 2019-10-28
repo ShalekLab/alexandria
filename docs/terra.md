@@ -1,6 +1,8 @@
 # Running dropseq_scCloud_workflow on Terra
   
 The Terra version of the workflow has gives the user access to all workflow parameters as it is intended for users with advanced knowledge of the single-cell field.
+
+If you prefer to run dropseq_scCloud on Alexandria for easy upload, see [here](https://alexandria-scrna-data-library.readthedocs.io/en/latest/alexandria/).
   
 ### KNOWN BUGS IN SNAPSHOT 74:
 * Do not upload sequence files into the root of the bucket, instead use `gsutil` to move them into a folder on your bucket. Example:  
@@ -37,7 +39,7 @@ For an entire folder of sequence data, copy it recursively through using the com
   
 3. Alternatively to `gsutil` and Google Bucket file uploading, users can manually upload data one file at a time through the Terra interface. This method is painfully slow so you should strongly consider using `gsutil`. Go to the "Data" tab and click the plus button towards the bottom-right of the page. Navigate to and select your file and hit open. Repeat the process for however many files. ![](imgs/terra/add_file.png)
   
-Before uploading your input CSV file, it is recommended that you make certain that it adheres to the criteria specified in the [documentation](/dropseq_scCloud/#formatting-your-input_csv_file). To verify that the paths you listed in the file are correct, navigate to your bucket using the instructions listed [above](/terra/#3-add-your-sequence-data-and-input-csv-file) and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files. The locations you should enter in the path columns of your input CSV file should be all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`. ![](imgs/scp/bucket2.png)
+Before uploading your input CSV file, it is recommended that you make certain that it adheres to the criteria specified in the [documentation](https://alexandria-scrna-data-library.readthedocs.io/en/latest/dropseq_scCloud/#formatting-your-input_csv_file). To verify that the paths you listed in the file are correct, navigate to your bucket using the instructions listed [above](https://alexandria-scrna-data-library.readthedocs.io/en/latest/terra/#3-add-your-sequence-data-and-input-csv-file) and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files. The locations you should enter in the path columns of your input CSV file should be all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`. ![](imgs/scp/bucket2.png)
   
 When finished, upload your input CSV file to the bucket.
 
@@ -70,7 +72,7 @@ Evaluate the error based on the message and decide whether you need to alter var
 
 ### 7. Uploading scCloud Output Files to Alexandria for Visualization
 
-The explicit workflow outputs of dropseq_scCloud_workflow are the alexandria metadata file (alexandria_metadata.txt), the dense expression matrix (ends with .scp.expr.txt), and the two coordinate files (end with .scp.X_diffmap_pca.coords.txt and .scp.X_fitsne.coords.txt). Download these to your computer by visiting your Google Bucket through the workspace dashboard and then reupload via the first four tabs of the Upload/Edit Study page of the Alexandria workspace (See [Running dropseq_scCloud on the Alexandria](/alexandria/) for a better understanding). Alternatively, use `gsutil` to transfer the files from your Terra bucket to your Alexandria bucket
+The explicit workflow outputs of dropseq_scCloud_workflow are the alexandria metadata file (alexandria_metadata.txt), the dense expression matrix (ends with .scp.expr.txt), and the two coordinate files (end with .scp.X_diffmap_pca.coords.txt and .scp.X_fitsne.coords.txt). Download these to your computer by visiting your Google Bucket through the workspace dashboard and then reupload via the first four tabs of the Upload/Edit Study page of the Alexandria workspace (See [Running dropseq_scCloud on the Alexandria](https://alexandria-scrna-data-library.readthedocs.io/en/latest/alexandria/) for a better understanding). Alternatively, use `gsutil` to transfer the files from your Terra bucket to your Alexandria bucket
 
 Synchronize your Single Cell Portal study to account for the added files. Visualize the study by clicking the "Explore" tab and then the "View Options" hyperlink to gain more options for analysis. ![](imgs/alexandria/visualization.png)
 

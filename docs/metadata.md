@@ -1,6 +1,6 @@
 # The Alexandria Metadata Convention
   
-In order to upload data with metadata to Alexandria, your metadata must conform to the [Alexandria Metadata Convention](https://docs.google.com/spreadsheets/d/1r2r4XM7trosTQQFDjz4UcnLLXKZAoC9X80V5yTquFck/edit?usp=sharing). For upload through the alignment pipeline, this metadata should be included within your [input_csv_file](/dropseq_scCloud/#formatting-your-input_csv_file) which should include any metadata that can be applied to all cells in a single sample. For direct upload from Single Cell Portal formatted file types, these metadata should be included in the metadata file, referred to in this description as the 'cell-level metadata file'.
+In order to upload data with metadata to Alexandria, your metadata must conform to the [Alexandria Metadata Convention](https://docs.google.com/spreadsheets/d/1r2r4XM7trosTQQFDjz4UcnLLXKZAoC9X80V5yTquFck/edit?usp=sharing). For upload through the alignment pipeline, this metadata should be included within your [input_csv_file](https://alexandria-scrna-data-library.readthedocs.io/en/latest/dropseq_scCloud/#formatting-your-input_csv_file) which should include any metadata that can be applied to all cells in a single sample. For direct upload from Single Cell Portal formatted file types, these metadata should be included in the metadata file, referred to in this description as the 'cell-level metadata file'.
 
 Users are encouraged to include as much metadata as possible, including metadata attributes which are the same for all samples in the study (ex. sequencing technology) as they will be important to users comparing data between studies. 
   
@@ -89,7 +89,7 @@ See the below table for descriptions of columns in this spreadsheet that are use
 
 **Column**|**Description**
 :---------|:--------------
-attribute | Serve as valid metadata column headers in the [input_csv_file](/dropseq_scCloud/#formatting-your-input_csv_file) for dropseq_scCloud tool or the cell-level metadata file. Spaces between words are denoted by a single '\_' while subattributes are denoted with a double '\_' between the attribute parent and the attribute child.
+attribute | Serve as valid metadata column headers in the [input_csv_file](https://alexandria-scrna-data-library.readthedocs.io/en/latest/dropseq_scCloud/#formatting-your-input_csv_file) for dropseq_scCloud tool or the cell-level metadata file. Spaces between words are denoted by a single '\_' while subattributes are denoted with a double '\_' between the attribute parent and the attribute child.
 required | Whether the attribute **MUST** be included as a column in the metadata file of the data you are uploading to Alexandria.
 default | The default value which you should include in the metadata file for a required value if it does not apply to your data. _There is currently no system to automatically fill this data._
 type | The datatype of the attribute that Alexandria expects. `strings` can be text without quotation marks  `booleans` can be either `True` or `False`. `numbers` are any numeric character, e.g. 0, 1, 2, ...

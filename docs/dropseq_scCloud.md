@@ -8,13 +8,13 @@ The input CSV file is a user-written comma-separated values (.csv) file with col
 
 * (OPTIONAL) 'BCL_Path' column, the paths to the BCL directories on the bucket. If not included or if cells are left blank, will check dropseq_default_directory by default. Include this only if `run_bcl2fastq=true`. R1_ and R2_Path columns will be ignored if so.
 
-* (OPTIONAL) Other metadata columns that will be appended to the alexandria_metadata.txt (tab-delimited) file generated after running scCloud. Column labels MUST match the names of the ATTRIBUTE list in the [Alexandria Metadata Convention](/metadata/#the-alexandria-metadata-convention). Labels outside of this convention will be supported in the future
+* (OPTIONAL) Other metadata columns that will be appended to the alexandria_metadata.txt (tab-delimited) file generated after running scCloud. Column labels MUST match the names of the ATTRIBUTE list in the [Alexandria Metadata Convention](https://alexandria-scrna-data-library.readthedocs.io/en/latest/metadata/#the-alexandria-metadata-convention). Labels outside of this convention will be supported in the future
 
 If made in a spreadsheet manipulation program such as Microsoft Excel, make sure to save your file as a .csv file.
 ![](imgs/csv.png)
   
 #### Understanding dropseq_default_directory
-The use of [this variable](/dropseq_scCloud/#basic-usage) is not essential and is only meant to help users write their CSV faster. If the snapshot you are using requires `dropseq_default_directory` and you do not wish to use it, just enter an empty string: `""`.
+The use of [this variable](https://alexandria-scrna-data-library.readthedocs.io/en/latest/dropseq_scCloud/#basic-usage) is not essential and is only meant to help users write their CSV faster. If the snapshot you are using requires `dropseq_default_directory` and you do not wish to use it, just enter an empty string: `""`.
 
 Refer to the above spreadsheet example. There are four samples which each have two FASTQ reads. All FASTQ files are found in a folder located at the root of the bucket called mouse_fastqs. Since they are all located in the same directory, one could set mouse_fastqs as the `dropseq_default_directory` and no longer need to have R1_Path and R2_Path columns. ![](imgs/csv2.png) 
   
@@ -26,7 +26,7 @@ Here the pipeline will search the gs://[bucket ID]/mouse_fastqs directory for an
 **Variable**|**Description**
 :-----------|:--------------
 bucket | gsURL of the workspace bucket to which you have permissions, ex: gs://fc-e0000000-0000-0000-0000-000000000000/. This value is not exposed on Alexandria and is locked to the workspace bucket.
-input\_csv\_file | Sample sheet (comma-separated value file) uploaded in the miscellaneous tab of this study’s Upload/Edit Study Data page. [**Formatting must adhere to the criteria!**](/dropseq_scCloud/#formatting-your-input_csv_file) 
+input\_csv\_file | Sample sheet (comma-separated value file) uploaded in the miscellaneous tab of this study’s Upload/Edit Study Data page. [**Formatting must adhere to the criteria!**](https://alexandria-scrna-data-library.readthedocs.io/en/latest/dropseq_scCloud/#formatting-your-input_csv_file) 
 reference | Genome for alignment. Supported options: hg19, mm10, hg19_mm10, or mmul_8.0.1 
 run\_dropseq | Yes: run [Drop-seq pipeline](https://sccloud.readthedocs.io/en/latest/drop_seq.html) (sequence alignment and QC). Sequencing data must be uploaded to the Google bucket associated with this study.
 is\_bcl | Yes: [bcl2fastq](https://support.illumina.com/content/dam/illumina-support/documents/documentation/software_documentation/bcl2fastq/bcl2fastq_letterbooklet_15038058brpmi.pdf) will be run to convert all of your BCL directories to fastq.gz. No: all of your data is already of fastq.gz type.
