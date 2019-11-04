@@ -60,7 +60,20 @@ def convert_adata(adata_file, output_dir):
 
     # then write files for cluster files, each dim reduction that exists
     save_cluster_dfs(adata, output_path)
+##### Seurat mapping functions start here - probably break into another file ###
 
+
+def get_metadata_from_seurat(seurat_path, metadata_column):
+    '''
+    returns a pandas dataframe containing the cell-level metadata from a seruat object saved in 'seurat_path'
+
+    the metadata_column input is to compensate for the fact that different versions of seurat save the metadata in different locations - but I am not positive that is enough
+    '''
+
+    # TODO
+
+    # also set a default for metadata_column
+    return 
 if __name__ == "__main__":
     adata_file = sys.argv[1]
     output_path = sys.argv[2]

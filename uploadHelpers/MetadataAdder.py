@@ -46,31 +46,49 @@ class MetadataAdder():
             self.cell_level = True
             self.init_dataframe()
         else:
+
+            self.output_box.clear_output()
+            self.output_box.append_stdout("Because the metadata in this file is not indexed by cells, you need to select a column in the cell level metadata matrix and one in this matrix which can be matched to map metadata over. These columns do not need to have the same name, but they need to have the same value. For example, if you are looking at donor level metadata in this file, choose the column in the cell level metadata that describes the donor ID for the first dropdown and the donor level metadata that is unique for each line in this donor level file in the second drop down. The cells labeled 'donor1' in the cell level metadata should also be labeled 'donor1' in this file.")
             self.cell_level = False
-            self.df = pd.read_csv(self.mapping_loc.value)
-            key_options = list(set(adata.obs.columns).intersection(set(df.columns)))
-            self.map_key = widgets.Dropdown(
-                options=key_options,
-                value=key_options[0],
-                description="key to map adata to file",
+            sep = "," if ".csv" in self.mapping_options[self.mapping_loc.value] else "\t"
+            self.df = pd.read_csv(self.mapping_options[self.mapping_loc.value],sep=sep)
+
+            cell_key_options = self.mapping_options["cell level dataframe"].columns
+            mapped_key_options = self.df.columns
+            self.map_to_key = widgets.Dropdown(
+                options=cell_key_options,
+                value=cell_key_options[0],
+                description="column in cell level metadata",
+                style=label_style)
+            self.map_from_key = widgets.Dropdown(
+                options=mapped_key_options,
+                value=mapped_key_options[0],
+                description="column in "+self.mapping_loc.value,
                 style=label_style)
             select_map_key_button = widgets.Button(description="select map key",layout=widgets.Layout(width='auto', height='40px'))
-            display(self.map_key) 
+            display(self.map_to_key) 
+            display(self.map_from_key) 
             display(select_map_key_button)
             select_map_key_button.on_click(self.init_dataframe)
     def init_dataframe(self, select_map_key_button=""):
         if select_map_key_button != "":
-           self.mapping_col = self.map_key.value
-           self.df.set_index(mapping_col, inplace=True)
-    
+           self.mapping_col = self.map_to_key.value
+           self.mapping_from_col = self.map_from_key.value
+           self.df.set_index(self.mapping_from_col, inplace=True)
+           self.df.index.name = self.mapping_col
+           select_map_key_button.close()
+           self.map_from_key.close()
+           self.map_to_key.close()
         self.metadata_dataframe = pd.DataFrame(index=self.df.index)
-        
         self.choose_next_column_mapping()
 
     def choose_next_column_mapping(self):
         """
         Displays dropdowns for choosing the local column and alexandria column to map to each other
         """
+
+        self.output_box.clear_output()
+        self.output_box.append_stdout("Select the metadata column from your file and the Alexandria convention metadata you would like to map it to.")
         self.m_key = widgets.Dropdown(
             options=self.df.columns,
             value=self.df.columns[0],
@@ -87,14 +105,15 @@ class MetadataAdder():
         display(map_button)
         # this is how we escape
         map_button.on_click(self.map_columns)
-        done_button = widgets.Button(description="save my maps, I am done with this matrix", layout=widgets.Layout(width='auto', height='40px'))
-        display(done_button)
-        done_button.on_click(self.finish_mapping)
+        self.done_button = widgets.Button(description="save my maps, I am done with this matrix", layout=widgets.Layout(width='auto', height='40px'))
+        display(self.done_button)
+        self.done_button.on_click(self.finish_mapping)
     def map_columns(self, button):
         """
         Once you've selected the columns you want to map, this function is called by pressing the 'map' button
         """
         # save the values in the drop downs in case someone changes them without pushing the map button
+        self.done_button.close()
         self.alexandria_col = self.al_key.value
         self.local_col = self.m_key.value
         # figure out what the alexandria convention wants this file to be
@@ -119,12 +138,12 @@ class MetadataAdder():
         correct it if you accidentally make it not numeric
         """
         self.output_box.clear_output()
-        self.output_box.append_stdout("This metadata is numeric, if text boxes are output below, please map the left values to numbers")
-        new_val_mapping = {}
+        self.output_box.append_stdout("This metadata is numeric, if text boxes are output below, please map the left values to numbers \n")
+        self.new_val_mapping = {}
         try: # try casting to float
             self.df[self.local_col].astype(float, inplace=True)
             self.metadata_dataframe[self.alexandria_col] = self.df[self.local_col]
-            self.output_box.append_stdout("data was mapped!")
+            self.output_box.append_stdout("\ndata was mapped!\n")
             self.continue_to_next_column()
         except ValueError:
             self.output_box.append_stdout("this metadata needs to be numeric!")
@@ -132,35 +151,39 @@ class MetadataAdder():
             for k in self.df[self.local_col].unique():
                 # figure out which ones won't map
                 try:
-                    new_val_mapping[k] = float(k)
+                    self.new_val_mapping[k] = float(k)
                         
                 except ValueError: # found one that isn't cast-able!
-                    new_val_mapping[k] = widgets.Text(
-                        value="0",
+                    self.new_val_mapping[k] = widgets.FloatText(
+                        value=0,
                         placeholder='Type float',
                         description=k,
                         disabled=False,
                         style=label_style)
             # display the values that have not been cast yet
-            for k,v in new_val_mapping.items():
+            for k,v in self.new_val_mapping.items():
                 if type(v) is not float:
                     display(v)
             # save button for when user is done fixing the numbers
             numeric_replacement_button = widgets.Button(description="save numbers")
-            numeric_replacement_button.on_click({lambda a: self.save_numbers(new_val_mapping, a)})
+            numeric_replacement_button.on_click(lambda a: self.save_numbers(self.new_val_mapping, a))
+            if len(self.new_val_mapping)>0:
+                display(numeric_replacement_button)
     def save_numbers(self, new_val_mapping, button):
         """
         Remaps numbers if they weren't already numeric. This is only called if the user was required to provide input to make a value castable as numeric.
         """
         cont = True
         for k,v in new_val_mapping.items():
+                
                 if type(v) is not float:
                     try:
-                        self.new_val_mapping[k] = float(v.value)
+                        new_val_mapping[k] = float(v.value)
                         v.close()
                     except:
                         self.output_box.append_stdout(k+" needs to be numeric!, "+v.value+" is not numeric!")
                         cont = False
+                
         if cont == True:
             # map if the user didn't screw up!
             self.metadata_dataframe[self.alexandria_col] = self.df[self.local_col].map(new_val_mapping)
@@ -173,7 +196,9 @@ class MetadataAdder():
         Makes the grid appear for mapping each unique term of the 'self.local_col' to an entry in the ontology for the attribute saved in 'self.alexandria_col'
         """
         self.output_box.clear_output()
-        self.output_box.append_stdout("Each value in this column will need to be mapped to a controlled vocabulary. In the first box, type a search term. Then, click the search button next to it and select from the dropdown the closest match. If this is not a required metadata value, you may leave the drop down blank by not clicking the search button.")
+        self.output_box.append_stdout("Each value in this column will need to be mapped to a controlled vocabulary. In the first box, type a search term. Then, click the search button next to it and select from the dropdown the closest match. If this is not a required metadata value, you may leave the drop down blank by not clicking the search button. To view the interactive tree to this ontology, visit https://www.ebi.ac.uk/ols/ontologies/"+ self.metadata_info.loc[self.alexandria_col,"ontology"].split("/")[-1])
+
+
         # get the list of unique values to map in this column
         unique_keys = list(self.df[self.local_col].unique())
         # this function will make a grid of number of unique keys x 3 where the first column is a text box
@@ -189,9 +214,9 @@ class MetadataAdder():
         for i,k in enumerate(unique_keys):
             # search term text box
             searches[i]=widgets.Text(
-                                value=k,
+                                value=str(k),
                                 placeholder='search term',
-                                description=k,
+                                description=str(k),
                                 disabled=False,
                                 style=label_style)
             # search button
@@ -237,10 +262,11 @@ class MetadataAdder():
             # TODO: what if one value is not selected??
             key_mapping_ontology[k] = self.grid[k].children[2].value
             key_mapping_values[k] = self.grid[k].children[2].label.split(":")[0] # not using the name_id_dict here because this works fine but if you change what the labels look like that is going to be bad
+            self.grid[k].close()
         # save ontology and the __ontology_label
         self.metadata_dataframe[self.alexandria_col] = self.df[self.local_col].map(key_mapping_ontology)
         self.metadata_dataframe[self.alexandria_col+"__ontology_label"] = self.df[self.local_col].map(key_mapping_values)
-        
+        button.close()
         self.continue_to_next_column()
     
     
@@ -260,8 +286,8 @@ class MetadataAdder():
         for k in unique_keys:
             key_mapping_dict[k] = widgets.Dropdown(
                 options=contrl_list+ [""],
-                value=contrl_list[0],
-                description=k,
+                value=str(contrl_list[0]),
+                description=str(k),
                 style=label_style)      
             display(key_mapping_dict[k])
         map_button = widgets.Button(description="map")
@@ -293,9 +319,9 @@ class MetadataAdder():
         key_mapping_dict = {}
         for k in unique_keys:
             key_mapping_dict[k]=widgets.Text(
-                                value=k,
-                                placeholder=k,
-                                description=k,
+                                value=str(k),
+                                placeholder=str(k),
+                                description=str(k),
                                 disabled=False,
                                 style=label_style)
             display(key_mapping_dict[k])
@@ -306,8 +332,7 @@ class MetadataAdder():
         """
         Maps data that is not of a controlled type to the cell level metadata table under the Alexandria column name
         """
-        self.metadata_dataframe[self.alexandria_col] = self.df[self.local_col]
-        self.continue_to_next_column()
+        #self.metadata_dataframe[self.alexandria_col] = self.df[self.local_col]
         for k,v in key_mapping_dict.items():
             key_mapping_dict[k] = v.value
             v.close()
@@ -319,6 +344,8 @@ class MetadataAdder():
         """
         Call when you're done with this local column and alexandria column. Delete the alexandria column from the available metadata
         """
+        #print(self.available_metadata)
+        #print(self.alexandria_col)
         self.available_metadata = self.available_metadata.drop(self.alexandria_col)
         self.choose_next_column_mapping()
 
@@ -335,5 +362,6 @@ class MetadataAdder():
         else:
             # TODO: this is where you need to make an adjustment to allow for a) non-anndata cell-level objects to be mappable, and b) sample level outputs
             for val in self.metadata_dataframe.columns:
-                self.cell_level_metadata[val] = self.mapping_info["cell level dataframe"][self.mapping_col].map(self.metadata_dtaframe[val])
+                self.cell_level_metadata[val] = self.mapping_info["cell level dataframe"][self.mapping_col].map(self.metadata_dataframe[val])
+
             

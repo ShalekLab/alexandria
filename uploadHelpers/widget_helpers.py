@@ -72,12 +72,14 @@ def query_search_term(ontology_name, search_term):
     """
     n_per_query = 100
     start_val=0
+    n_queries = 5
     ret = requests.get('http://www.ebi.ac.uk/ols/api/search?q='+search_term+'&ontology='+ontology_name+"&rows="+str(n_per_query)+"&start="+str(start_val))
     list_for_dropdown = []
     name_id_dict = {}
-    
-    while ret.json()['response']['numFound'] > start_val:
+    query_n = 1
+    while ret.json()['response']['numFound'] > start_val and query_n < n_queries:
         ret_vals = []
+        query_n += 1
         for i in ret.json()['response']['docs']:
             label = i['label']
             if 'description' in i:
