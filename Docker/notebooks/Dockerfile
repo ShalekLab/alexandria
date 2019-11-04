@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.7.10
+FROM us.gcr.io/broad-dsp-gcr-public/terra-jupyter-bioconductor:0.0.2
 
 ADD https://raw.githubusercontent.com/ShalekLab/alexandria/master/uploadHelpers/convert_adata_to_scp.py /notebook/
 ADD https://raw.githubusercontent.com/ShalekLab/alexandria/master/uploadHelpers/MetadataAdder.py /notebook/
@@ -6,26 +6,19 @@ ADD https://raw.githubusercontent.com/ShalekLab/alexandria/master/uploadHelpers/
 ADD https://raw.githubusercontent.com/ShalekLab/alexandria/master/uploadHelpers/scp_save_seurat.R /notebook/
 ADD https://raw.githubusercontent.com/ShalekLab/alexandria/master/uploadHelpers/widget_helpers.py /notebook/
 
-RUN apt-get update && \
-apt-get install --no-install-recommends -y curl dpkg-dev gnupg lsb-release procps && \
-export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
-echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-apt-get update && apt-get install -y google-cloud-sdk
+RUN R -e "devtools::install_version(package = 'Seurat', version = package_version('3.1.0'))" \
+    && R -e "install.package(data.table)" \
+    && R -e "install.package(R.utils)" \
+    && R -e "install.packages('crunch')"
 
-RUN conda config \
-	--add channels bioconda \
-	--add channels pkgs\/r \
-	--add channels conda-forge \
-&& conda install -y \
-	numpy=1.17.2 \
-	pandas=0.25.1 \
-	matplotlib=3.1.1 \
-	scanpy=1.4.4 \
-	anndata=0.6.22 \
-	r-seurat=3.0.2 \
-	rpy2=2.9.4 \
-	tzlocal-2.0.0 \
-	ipywidgets=7.5.1
-
-WORKDIR /notebook/
+RUN python3 -m pip install --upgrade pip \
+    && python3 -m pip install \
+    	numpy=1.17.2 \
+		pandas=0.25.1 \
+		matplotlib=3.1.1 \
+		scanpy=1.4.4 \
+		anndata=0.6.22 \
+		r-seurat=3.0.2 \
+		rpy2=2.9.4 \
+#		tzlocal-2.0.0 \
+		ipywidgets=7.5.1
