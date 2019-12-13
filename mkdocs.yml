@@ -6,5 +6,6 @@ nav:
   - 'The Alexandria Metadata Convention' : 'metadata.md'
   - 'dropseq_scCloud on Alexandria': 'alexandria.md'
   - 'dropseq_scCloud on Terra': 'terra.md'
-  - 'dropseq_scCloud Inputs/Outputs': 'dropseq_scCloud.md'
+  - 'dropseq_scCloud Inputs/Outputs': 'dropseq_cumulus.md'
+  - 'Alternatives For Uploading Data' : 'dataupload.md'
 theme: readthedocs
