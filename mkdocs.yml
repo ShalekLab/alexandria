@@ -4,8 +4,8 @@ site_author: Shalek Lab
 nav:
   - 'Introduction': 'index.md'
   - 'The Alexandria Metadata Convention' : 'metadata.md'
-  - 'dropseq_scCloud on Alexandria': 'alexandria.md'
-  - 'dropseq_scCloud on Terra': 'terra.md'
-  - 'dropseq_scCloud Inputs/Outputs': 'dropseq_cumulus.md'
+  - 'dropseq_cumulus on Alexandria': 'alexandria.md'
+  - 'dropseq_cumulus on Terra': 'terra.md'
+  - 'dropseq_cumulus Inputs/Outputs': 'dropseq_cumulus.md'
   - 'Alternatives For Uploading Data' : 'dataupload.md'
 theme: readthedocs

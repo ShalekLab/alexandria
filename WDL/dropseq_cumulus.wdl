@@ -2,19 +2,6 @@
 # https://portal.firecloud.org/?return=terra#methods/alexandria/dropseq_cumulus/
 # Incorporates subworkflows made by jgould [at] broadinstitute.org and Regev Lab / Klarnan Cell Observatory
 # ------------------------------------------------------------------------------------------------------------------------------------------
-# TODO
-# Update to dropseq_cumulus
-# Use updated WDLs where dropseq and cumulus docker parameters are exposed.
-# Make hg38 work
-# Implement various error catching
-# ------------------------------------------------------------------------------------------------------------------------------------------
-# SNAPSHOT 75
-# Updated dropseq_workflow WDL to cumulus/dropseq_workflow/1
-# bcl2fastq functional again, for legal reasons now requires broadinstitute.org email account to use
-# Changed how paths are written to allow searches to find files in the root of the bucket
-# Made alexandria docker repo an optional parameter
-# Various changes including altering existing error messages
-# ------------------------------------------------------------------------------------------------------------------------------------------
 
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/4/plain-WDL/descriptor" as dropseq #TERRA
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/7/plain-WDL/descriptor" as cumulus #TERRA

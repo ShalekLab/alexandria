@@ -8,7 +8,7 @@ Those who would like more options for running the workflow should [use the Terra
   
 If you truly would like certain parameters to be exposed, please contact jgatter@broadinstitute.org.
 
-### KNOWN BUGS IN v7:
+### KNOWN BUGS
 
 None known at this time, please contact us with bug reports on our GitHub repo.
 
