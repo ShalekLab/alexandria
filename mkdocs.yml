@@ -1,11 +1,13 @@
-site_name: Alexandria - scRNA Data Library
+site_name: Alexandria - scRNA Data Portal
 repo_url: https://github.com/ShalekLab/alexandria
 site_author: Shalek Lab
 nav:
-  - 'Introduction': 'index.md'
-  - 'The Alexandria Metadata Convention' : 'metadata.md'
-  - 'dropseq_cumulus on Alexandria': 'alexandria.md'
-  - 'dropseq_cumulus on Terra': 'terra.md'
-  - 'dropseq_cumulus Inputs/Outputs': 'dropseq_cumulus.md'
-  - 'Alternatives For Uploading Data' : 'dataupload.md'
-theme: readthedocs
+  - The Alexandria Project: alexandria/index.md
+  - The Alexandria Metadata Convention: alexandria/metadata.md
+  - dropseq_cumulus Workflow:
+    - Running on Alexandria: dropseq_cumulus/alexandria.md
+    - Running on Terra: dropseq_cumulus/terra.md
+    - Inputs/Outputs: dropseq_cumulus/dropseq_cumulus.md
+  - Appendix:
+    - Alternatives to uploading data: appendix/data_upload.md
+theme: rtd-dropdown
