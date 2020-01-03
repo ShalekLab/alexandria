@@ -1,5 +1,7 @@
 # Running on Alexandria
 
+[test](terra.html#creating-and-uploading-your-input-csv-file)
+
 The Alexandria portal is hosted on the Broad Institute's Single Cell Portal (SCP), therefore running the workflow here is identical to running it on SCP.
   
 The Alexandria workflow version of dropseq_cumulus is intended as a user-accessible means of analyzing and visualizing single-cell RNA-seq data. Therefore, only essential parameters are exposed.  
