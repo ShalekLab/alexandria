@@ -24,6 +24,8 @@ author = 'Shalek Lab'
 
 # -- General configuration ---------------------------------------------------
 
+master_doc = 'index'
+
 source_parsers = {
     '.md': 'recommonmark.parser.CommonMarkParser',
 }
