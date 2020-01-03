@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Alternatives to uploading data &mdash; Alexandria  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Inputs/Outputs" href="dropseq_cumulus.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Alexandria
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">The Alexandria Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">The Alexandria Metadata Convention</a></li>
+</ul>
+<p class="caption"><span class="caption-text">dropseq_cumulus Workflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="alexandria.html">Running on Alexandria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra.html">Running on Terra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dropseq_cumulus.html">Inputs/Outputs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Appendix</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Alternatives to uploading data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#terra">Terra</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#google-bucket-interface">Google Bucket interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#terra-data-tab">Terra Data tab</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#alexandria">Alexandria</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Google Bucket interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upload-save-file-button">Upload &amp; Save File button</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Alexandria</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Alternatives to uploading data</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/data_upload.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="alternatives-to-uploading-data">
+<h1>Alternatives to uploading data<a class="headerlink" href="#alternatives-to-uploading-data" title="Permalink to this headline">¶</a></h1>
+<p>We highly recommend installing and using <code class="docutils literal notranslate"><span class="pre">gsutil</span></code> for method upload, but with that being said, there are other methods of data upload.</p>
+<div class="section" id="terra">
+<h2>Terra<a class="headerlink" href="#terra" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="google-bucket-interface">
+<h3>Google Bucket interface<a class="headerlink" href="#google-bucket-interface" title="Permalink to this headline">¶</a></h3>
+<p>You can also manually upload data to the Google Bucket, but note that this process take much more time than <code class="docutils literal notranslate"><span class="pre">gsutil</span></code>. At the bottom right of your workspace’s “Dashboard” tab, click the “Open in Browser” hyperlink to visit your bucket. Click either the “Upload File” or “Upload Folder” button to navigate to and upload your files or a folder containing your files respectively. <img alt="_images/bucket.png" src="_images/bucket.png" /></p>
+</div>
+<div class="section" id="terra-data-tab">
+<h3>Terra Data tab<a class="headerlink" href="#terra-data-tab" title="Permalink to this headline">¶</a></h3>
+<p>Alternatively to <code class="docutils literal notranslate"><span class="pre">gsutil</span></code> and Google Bucket file uploading, users can manually upload data one file at a time through the Terra interface. This method is painfully slow so you should only use this for small files like sample sheets. Go to the “Data” tab and click the plus button towards the bottom-right of the page. Navigate to and select your file and hit open. Repeat the process for however many files. <img alt="_images/add_file.png" src="_images/add_file.png" /></p>
+</div>
+</div>
+<div class="section" id="alexandria">
+<h2>Alexandria<a class="headerlink" href="#alexandria" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Google Bucket interface<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Another option is visiting the study’s Google Bucket and manually uploading files, but note that this takes a considerable amount of time! Return to “My Studies” through the top-right dropdown menu that has your account name and select the “Show Details” button for your study. On the the details page, scroll down and click the “View Google Bucket” button that is next to the Google Storage Bucket ID. <img alt="_images/study_details.png" src="_images/study_details.png" /> This button brings you to the Google Cloud Bucket associated with you study which is where all study files are uploaded. Click either the “Upload File” or “Upload Folder” button to navigate to and upload your files or a folder containing your files respectively. Return to your “My Studies” page and hit the “Upload/Edit Data” button for your study to upload the input CSV. <img alt="_images/bucket3.png" src="_images/bucket3.png" />.</p>
+</div>
+<div class="section" id="upload-save-file-button">
+<h3>Upload &amp; Save File button<a class="headerlink" href="#upload-save-file-button" title="Permalink to this headline">¶</a></h3>
+<p>If you are looking for something simpler and have non-human FASTQ, BAM, or gzip files that under 2GB, look at the blue fields below. You can upload a file by clicking the “Upload Data File” button and navigating to the file of interest. Once done, enter the name, description, File type, species, whether the data is human or not, and then click “Upload &amp; Save File” and “Save”. To add more files that match this criteria, click “Add a Primary Data File” and repeat the process. <img alt="_images/sequence_data2.png" src="_images/sequence_data2.png" /></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="dropseq_cumulus.html" class="btn btn-neutral float-left" title="Inputs/Outputs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Shalek Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
