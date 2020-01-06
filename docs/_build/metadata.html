@@ -33,6 +33,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Running on Alexandria" href="alexandria.html" />
@@ -46,13 +47,16 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #344563" >
           
 
           
-            <a href="index.html" class="icon icon-home"> Alexandria
+            <a href="index.html">
           
 
+          
+            
+            <img src="_static/logo_small.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -175,7 +179,7 @@
             
   <div class="section" id="the-alexandria-metadata-convention">
 <h1>The Alexandria Metadata Convention<a class="headerlink" href="#the-alexandria-metadata-convention" title="Permalink to this headline">¶</a></h1>
-<p>In order to upload data with metadata to Alexandria, your metadata must conform to the <a class="reference external" href="https://github.com/broadinstitute/scp-ingest-pipeline/blob/master/tests/data/AMC_v1.1.3.tsv">Alexandria Metadata Convention</a>. For upload through the alignment pipeline, this metadata should be included within your <a class="reference external" href="https://alexandria-scrna-data-library.readthedocs.io/en/latest/dropseq_cumulus/">input CSV file</a> which should include any metadata that can be applied to all cells in a single sample.</p>
+<p>In order to upload data with metadata to Alexandria, your metadata must conform to the <a class="reference external" href="https://github.com/broadinstitute/scp-ingest-pipeline/blob/master/tests/data/AMC_v1.1.3.tsv">Alexandria Metadata Convention</a>. For upload through the alignment pipeline, this metadata should be included within your <a class="reference external" href="dropseq_cumulus.html#the-input-csv-file">input CSV file</a> which should include any metadata that can be applied to all cells in a single sample.</p>
 <p>For direct upload from Single Cell Portal formatted file types, these metadata should be included in the metadata file, referred to in this description as the ‘cell-level metadata file’. In your cell-level metadata file, each attribute name in the metadata can be a column name. To enforce some structure to the database, several fields are required and others require specific formatting guidelines. Users are encouraged to include as much metadata as possible, including metadata attributes which are the same for all samples in the study (ex. sequencing technology) as they will be important to users comparing data between studies.</p>
 <div class="section" id="metadata-categories">
 <h2>Metadata categories<a class="headerlink" href="#metadata-categories" title="Permalink to this headline">¶</a></h2>
@@ -239,7 +243,7 @@
 <tbody>
 <tr>
 <td align="left">attribute</td>
-<td align="left">Serve as valid metadata column headers in the <a href="https://alexandria-scrna-data-library.readthedocs.io/en/latest/dropseq_cumulus/#input_csv_file">input_csv_file</a> for dropseq_scCloud tool or the cell-level metadata file. Spaces between words are denoted by a single '_' while subattributes are denoted with a double '_' between the attribute parent and the attribute child.</td>
+<td align="left">Serve as valid metadata column headers in the <a href="dropseq_cumulus.html#the-input-csv-file">input_csv_file</a> for dropseq_scCloud tool or the cell-level metadata file. Spaces between words are denoted by a single '_' while subattributes are denoted with a double '_' between the attribute parent and the attribute child.</td>
 </tr>
 <tr>
 <td align="left">required</td>

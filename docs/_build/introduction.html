@@ -33,6 +33,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="The Alexandria Metadata Convention" href="metadata.html" />
@@ -46,13 +47,16 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #344563" >
           
 
           
-            <a href="index.html" class="icon icon-home"> Alexandria
+            <a href="index.html">
           
 
+          
+            
+            <img src="_static/logo_small.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -170,8 +174,8 @@
   <div class="section" id="the-alexandria-project">
 <h1>The Alexandria Project<a class="headerlink" href="#the-alexandria-project" title="Permalink to this headline">¶</a></h1>
 <p>A Single-Cell RNA-Seq and Analytics Platform for Global Health</p>
-<p><img alt="_images/logo.png" src="_images/logo.png" />
-Work-in-progress documentation for the <a class="reference external" href="https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project">Alexandria platform</a> and all associated tool workflows.</p>
+<p><img alt="_images/logo.png" src="_images/logo.png" /></p>
+<p>Work-in-progress documentation for the <a class="reference external" href="https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project">Alexandria platform</a> and all associated tool workflows.</p>
 <p>The first workflow Alexandria offers is <code class="docutils literal notranslate"><span class="pre">dropseq_cumulus</span></code>, a workflow that joins the preprocessing functionalities of <a class="reference external" href="http://mccarrolllab.org/dropseq/">Drop-Seq pipeline</a> with the visualization functionalities of <a class="reference external" href="https://cumulus-doc.readthedocs.io/en/latest/">Cumulus</a>.<br />Another workflow is <code class="docutils literal notranslate"><span class="pre">kallisto-bustools_cumulus</span></code>, which bridges the pseudoaligner <a class="reference external" href="https://www.kallistobus.tools/about">Kallisto-Bustools</a> with Cumulus.</p>
 <div class="section" id="background">
 <h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
@@ -199,28 +203,28 @@ Alexandria will use unified pipelines to preprocess, store, and visualize datase
 <ul class="simple">
 <li><p>Currently, for automated visualization, all data must be uploaded and run on the alignment pipeline at the same time.</p></li>
 <li><p>For human sequencing data, please verify that study is kept private for the time being.</p></li>
-<li><p>The upload process for sequencing data is described <a class="reference external" href="https://alexandria-scrna-data-library.readthedocs.io/en/latest/alexandria/#3-uploading-sequence-data-files">here</a></p></li>
+<li><p>The upload process for sequencing data is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a></p></li>
 </ul>
 </li>
 <li><p>Partially analyzed data: For ongoing analyses or data collection, data can be uploaded using SCP file formats to allow sharing of intermediate results with collaborators.</p>
 <ul class="simple">
 <li><p>Each time new data is added, all data will be ingested again but may not need to be uploaded again.</p></li>
 <li><p>Only one metadata file is allowed per study so this must be reuploaded each time.</p></li>
-<li><p>The upload process for SCP file formats is described <a class="reference external" href="https://alexandria-scrna-data-library.readthedocs.io/en/latest/alexandria/#3-uploading-sequence-data-files">here</a></p></li>
+<li><p>The upload process for SCP file formats is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a></p></li>
 </ul>
 </li>
 <li><p>Complete analyses: Data from published or under revision manuscripts may be uploaded.</p>
 <ul class="simple">
 <li><p>We request that as much metadata as is known be added to the project even if it is the same for all cells in the project or is not relevant to the project.</p></li>
 <li><p>These studies can be kept private and shared with reviewers when they are under revision.</p></li>
-<li><p>The upload process for SCP file formats is described <a class="reference external" href="https://alexandria-scrna-data-library.readthedocs.io/en/latest/alexandria/#3-uploading-sequence-data-files">here</a></p></li>
+<li><p>The upload process for SCP file formats is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a></p></li>
 </ul>
 </li>
 </ol>
 </div>
 <div class="section" id="upload-from-scp-file-formats">
 <h3>Upload from SCP file formats<a class="headerlink" href="#upload-from-scp-file-formats" title="Permalink to this headline">¶</a></h3>
-<p>SCP file format upload is documented <a class="reference external" href="https://alexandria-scrna-data-library.readthedocs.io/en/latest/alexandria/#3-uploading-sequence-data-files">here</a>. The Alexandria Project has several additional requirements on these file types.</p>
+<p>SCP file format upload is documented <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a>. The Alexandria Project has several additional requirements on these file types.</p>
 <p>We will provide an interactive notebook to facilitate conversion of Seurat or Scanpy objects to these file types.</p>
 <ol class="simple">
 <li><p>Expression files</p>
@@ -233,7 +237,7 @@ Alexandria will use unified pipelines to preprocess, store, and visualize datase
 </li>
 <li><p>Metadata file</p>
 <ul class="simple">
-<li><p>To enable query, the Alexandria Project uses a structured metadata schema described <a class="reference external" href="https://alexandria-scrna-data-library.readthedocs.io/en/latest/metadata/#metadata-categories">here</a>. This file should contain as many fields from that schema as possible including several required fields. They may also contain unstructured metadata fields provided their names differ from those used in the schema.</p></li>
+<li><p>To enable query, the Alexandria Project uses a structured metadata schema described <a class="reference external" href="metadata.html#metadata-categories">here</a>. This file should contain as many fields from that schema as possible including several required fields. They may also contain unstructured metadata fields provided their names differ from those used in the schema.</p></li>
 <li><p>All cells must be included in a single file and the cell names must match those in the expression files.</p></li>
 </ul>
 </li>

@@ -33,6 +33,7 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Inputs/Outputs" href="dropseq_cumulus.html" /> 
@@ -45,13 +46,16 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #344563" >
           
 
           
-            <a href="index.html" class="icon icon-home"> Alexandria
+            <a href="index.html">
           
 
+          
+            
+            <img src="_static/logo_small.png" class="logo" alt="Logo"/>
           
           </a>
 
@@ -176,22 +180,27 @@
 <h2>Terra<a class="headerlink" href="#terra" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="google-bucket-interface">
 <h3>Google Bucket interface<a class="headerlink" href="#google-bucket-interface" title="Permalink to this headline">¶</a></h3>
-<p>You can also manually upload data to the Google Bucket, but note that this process take much more time than <code class="docutils literal notranslate"><span class="pre">gsutil</span></code>. At the bottom right of your workspace’s “Dashboard” tab, click the “Open in Browser” hyperlink to visit your bucket. Click either the “Upload File” or “Upload Folder” button to navigate to and upload your files or a folder containing your files respectively. <img alt="_images/bucket.png" src="_images/bucket.png" /></p>
+<p>You can also manually upload data to the Google Bucket, but note that this process take much more time than <code class="docutils literal notranslate"><span class="pre">gsutil</span></code>. At the bottom right of your workspace’s “Dashboard” tab, click the “Open in Browser” hyperlink to visit your bucket. Click either the “Upload File” or “Upload Folder” button to navigate to and upload your files or a folder containing your files respectively.
+<img alt="_images/bucket.png" src="_images/bucket.png" /></p>
 </div>
 <div class="section" id="terra-data-tab">
 <h3>Terra Data tab<a class="headerlink" href="#terra-data-tab" title="Permalink to this headline">¶</a></h3>
-<p>Alternatively to <code class="docutils literal notranslate"><span class="pre">gsutil</span></code> and Google Bucket file uploading, users can manually upload data one file at a time through the Terra interface. This method is painfully slow so you should only use this for small files like sample sheets. Go to the “Data” tab and click the plus button towards the bottom-right of the page. Navigate to and select your file and hit open. Repeat the process for however many files. <img alt="_images/add_file.png" src="_images/add_file.png" /></p>
+<p>Alternatively to <code class="docutils literal notranslate"><span class="pre">gsutil</span></code> and Google Bucket file uploading, users can manually upload data one file at a time through the Terra interface. This method is painfully slow so you should only use this for small files like sample sheets. Go to the “Data” tab and click the plus button towards the bottom-right of the page. Navigate to and select your file and hit open. Repeat the process for however many files.
+<img alt="_images/add_file.png" src="_images/add_file.png" /></p>
 </div>
 </div>
 <div class="section" id="alexandria">
 <h2>Alexandria<a class="headerlink" href="#alexandria" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id1">
 <h3>Google Bucket interface<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<p>Another option is visiting the study’s Google Bucket and manually uploading files, but note that this takes a considerable amount of time! Return to “My Studies” through the top-right dropdown menu that has your account name and select the “Show Details” button for your study. On the the details page, scroll down and click the “View Google Bucket” button that is next to the Google Storage Bucket ID. <img alt="_images/study_details.png" src="_images/study_details.png" /> This button brings you to the Google Cloud Bucket associated with you study which is where all study files are uploaded. Click either the “Upload File” or “Upload Folder” button to navigate to and upload your files or a folder containing your files respectively. Return to your “My Studies” page and hit the “Upload/Edit Data” button for your study to upload the input CSV. <img alt="_images/bucket3.png" src="_images/bucket3.png" />.</p>
+<p>Another option is visiting the study’s Google Bucket and manually uploading files, but note that this takes a considerable amount of time! Return to “My Studies” through the top-right dropdown menu that has your account name and select the “Show Details” button for your study. On the the details page, scroll down and click the “View Google Bucket” button that is next to the Google Storage Bucket ID.
+<img alt="_images/study_details.png" src="_images/study_details.png" /></p>
+<p>This button brings you to the Google Cloud Bucket associated with you study which is where all study files are uploaded. Click either the “Upload File” or “Upload Folder” button to navigate to and upload your files or a folder containing your files respectively. Return to your “My Studies” page and hit the “Upload/Edit Data” button for your study to upload the input CSV. <img alt="_images/bucket3.png" src="_images/bucket3.png" />.</p>
 </div>
 <div class="section" id="upload-save-file-button">
 <h3>Upload &amp; Save File button<a class="headerlink" href="#upload-save-file-button" title="Permalink to this headline">¶</a></h3>
-<p>If you are looking for something simpler and have non-human FASTQ, BAM, or gzip files that under 2GB, look at the blue fields below. You can upload a file by clicking the “Upload Data File” button and navigating to the file of interest. Once done, enter the name, description, File type, species, whether the data is human or not, and then click “Upload &amp; Save File” and “Save”. To add more files that match this criteria, click “Add a Primary Data File” and repeat the process. <img alt="_images/sequence_data2.png" src="_images/sequence_data2.png" /></p>
+<p>If you are looking for something simpler and have non-human FASTQ, BAM, or gzip files that under 2GB, look at the blue fields below. You can upload a file by clicking the “Upload Data File” button and navigating to the file of interest. Once done, enter the name, description, File type, species, whether the data is human or not, and then click “Upload &amp; Save File” and “Save”. To add more files that match this criteria, click “Add a Primary Data File” and repeat the process.
+<img alt="_images/sequence_data2.png" src="_images/sequence_data2.png" /></p>
 </div>
 </div>
 </div>

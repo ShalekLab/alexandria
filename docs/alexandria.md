@@ -62,7 +62,7 @@ To instruct the workflow, you must create a sample sheet, called the input CSV f
 * (OPTIONAL) Other metadata columns that will be appended to the alexandria_metadata.txt file generated after running Cumulus. Column headers _must match exacty_ the names of attributes found in the [Alexandria Metadata Convention](metadata). Labels outside of this convention will be supported in the future.
 ![](imgs/csv.png)
   
-For processing sequencing run directories containing BCL files, see [here](dropseq_cumulus.html#formatting-your-input_csv_file-for-bcl2fastq).
+For processing sequencing run directories containing BCL files, see [here](dropseq_cumulus.html#formatting-your-input-csv-file-for-bcl2fastq).
   
 To verify that the paths you listed in the file are correct, you can navigate to your bucket using the instructions listed [above](alexandria.html#uploading-sequence-data-files) and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your input CSV file should be all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`. 
 ![](imgs/scp/bucket2.png)
@@ -86,7 +86,7 @@ Once done, click the "Submit Workflow" button at the bottom to submit the dropse
 
 Here you will eventually know if the job ran succesfully. Provided the job does not fail within 10 minutes, the job will take about a variable amount of time to complete depending on the tasks you are running and the amount of data you gave it. Drop-seq pipeline usually will take 20 to 45 hours to run while Cumulus should take an hour or less.
 
-### 6. Advice for Troubleshooting on Alexandria/Single Cell Portal
+### 6. Advice for troubleshooting
 If the job fails it is recommended you navigate to and read the log file of the task that failed.  
 To do this, click the Link URL of the failed job.
 ![](imgs/alexandria/troubleshooting.png)
