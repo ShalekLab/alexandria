@@ -1,6 +1,6 @@
 # Running on Terra
   
-The Terra version of the workflow has gives the user access to all workflow parameters as it is intended for users with advanced knowledge of the single-cell field.
+The [Terra](https://app.terra.bio) version of the workflow has gives the user access to all workflow parameters as it is intended for users with advanced knowledge of the single-cell field.
 
 If you prefer to run dropseq_cumulus on Alexandria for convenient handling of its outputs, see [here](alexandria).
   

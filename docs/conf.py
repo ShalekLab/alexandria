@@ -60,7 +60,7 @@ html_theme_options = {
 	'logo_only': True
 }
 
-html_logo = 'imgs/logo_small.png'
+html_logo = 'imgs/dark_logo.png'
 
 html_css_files = [
     'css/custom.css'
