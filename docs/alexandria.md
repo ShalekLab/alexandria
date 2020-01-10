@@ -1,6 +1,6 @@
 # Running on Alexandria
 
-The Alexandria portal is hosted on the Broad Institute's Single Cell Portal (SCP), therefore running the workflow here is identical to running it on SCP.
+[The Alexandria portal](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) is hosted on the Broad Institute's Single Cell Portal (SCP), therefore running the workflow here is identical to running it on SCP.
   
 The Alexandria workflow version of dropseq_cumulus is intended as a user-accessible means of analyzing and visualizing single-cell RNA-seq data. Therefore, only essential parameters are exposed.  
   
@@ -15,7 +15,7 @@ For the time being, an older version of the workflow, dropseq_scCloud v74, is cu
 For any discovered bugs, please contact us with bug reports on our GitHub repo.
 
 ### 1. Sign in
-Visit the [Alexandria site](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and at the top-right click "Sign In". Sign in using your broadinstitute.org email account and allow permissions.
+Visit [Alexandria](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and at the top-right click "Sign In". Sign in using your broadinstitute.org email account and allow permissions.
 ![](imgs/alexandria/sign_in.png)
   
 ### 2. Create a new study

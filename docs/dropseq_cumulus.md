@@ -20,9 +20,9 @@ To verify that the paths you listed in the file are correct, you can navigate to
   
 ### Formatting your input_csv_file for bcl2fastq
 
-Due to legal requirements, the bcl2fastq workflow made by the Cumulus Team is only available for use by Broad Institute affiliates. Affiliates must create a Docker account using their broadinstitute.org email address, download [Docker Desktop](https://www.docker.com/products/docker-desktop), and log in through typing `docker login` in their terminal. Only then can you launch the bcl2fastq workflow on Alexandria or Terra.  
+Due to legal requirements, the default Docker image for bcl2fastq workflow made by the Cumulus Team is only available for use by Broad Institute affiliates. Affiliates must create a Docker account using their broadinstitute.org email address, download [Docker Desktop](https://www.docker.com/products/docker-desktop), and log in through typing `docker login` in their terminal. Only then can you launch the bcl2fastq workflow on Alexandria or Terra.  
 
-If you are not an affiliate, you can download the Bcl2Fastq software [here](https://support.illumina.com/downloads/bcl2fastq-conversion-software-v2-20.html) and run it locally on a computer with plenty of disk space. Then see the above section for writing a csv to process your FASTQs. 
+If you are not an affiliate, you can either [create and reference your own Docker image](https://cumulus-doc.readthedocs.io/en/latest/bcl2fastq.html#docker) or you can download the Bcl2Fastq software [here](https://support.illumina.com/downloads/bcl2fastq-conversion-software-v2-20.html) and run it locally on a computer with plenty of disk space. If you chose the latter, once you get your FASTQs you can see the above section for writing a csv to process them. 
 
 Write your input csv file in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The input CSV file must have column headers and contains the following in whatever order:
 
