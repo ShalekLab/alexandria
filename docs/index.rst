@@ -20,4 +20,5 @@ Alexandria: Single-Cell Data Portal
    :maxdepth: 3
    :caption: Appendix
    
+   bcl2fastq
    data_upload

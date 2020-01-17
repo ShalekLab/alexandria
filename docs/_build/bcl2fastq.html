@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Bcl2Fastq Dockerfile &mdash; Alexandria  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Alternatives for uploading data" href="data_upload.html" />
+    <link rel="prev" title="Inputs/Outputs" href="dropseq_cumulus.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #344563" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">The Alexandria Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">The Alexandria Metadata Convention</a></li>
+</ul>
+<p class="caption"><span class="caption-text">dropseq_cumulus Workflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="alexandria.html">Running on Alexandria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra.html">Running on Terra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dropseq_cumulus.html">Inputs/Outputs</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Appendix</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Bcl2Fastq Dockerfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_upload.html">Alternatives for uploading data</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Alexandria</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Bcl2Fastq Dockerfile</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/bcl2fastq.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bcl2fastq-dockerfile">
+<h1>Bcl2Fastq Dockerfile<a class="headerlink" href="#bcl2fastq-dockerfile" title="Permalink to this headline">¶</a></h1>
+<p>This guide is an extension of the <a class="reference external" href="https://cumulus-doc.readthedocs.io/en/latest/bcl2fastq.html#docker">Cumulus Team’s guide</a> on creating and referencing your own Dockerfile to run bcl2fastq on Alexandria/Terra.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Until cumulus/dropseq_workflow snapshot 6 is released, only launch bcl2fastq from the latest version of cumulus/bcl2fastq.</p>
+</div>
+<ol class="simple">
+<li><p>Register an account on <a class="reference external" href="https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software/downloads.html">Illumina</a> and download the Linux rpm of Bcl2Fastq.</p></li>
+<li><p>Install <a class="reference external" href="https://www.docker.com/products/docker-desktop">Docker Desktop</a>, register a Docker account, and <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">login</span></code> in your terminal.</p></li>
+<li><p>Open up any text editor and save your file called Dockerfile. Place <code class="docutils literal notranslate"><span class="pre">bcl2fastq2-v2.20.0.422-Linux-x86_64.rpm</span></code> in the same directory as Dockerfile.</p></li>
+<li><p>The Dockerfile should contain the following chunks:</p></li>
+</ol>
+<div class="highlight-Docker notranslate"><div class="highlight"><pre><span></span><span class="k">FROM</span><span class="s"> continuumio/miniconda3:4.7.12</span>
+</pre></div>
+</div>
+<div class="highlight-Docker notranslate"><div class="highlight"><pre><span></span><span class="c"># Install Google Cloud SDK</span>
+<span class="k">RUN</span> apt-get update <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> apt-get install --no-install-recommends -y build-essential dpkg-dev gnupg lsb-release procps curl <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> <span class="nb">export</span> <span class="nv">CLOUD_SDK_REPO</span><span class="o">=</span><span class="s2">&quot;cloud-sdk-</span><span class="k">$(</span>lsb_release -c -s<span class="k">)</span><span class="s2">&quot;</span> <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&quot;deb http://packages.cloud.google.com/apt </span><span class="nv">$CLOUD_SDK_REPO</span><span class="s2"> main&quot;</span> <span class="p">|</span> tee -a /etc/apt/sources.list.d/google-cloud-sdk.list <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> curl https://packages.cloud.google.com/apt/doc/apt-key.gpg <span class="p">|</span> apt-key add - <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> apt-get update <span class="o">&amp;&amp;</span> apt-get install -y google-cloud-sdk
+</pre></div>
+</div>
+<div class="highlight-Docker notranslate"><div class="highlight"><pre><span></span><span class="c"># Bcl2Fastq: Make sure the downloaded Bcl2Fastq RPM file is in the same directory as your Dockerfile </span>
+<span class="k">ADD</span> bcl2fastq2-v2.20.0.422-Linux-x86_64.rpm /software/
+<span class="k">RUN</span> apt-get update <span class="o">&amp;&amp;</span> apt-get install --no-install-recommends -y alien <span class="se">\</span>
+    <span class="o">&amp;&amp;</span> alien -i /software/bcl2fastq2-v2.20.0.422-Linux-x86_64.rpm
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>In terminal, change directory to the folder containing the Dockerfile and enter <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">build</span> <span class="pre">-t</span> <span class="pre">&lt;yourusername&gt;/bcl2fastq:2.20.0.422</span></code> with your Docker username inserted.</p></li>
+<li><p>If the build does not succeed, contact jgatter&#64;mit.edu with the Dockerfile attached. Otherwise enter <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">push</span> <span class="pre">&lt;yourusername&gt;/bcl2fastq:2.20.0.422</span></code> in your terminal. <em>Make sure to make the docker image publicly accessible!</em></p></li>
+<li><p>Export the most recent cumulus/bcl2fastq workflow to your Terra workspace.</p></li>
+<li><p>Edit the <code class="docutils literal notranslate"><span class="pre">docker_registry</span></code> variable to contain your Docker username, configure other inputs, and launch the analysis!</p></li>
+</ol>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_upload.html" class="btn btn-neutral float-right" title="Alternatives for uploading data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dropseq_cumulus.html" class="btn btn-neutral float-left" title="Inputs/Outputs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Shalek Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

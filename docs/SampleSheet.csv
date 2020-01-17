@@ -1,0 +1,36 @@
+[Header],,,,,,,,,
+IEMFileVersion,4,,,,,,,,
+Investigator Name,Rabiah_F,,,,,,,,
+Experiment Name,ERCP_seqwell,,,,,,,,
+Date,02/26/2018,,,,,,,,
+Workflow,GenerateFASTQ,,,,,,,,
+Application,NextSeq FASTQ Only,,,,,,,,
+Assay,Nextera XT,,,,,,,,
+Description,,,,,,,,,
+Chemistry,Amplicon,,,,,,,,
+,,,,,,,,,
+[Reads],,,,,,,,,
+20,,,,,,,,,
+50,,,,,,,,,
+,,,,,,,,,
+[Settings],,,,,,,,,
+Adapter,CTGTCTCTTATACACATCT,,,,,,,,
+,,,,,,,,,
+[Data],,,,,,,,,
+Sample_ID,Sample_Name,Sample_Plate,Sample_Well,I7_Index_ID,index,I5_Index_ID,index2,Sample_Project,Description
+S0001,3142_ERCP_A,CPH,A01,R2,GAATTGCT,C2,TCTTACGC,ERCP_seqwell,ERCP_seqwell
+S0002,2195_ERCP_A,CPH,A02,R2,TACTTGCA,C2,ATTAGACG,ERCP_seqwell,ERCP_seqwell
+S0003,2195_PBMC,CPH,A03,R2,TAGATCCT,C2,CGGAGAGA,ERCP_seqwell,ERCP_seqwell
+S0004,2192_ERCP_A,CPH,A04,R2,CTTGCAGA,C2,CTAGTCGA,ERCP_seqwell,ERCP_seqwell
+S0005,2192_PBMC,CPH,A05,R2,TGCGACCT,C2,AGCTAGAA,ERCP_seqwell,ERCP_seqwell
+S0006,2190_ERCP_A,CPH,A06,R2,CATTCCGA,C2,ACTCTAGG,ERCP_seqwell,ERCP_seqwell
+S0007,2190_PBMC,CPH,A07,R2,GATAACCT,C2,CTTAATAG,ERCP_seqwell,ERCP_seqwell
+S0008,3141_ERCP_A,CPH,A08,R2,CAAGGCGA,C2,ATAGCCTT,ERCP_seqwell,ERCP_seqwell
+S0009,3141_PBMC,CPH,A09,R2,GACGCTAT,C1,GCGATCTA,ERCP_seqwell,ERCP_seqwell
+S0010,2142_ERCP_A,CPH,A10,R2,TTGCTGGA,C1,ATAGAGAG,ERCP_seqwell,ERCP_seqwell
+S0011,2142_PBMC,CPH,A11,R2,AACATAAT,C1,AGAGGATA,ERCP_seqwell,ERCP_seqwell
+S0012,2141_ERCP_A,CPH,A12,R2,CCTGGATA,C1,TCTACTCT,ERCP_seqwell,ERCP_seqwell
+S0013,2141_PBMC,CPH,B01,R3,CCTAGAAT,C1,CTCCTTAC,ERCP_seqwell,ERCP_seqwell
+S0014,2194_ERCP_A,CPH,B02,R3,GTTCATTA,C1,TATGCAGT,ERCP_seqwell,ERCP_seqwell
+S0015,3140_ERCP_B,CPH,B03,R1,AATGCGTT,C1,GCGATCTA,ERCP_seqwell,ERCP_seqwell
+S0016,3140_PBMC,CPH,B04,R1,ATAGACAA,C1,ATAGAGAG,ERCP_seqwell,ERCP_seqwell

@@ -112,6 +112,7 @@
 </ul>
 <p class="caption"><span class="caption-text">Appendix</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="bcl2fastq.html">Bcl2Fastq Dockerfile</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_upload.html">Alternatives for uploading data</a></li>
 </ul>
 
@@ -209,7 +210,6 @@
 <h3>Controlled-list metadata<a class="headerlink" href="#controlled-list-metadata" title="Permalink to this headline">¶</a></h3>
 <p>ex. sample_type</p>
 <p>Some metadata attributes do not fit into existing ontologies but can be described using a limited set of categories. For this metadata, the Alexandria team has selected a controlled list of values. These metadata have type <code class="docutils literal notranslate"><span class="pre">enum</span></code> in the AMC spreadsheet and their possible values can be found in the <code class="docutils literal notranslate"><span class="pre">controlled_list_entries</span></code> column.</p>
-<p><strong>Procedure for changing controlled lists:</strong> Requests for values to be added to controlled lists should be sent to the Shalek Lab.</p>
 </div>
 <div class="section" id="free-text-valued-metadata">
 <h3>Free text-valued metadata<a class="headerlink" href="#free-text-valued-metadata" title="Permalink to this headline">¶</a></h3>
@@ -233,68 +233,72 @@
 <p>If the array-valued metadata attribute is a dependant metadata attribute, the order in the array should correspond with the order of the array the attribute depends on. For example, the following metadata entries for <code class="docutils literal notranslate"><span class="pre">vaccination__ontology_label</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;Influenza</span> <span class="pre">Virus</span> <span class="pre">Vaccine&quot;&quot;BCG</span> <span class="pre">Vaccine&quot;</span></code>, for <code class="docutils literal notranslate"><span class="pre">vaccination__time_since</span></code> : <code class="docutils literal notranslate"><span class="pre">&quot;1&quot;,&quot;2&quot;</span></code>, and for <code class="docutils literal notranslate"><span class="pre">vaccination__time_since__unit_label</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;year&quot;,&quot;year&quot;</span></code> would indicate that the Influenza vaccine was recieved 1 year ago and the BCG Vaccine was recieved 2 years ago.  If information is not available for one of the metadata entries in a dependant array, include an empty string(<code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>) for that value.</p>
 <p>The AMC spreadsheet can be used as a guide in writing an Alexandria metadata file but includes more information than is necessary for this process.</p>
 <p>See the below table for descriptions of columns in this spreadsheet that are useful in building this file: w</p>
-<table border="1" class="docutils">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 83%" />
+</colgroup>
 <thead>
-<tr>
-<th align="left"><strong>Column</strong></th>
-<th align="left"><strong>Description</strong></th>
+<tr class="row-odd"><th class="head"><p><strong>Column</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td align="left">attribute</td>
-<td align="left">Serve as valid metadata column headers in the <a href="dropseq_cumulus.html#the-input-csv-file">input_csv_file</a> for dropseq_scCloud tool or the cell-level metadata file. Spaces between words are denoted by a single '_' while subattributes are denoted with a double '_' between the attribute parent and the attribute child.</td>
+<tr class="row-even"><td><p>attribute</p></td>
+<td><p>Serve as valid metadata column headers in the <a class="reference external" href="dropseq_cumulus.html#the-input-csv-file">input_csv_file</a> for
+dropseq_cumulus workflow or the cell-level metadata file. Spaces between words are denoted by a single ‘_’ while
+subattributes are denoted with a double ‘_’ between the attribute parent and the attribute child.</p></td>
 </tr>
-<tr>
-<td align="left">required</td>
-<td align="left">Whether the attribute <strong>MUST</strong> be included as a column in the metadata file of the data you are uploading to Alexandria.</td>
+<tr class="row-odd"><td><p>required</p></td>
+<td><p>Whether the attribute <strong>MUST</strong> be included as a column in the metadata file of the data you are uploading to Alexandria.</p></td>
 </tr>
-<tr>
-<td align="left">default</td>
-<td align="left">The default value which you should include in the metadata file for a required value if it does not apply to your data. <em>There is currently no system to automatically fill this data.</em></td>
+<tr class="row-even"><td><p>default</p></td>
+<td><p>The default value which you should include in the metadata file for a required value if it does not apply to your data.
+<em>There is currently no system to automatically fill this data.</em></p></td>
 </tr>
-<tr>
-<td align="left">type</td>
-<td align="left">The datatype of the attribute that Alexandria expects. <code>strings</code> can be text without quotation marks  <code>booleans</code> can be either <code>True</code> or <code>False</code>. <code>numbers</code> are any numeric character, e.g. 0, 1, 2, ...</td>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p>The datatype of the attribute that Alexandria expects. <code class="docutils literal notranslate"><span class="pre">strings</span></code> can be text without quotation marks  <cite>booleans</cite> can
+be either <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>. <code class="docutils literal notranslate"><span class="pre">numbers</span></code> are any numeric character, e.g. <code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>, …</p></td>
 </tr>
-<tr>
-<td align="left">array</td>
-<td align="left">TRUE if the metadata is an array-valued metadata type.</td>
+<tr class="row-even"><td><p>array</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TRUE</span></code> if the metadata is an array-valued metadata type.</p></td>
 </tr>
-<tr>
-<td align="left">class</td>
-<td align="left">The class of a string-type metadata attribute. <ul><li><strong>[blank]</strong>: no class, ontology: this attribute should be an ontology ID.</li><li><strong>ontology_label</strong>: This attribute should be the human-readable label corresponding to it's ontology ID.</li><li><strong>enum</strong>: a value from a controlled list.</li><li><strong>unit_label</strong>: the name of the unit, either a free-text string or the ontology label from the unit ontology</li></ul></td>
+<tr class="row-odd"><td><p>class</p></td>
+<td><dl class="simple">
+<dt>The classes of a string-type metadata attribute:</dt><dd><ul class="simple">
+<li><p><strong>[blank]</strong>: no class, ontology: this attribute should be an ontology ID.</p></li>
+<li><p><strong>ontology_label</strong>: This attribute should be the human-readable label corresponding to it’s ontology ID.</p></li>
+<li><p><strong>enum</strong>: a value from a controlled list.</p></li>
+<li><p><strong>unit_label</strong>: the name of the unit, either a free-text string or the ontology label from the unit ontology</p></li>
+</ul>
+</dd>
+</dl>
+</td>
 </tr>
-<tr>
-<td align="left">ontology</td>
-<td align="left">A URL to the ontology entry on the European Bioinformatics Insitute domain.</td>
+<tr class="row-even"><td><p>ontology</p></td>
+<td><p>A URL to the ontology entry on the European Bioinformatics Insitute domain.</p></td>
 </tr>
-<tr>
-<td align="left">ontology_root</td>
-<td align="left">The highest value in the ontology tree applicable to this metadata attribute</td>
+<tr class="row-odd"><td><p>ontology_root</p></td>
+<td><p>The highest value in the ontology tree applicable to this metadata attribute.</p></td>
 </tr>
-<tr>
-<td align="left">controlled_list_entries</td>
-<td align="left">For attributes of class enum, the value is expected to be one value from the list of entries displayed here.</td>
+<tr class="row-even"><td><p>controlled_list_entries</p></td>
+<td><p>For attributes of class enum, the value is expected to be one value from the list of entries displayed here.</p></td>
 </tr>
-<tr>
-<td align="left">dependency</td>
-<td align="left">The parent ontology that the attribute is dependent upon.</td>
+<tr class="row-odd"><td><p>dependency</p></td>
+<td><p>The parent ontology that the attribute is dependent upon.</p></td>
 </tr>
-<tr>
-<td align="left">dependency_condition</td>
-<td align="left">The condition on the dependency under which the attribute is dependant</td>
+<tr class="row-even"><td><p>dependency_condition</p></td>
+<td><p>The condition on the dependency under which the attribute is dependent.</p></td>
 </tr>
-<tr>
-<td align="left">dependent</td>
-<td align="left">The attribute that is dependent upon this attribute.</td>
+<tr class="row-odd"><td><p>dependent</p></td>
+<td><p>The attribute that is dependent upon this attribute.</p></td>
 </tr>
-<tr>
-<td align="left">attribute_description</td>
-<td align="left">A description of what the attribute is.</td>
+<tr class="row-even"><td><p>attribute_description</p></td>
+<td><p>A description of what the attribute is.</p></td>
 </tr>
 </tbody>
-</table></div>
+</table>
+</div>
 </div>
 </div>
 

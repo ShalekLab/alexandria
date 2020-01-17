@@ -2,3 +2,21 @@
 span.caption-text {
   color: #5fbb50;
 }
+
+/* override table width restrictions */
+@media screen and (min-width: 767px) {
+
+   .wy-table-responsive table td {
+      /* !important prevents the common CSS stylesheets from overriding
+         this as on RTD they are loaded after this stylesheet */
+      white-space: normal !important;
+   }
+
+   .wy-table-responsive {
+      overflow: visible !important;
+   }
+}
+
+code.docutils.literal.notranslate {
+    color: #343434;
+}

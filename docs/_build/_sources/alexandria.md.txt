@@ -10,7 +10,9 @@ If you truly would like certain parameters to be exposed, please post an issue o
 
 ### Known Bugs
 
-For the time being, an older version of the workflow, dropseq_scCloud v74, is currently hosted on Alexandria. This workflow will not allow you to use bcl2fastq and will not allow you to upload data from the root of the bucket. You can use the Terra version of the workflow if need be.
+```eval_rst
+.. Attention:: For the time being, an older version of the workflow, dropseq_scCloud v74, is currently hosted on Alexandria. This workflow will not allow you to use bcl2fastq and will not allow you to upload data from the root of the bucket. You can use the `Terra version of the workflow <terra.html>`_ if need be.
+```
 
 For any discovered bugs, please contact us with bug reports on our GitHub repo.
 
