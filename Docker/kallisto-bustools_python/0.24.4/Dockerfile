@@ -10,5 +10,3 @@ RUN apt-get update && \
 	apt-get update && apt-get install -y google-cloud-sdk
 
 RUN pip install --upgrade pip && pip install kb-python==${KB_VERSION}
-
-CMD ["bin/bash"]

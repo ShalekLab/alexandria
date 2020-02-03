@@ -1,0 +1,1 @@
+/Users/jggatter/Desktop/Alexandria/alexandria_repository/src/tests/scp_outputs/inputs/sco.scp.X_fitsne.coords.txt

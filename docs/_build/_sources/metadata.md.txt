@@ -97,6 +97,7 @@ See the below table for descriptions of columns in this spreadsheet that are use
 | array                   | ``TRUE`` if the metadata is an array-valued metadata type.                                                               |
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------+
 | class                   | The classes of a string-type metadata attribute:                                                                         |
+|                         |                                                                                                                          |
 |                         |  - **[blank]**: no class, ontology: this attribute should be an ontology ID.                                             |
 |                         |  - **ontology_label**: This attribute should be the human-readable label corresponding to it's ontology ID.              |
 |                         |  - **enum**: a value from a controlled list.                                                                             |

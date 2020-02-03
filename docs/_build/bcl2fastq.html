@@ -195,7 +195,7 @@
 </pre></div>
 </div>
 <ol class="simple">
-<li><p>In terminal, change directory to the folder containing the Dockerfile and enter <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">build</span> <span class="pre">-t</span> <span class="pre">&lt;yourusername&gt;/bcl2fastq:2.20.0.422</span></code> with your Docker username inserted.</p></li>
+<li><p>In terminal, change directory to the folder containing the Dockerfile and enter <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">build</span> <span class="pre">-t</span> <span class="pre">&lt;yourusername&gt;/bcl2fastq:2.20.0.422</span> <span class="pre">.</span></code> with your Docker username inserted.</p></li>
 <li><p>If the build does not succeed, contact jgatter&#64;mit.edu with the Dockerfile attached. Otherwise enter <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">push</span> <span class="pre">&lt;yourusername&gt;/bcl2fastq:2.20.0.422</span></code> in your terminal. <em>Make sure to make the docker image publicly accessible!</em></p></li>
 <li><p>Export the most recent cumulus/bcl2fastq workflow to your Terra workspace.</p></li>
 <li><p>Edit the <code class="docutils literal notranslate"><span class="pre">docker_registry</span></code> variable to contain your Docker username, configure other inputs, and launch the analysis!</p></li>

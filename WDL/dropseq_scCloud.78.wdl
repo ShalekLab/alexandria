@@ -1,13 +1,23 @@
-# dropseq_cumulus workflow
-# A publicly available WDL workflow made by Shalek Lab for bridging DropSeq workflow and Cumulus workflow
-# By jgatter [at] broadinstitute.org, created December 16th, 2019
+# By jgatter [at] broadinstitute.org, created October 22nd, 2019
+# https://portal.firecloud.org/?return=terra#methods/alexandria/dropseq_cumulus/
 # Incorporates subworkflows made by jgould [at] broadinstitute.org and Regev Lab / Klarnan Cell Observatory
-# DropSeq Pipeline by McCarroll Lab (https://github.com/broadinstitute/Drop-seq/blob/master/doc/Drop-seq_Alignment_Cookbook.pdf)
-# DropSeq workflow and Cumulus by Cumulus Team (https://cumulus-doc.readthedocs.io/en/latest/index.html)
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# TODO
+# Update to dropseq_cumulus
+# Use updated WDLs where dropseq and cumulus docker parameters are exposed.
+# Make hg38 work
+# Implement various error catching
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# SNAPSHOT 75
+# Updated dropseq_workflow WDL to cumulus/dropseq_workflow/1
+# bcl2fastq functional again, for legal reasons now requires broadinstitute.org email account to use
+# Changed how paths are written to allow searches to find files in the root of the bucket
+# Made alexandria docker repo an optional parameter
+# Various changes including altering existing error messages
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
-import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/6/plain-WDL/descriptor" as dropseq #TERRA
-import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/14/plain-WDL/descriptor" as cumulus #TERRA
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/4/plain-WDL/descriptor" as dropseq #TERRA
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/7/plain-WDL/descriptor" as cumulus #TERRA
 
 workflow dropseq_cumulus {
 	
@@ -24,15 +34,14 @@ workflow dropseq_cumulus {
 
 	# Output object, seems to be a path/to/dir in the bucket.
 	# TODO: Test if can point to non-workspace buckets.
+	# TODO! Make every task in the file work for empty strings. Probably should keep below lines but append +'/' after the sub().
 	String bucket
 	String bucket_slash = sub(bucket, "/+$", '')+'/'
-	# TODO: Sub bucket_slash out of the below
-	# Consider making only one output path which dumps in 'dropseq' and 'cumulus' respectively
-	String dropseq_output_directory
+	String dropseq_output_directory #=''
 	String dropseq_output_directory_slash = if dropseq_output_directory == '' then '' else sub(dropseq_output_directory, "/+$", '')+'/'
 	String cumulus_output_directory
 	String cumulus_output_directory_slash = if cumulus_output_directory == '' then '' else sub(cumulus_output_directory, "/+$", '')+'/'
-	String dropseq_default_directory = ''
+	String dropseq_default_directory
 	String dropseq_default_directory_slash = if dropseq_default_directory == '' then '' else sub(dropseq_default_directory, "/+$", '')+'/'
 
 	# "hg19" or another reference.
@@ -41,7 +50,7 @@ workflow dropseq_cumulus {
 	# At least one of the following Booleans must be set as true
 	# Set true to run alignment by dropseq pipeline
 	Boolean run_dropseq
-	# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
+	# To use bcl2fastq you MUST locally docker login to your broadinstitute.org-affiliated docker account.
 	Boolean is_bcl #= false
 	# Set true to run clustering/visualization by cumulus
 	Boolean run_cumulus
@@ -50,13 +59,13 @@ workflow dropseq_cumulus {
 	String dropseq_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/dropseq/tags
 	String dropseq_registry_stripped = sub(dropseq_registry, "/+$", '')
 	String dropseq_tools_version = "2.3.0"
-	String bcl2fastq_registry = "gcr.io/broad-cumulus"
-	String bcl2fastq_registry_stripped = sub(bcl2fastq_registry, "/+$", '')
-	String bcl2fastq_version = "2.20.0.422"
-	String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
-	String cumulus_registry_stripped = sub(cumulus_registry, "/+$", '')
-	String cumulus_version = "0.14.0"
-	String alexandria_docker = "shaleklab/alexandria:0.1"
+	String cumulus_version = "0.8.0:v1.0"
+	String? cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
+	String? cumulus_registry_stripped = sub(cumulus_registry, "/+$", '')
+	String? cumulus_version = "0.10.0"
+	String alexandria_registry = "shaleklab"
+	String alexandria_registry_stripped = sub(alexandria_registry, "/+$", '')
+	String alexandria_version = "0.1"
 	Int? preemptible = 2
 	String? zones = "us-east1-d us-west1-a us-west1-b"
 
@@ -72,21 +81,20 @@ workflow dropseq_cumulus {
 				dropseq_default_directory_slash=dropseq_default_directory_slash,
 				preemptible=preemptible,
 				#metadata_type_map=metadata_type_map, #LOCAL
-				alexandria_docker=alexandria_docker,
+				alexandria_registry=alexandria_registry_stripped,
+				alexandria_version=alexandria_version
 		}
 		call dropseq.dropseq_workflow as dropseq {
 		#call ds_dummy as dropseq {
 			input:
-				input_tsv_file=setup_dropseq.dropseq_locations, #.csv is a misnomer, actually a .tsv
+				input_csv_file=setup_dropseq.dropseq_locations, #.csv is a misnomer, actually a .tsv
 				run_bcl2fastq=is_bcl,
 				output_directory=bucket_slash + sub(dropseq_output_directory_slash, "/+$", ''),
 				reference=reference,
 				zones=zones,
 				preemptible=preemptible,
 				docker_registry=dropseq_registry_stripped,
-				drop_seq_tools_version=dropseq_tools_version,
-				bcl2fastq_registry=bcl2fastq_registry_stripped,
-				bcl2fastq_version=bcl2fastq_version
+				drop_seq_tools_version=dropseq_tools_version # Varname drop_seq_tools_version in the subwdl.
 		}
 	}
 
@@ -97,11 +105,12 @@ workflow dropseq_cumulus {
 				run_dropseq=run_dropseq,
 				input_csv_file=input_csv_file,
 				reference=reference,
+				alexandria_version=alexandria_version,
 				preemptible=preemptible,
 				bucket_slash=bucket_slash,
 				dropseq_output_directory_slash=dropseq_output_directory_slash,
 				#metadata_type_map=metadata_type_map, #LOCAL
-				alexandria_docker=alexandria_docker,
+				alexandria_registry=alexandria_registry_stripped,
 				cumulus_output_directory_slash=cumulus_output_directory_slash,
 		}
 		call cumulus.cumulus as cumulus {
@@ -122,9 +131,10 @@ workflow dropseq_cumulus {
 				input_csv_file=input_csv_file,
 				preemptible=preemptible,
 				bucket_slash=bucket_slash,
-				alexandria_docker=alexandria_docker,
+				alexandria_registry=alexandria_registry_stripped,
+				alexandria_version=alexandria_version,
 				cumulus_output_directory_slash=cumulus_output_directory_slash,
-				cumulus_output_prefix=cumulus_output_prefix, 
+				cumulus_output_prefix=cumulus_output_prefix,
 				#metadata_type_map=metadata_type_map, #LOCAL
 				#cluster_file="bucket/bcl_cumulus/"+cumulus_output_prefix+".scp.X_fitsne.coords.txt", #LOCAL
 				cluster_file=bucket_slash+cumulus_output_directory_slash+cumulus_output_prefix+".scp.X_fitsne.coords.txt",
@@ -150,7 +160,8 @@ task setup_dropseq {
 	String reference
 	String dropseq_output_directory_slash
 	String dropseq_default_directory_slash
-	String alexandria_docker
+	String alexandria_registry
+	String alexandria_version
 	Int preemptible
 	#File metadata_type_map #LOCAL
 
@@ -249,7 +260,7 @@ task setup_dropseq {
 			dsl["BCL_Path"] = csv["BCL_Path"].unique()
 			dsl["SS_Path"] = dsl["BCL_Path"].apply(func=get_sample_sheet)
 
-		else: # Generate a simple tsv of Samples and paths to their FASTQs
+		else: # Generate a list of FASTQs
 			print("is_bcl is set to false, will be checking 'Sample' column as well as optional 'R1_Path' and 'R2_Path' columns.")
 			dsl["Sample"] = csv["Sample"]
 			location_override = False
@@ -264,7 +275,6 @@ task setup_dropseq {
 			def get_fastq_location(sample, location_override, read):
 				cell = csv.loc[csv.Sample == sample, read+"_Path"].to_string(index=False).strip()
 				if len(cell) > 2048: sys.exit("ALEXANDRIA ERROR: For "+sample+' '+read+", the path "+path+" exceeds maximum length of 2048 characters.")
-				# TODO: Deal with having similar sample names, ex: CGP_R1 versus CGP_short_R1
 				if dropseq_default_directory_slash.startswith("gs://"): default_path = dropseq_default_directory_slash+sample+'*'+read+"*.fastq*"
 				else: default_path = bucket_slash+dropseq_default_directory_slash+sample+'*'+read+"*.fastq*"
 				if location_override is False or cell == "NaN":
@@ -287,7 +297,6 @@ task setup_dropseq {
 
 			dsl["R1_Path"] = csv["Sample"].apply(func=get_fastq_location, args=(location_override, "R1"))
 			dsl["R2_Path"] = csv["Sample"].apply(func=get_fastq_location, args=(location_override, "R2"))
-		
 		dsl.to_csv("dropseq_locations.tsv", sep='\t', header=None, index=False)
 		print("ALEXANDRIA SUCCESS: Drop-Seq workflow setup is complete, proceeding to run the workflow.")
 		CODE
@@ -298,21 +307,20 @@ task setup_dropseq {
 		File dropseq_locations = "dropseq_locations.tsv"
 	}
 	runtime {
-		docker: "${alexandria_docker}"
+		docker: "${alexandria_registry}/alexandria:${alexandria_version}"
 		preemptible: "${preemptible}"
 	}
 }
 
 #DUMMY TASK for testing
 task ds_dummy {
-	File input_tsv_file #.csv is a misnomer, actually a .tsv
+	File input_csv_file #.csv is a misnomer, actually a .tsv
 	Boolean run_bcl2fastq
 	String output_directory
 	String reference
 	String drop_seq_tools_version
 	Int preemptible
 	String zones
-	String docker_registry
 
 	command {
 		echo "Run dropseq_dummy"
@@ -332,7 +340,8 @@ task setup_cumulus {
 	File input_csv_file
 	String reference
 	String bucket_slash
-	String alexandria_docker
+	String alexandria_registry_stripped
+	String alexandria_version
 	String dropseq_output_directory_slash
 	String cumulus_output_directory_slash
 	Int preemptible
@@ -352,7 +361,7 @@ task setup_cumulus {
 		run_dropseq=${true='True' false='False' run_dropseq}
 		reference="${reference}"
 		bucket_slash="${bucket_slash}"
-		dropseq_output_directory_slash="${dropseq_output_directory_slash}"
+		dropseq_default_directory_slash="${dropseq_default_directory_slash}"
 
 
 		print("ALEXANDRIA: Running setup for Cumulus workflow")
@@ -362,6 +371,7 @@ task setup_cumulus {
 			try: sp.check_call(args=["gsutil", "ls", bucket_slash], stdout=sp.DEVNULL)
 			except sp.CalledProcessError: sys.exit("ALEXANDRIA: Bucket "+bucket_slash+" was not found.")
 			
+			#TODO: Support MMUL_8_0_1?
 			valid_references=["hg19", "mm10", "hg19_mm10", "mmul_8.0.1", "GRCh38"]
 			if reference not in valid_references:
 				print("ALEXANDRIA WARNING:", reference, "does not match a valid reference: (hg19, GRCh38, mm10, hg19_mm10, and mmul_8.0.1).")
@@ -381,8 +391,9 @@ task setup_cumulus {
 		print("--------------------------")
 		cm = pd.DataFrame()
 		cm["Sample"] = csv["Sample"]
+		#TODO: Check that dge's end in txt.gz and give error message if not
 		def get_dge_location(sample):
-			location = bucket_slash+dropseq_output_directory_slash+sample+'/'+sample+"_dge.txt.gz"
+			location = bucket_slash+dropseq_default_directory_slash+sample+'/'+sample+"_dge.txt.gz"
 			print("Searching for count matrix at", location)
 			try: sp.check_call(args=["gsutil", "ls", location], stdout=sp.DEVNULL)
 			except sp.CalledProcessError: sys.exit("ALEXANDRIA ERROR: "+location+" was not found. Ensure the count matrix is in .txt.gz format!")
@@ -403,7 +414,7 @@ task setup_cumulus {
 		File count_matrix = "count_matrix.csv"
 	}
 	runtime {
-		docker: "${alexandria_docker}"
+		docker: "${alexandria_registry_stripped}alexandria:${alexandria_version}"
 		preemptible: "${preemptible}"
 	}
 }
@@ -417,7 +428,7 @@ task cumulus_dummy {
 	Boolean generate_scp_outputs
 	Boolean output_dense
 	String cumulus_version
-	String docker_registry
+	String cumulus_docker_registry_stripped
 	Int preemptible
 	String zones
 
@@ -428,16 +439,17 @@ task cumulus_dummy {
 		Array[String] output_scp_files = ["${output_name}.scp.expr.txt", "${output_name}.scp.metadata.txt", "${output_name}.scp.X_diffmap_pca.coords.txt", "${output_name}.scp.X_fitsne.coords.txt"]
 	}
 	runtime {
-		docker: "${docker_registry}/cumulus:${cumulus_version}"
+		docker: "cumul"
 		preemptible: "${preemptible}"
 	}
 }
 
 task scp_outputs {
 	File input_csv_file
-	String alexandria_docker
+	String alexandria_registry_stripped
+	String alexandria_version
 	String cumulus_output_directory_slash
-	Array[String] output_scp_files # this doesn't get used
+	Array[String] output_scp_files
 	Int preemptible
 	File cluster_file
 	String cumulus_output_prefix
@@ -473,7 +485,7 @@ task scp_outputs {
 		for metadata in csv.columns:
 			if metadata == "Sample": continue
 			amd[metadata] = amd["Channel"].apply(func=get_metadata, args=(csv, metadata, mtm))
-		amd.to_csv("alexandria_metadata.txt", sep='\t', index=False)
+			amd.to_csv("alexandria_metadata.txt", sep='\t', index=False)
 		print("ALEXANDRIA SUCCESS: Wrote alexandria_metadata.txt, finishing the dropseq_cumulus workflow.")
 		CODE
 		
@@ -483,7 +495,7 @@ task scp_outputs {
 		File alexandria_metadata = "alexandria_metadata.txt"
 	}
 	runtime {
-		docker: "${alexandria_docker}"
+		docker: "${alexandria_registry_stripped}alexandria:${alexandria_version}"
 		preemptible: "${preemptible}"
 	}
 }

@@ -1,0 +1,351 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Seurat2SCP Notebook"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## MANUAL ITERATION  (RECOMMENDED)\n",
+    "Easier to tweak and understand for the user.\n",
+    "You can also scroll down to run **AUTOMATIC ITERATION**, see if and at which step it fails, and return here afterward to run individual chunks."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### SETUP\n",
+    "#### Load required libraries and the scp_save_seurat.R file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "library(Seurat)\n",
+    "library(crunch)\n",
+    "library(data.table)\n",
+    "library(R.utils)\n",
+    "source(\"scp_save_seurat.R\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Edit paths to Seurat objects and the preferred output path"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Paths to .Rds/.Rdata seurat objects. \n",
+    "# Paste path names in quotation marks on each line and delimit with ',' and a newline.\n",
+    "seurat.paths <- c(\n",
+    "                  #\"/Users/jggatter/Desktop/Alexandria/alexandria_repository/uploadHelpers/allergen.RData\",\n",
+    "                  #\"/Users/jggatter/Desktop/Alexandria/alexandria_repository/uploadHelpers/Split_Up/B_comb.RData\"\n",
+    "                  #\"/Users/jggatter/Desktop/Alexandria/alexandria_repository/uploadHelpers/Split_Up/CD4_comb.RData\"\n",
+    "                  \"/Users/jggatter/Desktop/Alexandria/alexandria_repository/uploadHelpers/Objects/Week13.All.Seurat.Rdata\",\n",
+    "                  \"/Users/jggatter/Desktop/Alexandria/alexandria_repository/uploadHelpers/Objects/Week25.All.Seurat.Rdata\"\n",
+    "                )\n",
+    "if (length(seurat.paths) == 0) stop(\"No paths were entered.\")\n",
+    "\n",
+    "# The output path to which the output SCP files will be sent.\n",
+    "# '' indicates the directory in which the notebook is being run.\n",
+    "output.dir <- ''\n",
+    "\n",
+    "# The ith path in seurat.paths! Cannot be greater than seurat length!\n",
+    "# If a step has failed you can return here and set 'i' to the index number from which you wish to proceed!\n",
+    "i <- 1\n",
+    "if (i > length(seurat.paths) stop(paste(\"i:\", i, \"cannot be greater than seurat.path length:\", length(seurat.paths), sep=' '))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### START OF LOOP\n",
+    "Conceptual equivalent:\n",
+    "```\n",
+    "for (i in seq(1:length(seurat.paths)){\n",
+    "...\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Initialization"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Initialize the path of the object!\n",
+    "cur.path <- seurat.paths[i]\n",
+    "print(cur.path)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Load the object\n",
+    "object.name <- load(cur.path)\n",
+    "print(paste(\"Object:\", object.name, \", Version\", get(object.name)@version, sep=' '))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Update the Seurat object to the format of the newest version.\n",
+    "object = UpdateSeuratObject(get(object.name))\n",
+    "print(paste(\"Object\", object.name, \"updated to\", object@version, sep=' '))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Deallocate the old Seurat object to save space\n",
+    "rm(list=c(object.name))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Prefix cell names with the object name\n",
+    "print(\"Prefixing cell names with object name\", object.name, sep = ' ')\n",
+    "RenameCells(object, add.cell.id = object.name)\n",
+    "print(\"Prefixing cells completed.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Save the expression matrix"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Initialization\n",
+    "output.prefix <- paste(output.dir, \"SCP\", sep='')\n",
+    "expr.filename <- paste(output.prefix, \"_norm_expression.txt\", sep='')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Add the gene column to the expression data and save as a dataframe\n",
+    "print(\"Adding gene column and saving as dataframe, this may take a long time...\")\n",
+    "source(\"scp_save_seurat.R\")\n",
+    "expr.df <- add_gene_column(object@assays$RNA@data, object.name) \n",
+    "print(\"Finished saving as a dataframe!\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "*Write the expression matrix as a .txt.gz file to output.dir*\n",
+    "*TWO METHODS: EITHER write.csv.gz() OR fwrite() and gzip()*\n",
+    "*Latter method seems faster, but comment out the one you do not prefer*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#print(\"Writing and compressing expression matrix to .txt.gz file...\")\n",
+    "#write.csv.gz(x=expr.df, file=expr.filename, quote=FALSE, sep='\\t', col.names=TRUE) \n",
+    "#print(\"Finished writing and compression expression matrix to .txt.gz file!\")\n",
+    "\n",
+    "print(\"Writing expression matrix\")\n",
+    "fwrite(x=expr.df, file=expr.filename, quote=FALSE, sep='\\t', col.names=TRUE)\n",
+    "print(\"Compressing expression matrix to .txt.gz file...\")\n",
+    "gzip(expr.filename, destname=paste(expr.filename, \".gz\", sep=''))\n",
+    "print(\"Finished compression of expression matrix to .txt.gz file!\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Save the cluster files\n",
+    "*Change the below parameters if the column names of your dimensionality reduction are not the ones used below.*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Dimensional reductional parameters!\n",
+    "dim.red.type = \"umap\" # Can be any string. Preferably name of dimensionality reduction type.\n",
+    "X.name <- \"X_umap1\" # Needs to be the object parameter found in object@meta.data\n",
+    "Y.name <- \"X_umap2\" # Needs to be the object parameter found in object@meta.data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Save the cluster file using the parameters entered above\n",
+    "cluster.file.prefix <- paste(output.prefix, object.name, dim.red.type, sep='_')\n",
+    "print(\"Saving cluster file...\")\n",
+    "save_cluster_file(object@meta.data, X.name, Y.name, object.name, cluster.file.prefix)\n",
+    "print(\"Cluster file saved!\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Merge the metadata into the dataframe"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Merge metadata\n",
+    "merged.metadata = data.frame(CELLS=paste(object.name, rownames(object@meta.data), sep='_'), object@meta.data)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# TODO: Save it!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### END OF LOOP, INCREMENT `i`"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Deallocate the updated Seurat object to save space!\n",
+    "rm(list=c(expr.df, object))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[1] \"Completed! No paths remain!\"\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Increment i or terminate\n",
+    "if (i < length(seurat.paths)){\n",
+    "    i <- i + 1\n",
+    "    cur.path <- seurat.paths[i]\n",
+    "    print(cur.path)\n",
+    "    print(\"Return to the START chunk!\")\n",
+    "} else {\n",
+    "    print(\"Completed! No paths remain!\")\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "[Click here to return to top!](#START-OF-LOOP)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "R",
+   "language": "R",
+   "name": "ir"
+  },
+  "language_info": {
+   "codemirror_mode": "r",
+   "file_extension": ".r",
+   "mimetype": "text/x-r-source",
+   "name": "R",
+   "pygments_lexer": "r",
+   "version": "3.6.0"
+  },
+  "toc": {
+   "base_numbering": 1,
+   "nav_menu": {},
+   "number_sections": true,
+   "sideBar": true,
+   "skip_h1_title": false,
+   "title_cell": "Table of Contents",
+   "title_sidebar": "Contents",
+   "toc_cell": false,
+   "toc_position": {},
+   "toc_section_display": true,
+   "toc_window_display": false
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

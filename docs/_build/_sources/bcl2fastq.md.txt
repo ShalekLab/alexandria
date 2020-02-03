@@ -28,7 +28,7 @@ ADD bcl2fastq2-v2.20.0.422-Linux-x86_64.rpm /software/
 RUN apt-get update && apt-get install --no-install-recommends -y alien \
     && alien -i /software/bcl2fastq2-v2.20.0.422-Linux-x86_64.rpm
 ```
-5. In terminal, change directory to the folder containing the Dockerfile and enter `docker build -t <yourusername>/bcl2fastq:2.20.0.422` with your Docker username inserted.
+5. In terminal, change directory to the folder containing the Dockerfile and enter `docker build -t <yourusername>/bcl2fastq:2.20.0.422 .` with your Docker username inserted.
 6. If the build does not succeed, contact jgatter@mit.edu with the Dockerfile attached. Otherwise enter `docker push <yourusername>/bcl2fastq:2.20.0.422` in your terminal. _Make sure to make the docker image publicly accessible!_
 7. Export the most recent cumulus/bcl2fastq workflow to your Terra workspace.
 8. Edit the `docker_registry` variable to contain your Docker username, configure other inputs, and launch the analysis!

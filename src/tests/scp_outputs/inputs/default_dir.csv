@@ -1,0 +1,5 @@
+Sample,sample_type,library_preparation_protocol,library_preparation_protocol__ontology_label,paired_ends,small_molecule_perturbation__source,is_living,organ,organ__ontology_label,sex,species,species__ontology_label,small_molecule_perturbation,small_molecule_perturbation__ontology_label
+CGP,cultured primary cells,EFO_0008919,Seq-Well,TRUE,Novartis,FALSE,UBERON_0000948,heart,Male,NCBITaxon_10088,Mus,CHEBI_64066,CGP 78608(1+)
+DMSO,cultured primary cells,EFO_0008919,Seq-Well,TRUE,Novartis,FALSE,UBERON_0000948,heart,Male,NCBITaxon_10088,Mus,CHEBI_28262,dimethyl sulfoxide
+LGD,cultured primary cells,EFO_0008919,Seq-Well,TRUE,Novartis,FALSE,UBERON_0000948,heart,Female,NCBITaxon_10088,Mus,CHEBI_74534,Leu-Gly
+LKS_CGP,cultured primary cells,EFO_0008919,Seq-Well,TRUE,Novartis,FALSE,UBERON_0000948,heart,Female,NCBITaxon_10088,Mus,'CHEBI_73583''CHEBI_64066','Leu-Lys''CGP 78608(1+)'

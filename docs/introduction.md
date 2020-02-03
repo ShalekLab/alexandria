@@ -3,11 +3,7 @@ A Single-Cell RNA-Seq and Analytics Platform for Global Health
   
 ![](imgs/logo.png)
 
-Work-in-progress documentation for the [Alexandria platform](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and all associated tool workflows.
-
-The first workflow Alexandria offers is `dropseq_cumulus`, a workflow that joins the preprocessing functionalities of [Drop-Seq pipeline](http://mccarrolllab.org/dropseq/) with the visualization functionalities of [Cumulus](https://cumulus-doc.readthedocs.io/en/latest/).
-  
-Another workflow is `kallisto-bustools_cumulus`, which bridges the pseudoaligner [Kallisto-Bustools](https://www.kallistobus.tools/about) with Cumulus.
+Work-in-progress documentation for the [Alexandria platform](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and all associated tool workflows and notebooks.
 
 ### Background
 
