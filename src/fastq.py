@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import subprocess as sp
 
-# Standalone method
 def determine_location_override(csv):
 	location_override = False
 	if "R1_Path" in csv.columns and "R2_Path" in csv.columns:
@@ -44,26 +43,10 @@ def validate_fastq_path(fastq_path, default_path):
 # Essentially main
 def get_validated_fastq_path(func):
 	def wrapper(sample, read, csv, location_override, bucket_slash, fastq_directory_slash):
-		#if len(bucket_slash+fastq_directory_slash)+128 > pd.options.display.max_colwidth:
-		#	pd.options.display.max_colwidth = len(bucket_slash+fastq_directory_slash)+128 # Ensure the entire cell prints out
-		pd.options.display.max_colwidth = 2048
+		pd.options.display.max_colwidth = 2048 # Ensure the entire cell prints out
 		entered_path = func(csv, sample, read) #csv.loc[csv.Sample == sample, read+"_Path"].to_string(index=False).strip()
 		default_path = construct_default_path(bucket_slash, fastq_directory_slash, sample, read)
 		fastq_path = determine_fastq_path(sample, read, location_override, default_path, bucket_slash, entered_path)
 		validated_fastq_path = validate_fastq_path(fastq_path, default_path)
 		return validated_fastq_path
 	return wrapper
-'''
-def get_validated_fastq_path(sample, read, csv, location_override, bucket_slash, fastq_directory_slash):
-	entered_path = csv.loc[csv.Sample == sample, read+"_Path"].to_string(index=False).strip()
-	if len(entered_path) > pd.options.display.max_colwidth:
-		pd.options.display.max_colwidth = len(entered_path) # Ensure the entire cell prints out
-	
-	default_path = construct_default_path(bucket_slash, fastq_directory_slash, sample, read)
-	
-	fastq_path = determine_fastq_path(sample, read, location_override, default_path, bucket_slash, entered_path)
-	
-	validated_fastq_path = validate_fastq_path(fastq_path, default_path)
-
-	return validated_fastq_path
-'''

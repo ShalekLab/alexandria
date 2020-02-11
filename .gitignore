@@ -1,0 +1,28 @@
+# Ignore hidden files
+.DS_Store
+.Rhistory
+.ipynb*
+# .ipynb_checkpoints
+
+# Ignore deprecated files and junk
+junk/
+__pycache__
+
+# Ignore certain junk in the WDL Folder
+WDL/bucket/
+WDL/inputs/
+WDL/old_jsons/
+WDL/local*
+WDL/dummy*
+WDL/*.sh
+WDL/test.wdl
+WDL/WDL_tutorial.wdl
+*cromwell*
+*womtool*
+
+# Ignore testing data for notebooks
+Seurat_Objects/
+
+# Ignore IP
+bcl2fastq2-v2.20.0.422-Linux-x86_64.rpm
+

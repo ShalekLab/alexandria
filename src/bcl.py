@@ -1,7 +1,6 @@
 import pandas as pd
 import subprocess as sp
 
-# Standalone method, nothing to do with the others.
 def check_sequencing_run_path(bcl_path, bucket_slash):
 	print("ALEXANDRIA: For BCL_Path entry", bcl_path)
 	if bcl_path.startswith("gs://") is False:
@@ -54,8 +53,7 @@ def check_sample(sample, ss):
 # Essentially main
 def get_validated_sample_sheet(func):
 	def wrapper(bcl_path, csv, bucket_slash):
-		if len(bcl_path) > pd.options.display.max_colwidth:
-			pd.options.display.max_colwidth = len(bcl_path) # Ensure the entire cell prints out
+		pd.options.display.max_colwidth = 2048 # Ensure the entire cell prints out
 
 		print("ALEXANDRIA: Finding sequencing run sample sheet for", bcl_path)
 		sample_sheet_path = get_sample_sheet_path(bcl_path, csv, bucket_slash)

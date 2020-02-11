@@ -7,7 +7,7 @@ import bcl
 import fastq as fq
 
 @ci.transform_csv_file
-def transform_csv_file(csv):#, input_csv_file):
+def transform_csv_file(csv):
 	is_valid = True
 	errors=[]
 	if "Cell" not in csv.columns:
@@ -32,8 +32,6 @@ def get_validated_sample_sheet():
 def get_validated_fastq_path(csv, sample, read):
 	return csv.loc[csv.Cell == sample, read+"_Path"].to_string(index=False).strip()
 
-# col Cell,Plate,Read1,Read2
-# Plate name: Cells with the same plate name are from the same plate.
 def main():
 	parser = ap.ArgumentParser()
 	parser.add_argument("-i", "--input_csv_file", help="Path to the input_csv_file.")
