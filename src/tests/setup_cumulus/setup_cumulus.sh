@@ -17,17 +17,17 @@ src="/Users/jggatter/Desktop/Alexandria/alexandria_repository/src"
 cd $src
 
 # WDL COMMAND START
-python scp_outputs.py \
-	-i ${input_csv_file} \
-	-s ${scp_outputs} \
-	-m ${metadata_type_map}
+python setup_cumulus.py \
+	-i=${input_csv_file} \
+	-g=${bucket_slash} \
+	${run_dropseq} \
+	-r=${reference} \
+	-m=${metadata_type_map} \
+	-o=${output_directory_slash}
 # WDL COMMAND END
 
-test_outputs="${src}/tests/scp_outputs/outputs/"
+test_outputs="${src}/tests/setup_cumulus/outputs/"
 if [ -d ${test_outputs} ]; then rm -r ${test_outputs}; fi
 mkdir -p ${test_outputs}
-mv X_fitsne.coords.txt $test_outputs
-mv expr.txt $test_outputs
-mv metadata.txt $test_outputs
-mv alexandria_metadata.txt $test_outputs
-head ${test_outputs}/alexandria_metadata.txt
+mv count_matrix.csv $test_outputs
+head ${test_outputs}/count_matrix.csv

@@ -1,9 +1,9 @@
 # The Alexandria Project
 A Single-Cell RNA-Seq and Analytics Platform for Global Health
   
-![](docs/imgs/logo.png)
+![logo](docs/imgs/logo.png)
 
-Work-in-progress documentation for the [Alexandria platform](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and all associated tool workflows and notebooks.
+[Here](https://alexandria-scrna-data-library.readthedocs.io/en/latest/) is a linke to the work-in-progress documentation for the [Alexandria platform](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and all associated tool workflows and notebooks.
 
 ### Background
 

@@ -1,0 +1,4 @@
+CGP	gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/IRA_FASTQs/CGP_R1.fastq.gz	gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/IRA_FASTQs/CGP_R2.fastq.gz
+DMSO	gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/IRA_FASTQs/DMSO_R1.fastq.gz	gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/IRA_FASTQs/DMSO_R2.fastq.gz
+LGD	gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/IRA_FASTQs/LGD_R1.fastq.gz	gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/IRA_FASTQs/LGD_R2.fastq.gz
+LKS_CGP	gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/IRA_FASTQs/LKS_CGP_R1.fastq.gz	gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/IRA_FASTQs/LKS_CGP_R2.fastq.gz

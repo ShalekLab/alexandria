@@ -1,25 +1,24 @@
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:smartseq2/versions/5/plain-WDL/descriptor" as smartseq2
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/14/plain-WDL/descriptor" as cumulus
 
-
 workflow smartseq2_cumulus {
 
 	File input_csv_file
 	String bucket
-	String bucket_slash = sub(output_directory, "/+$", "")+'/'
+	String bucket_slash = sub(output_directory, "/+$", '')+'/'
 	String output_directory
-	String output_directory_slash = if output_directory == '' then '' else sub(output_directory, "/+$", "")+'/'
+	String output_directory_slash = if output_directory == '' then '' else sub(output_directory, "/+$", '')+'/'
 	String alexandria_docker = "shaleklab/alexandria:0.1"
 	Int preemptible = 2
 	String reference # Reference to align reads against, GRCm38, GRCh38, or mm10
-	String cumulus_output_prefix = "sco"
+	String cumulus_output_prefix = "co"
 	Boolean generate_scp_outputs = true
 	Boolean cumulus_output_dense = true
 
 	call smartseq2.smartseq2 {
 		input:
 			input_csv_file=input_csv_file,
-			output_directory=output_directory_slash+"smartseq2",
+			output_directory=output_directory_slash+"smartseq2/",
 			reference=reference
 	}
 	if (run_cumulus) {
@@ -28,7 +27,7 @@ workflow smartseq2_cumulus {
 				 count_matrices=smartseq2.output_count_matrix,
 				 reference=reference,
 				 input_csv_file=input_csv_file,
-				 output_directory=output_directory_slash,
+				 output_directory=output_directory_slash+"smartseq2/",
 				 alexandria_docker=alexandria_docker,
 				 preemptible=preemptible
 		}
@@ -44,9 +43,9 @@ workflow smartseq2_cumulus {
 				alexandria_docker=alexandria_docker,
 				input_csv_file=input_csv_file,
 				alexandria_docker=alexandria_docker,
-				cumulus_output_directory_slash=output_directory_slash+"cumulus/",
+				cumulus_output_directory_slash=output_directory_slash+"cumulus/"+cumulus_output_prefix,
 				preemptible=preemptible,
-				cluster_file=bucket_slash+output_directory_slash+"cumulus/"+cumulus_output_prefix+".scp.X_fitsne.coords.txt",
+				scp_outputs_list=write_lines(cumulus.generate_scp_outputs),
 				bucket_slash=bucket_slash
 		}
 	}
@@ -70,6 +69,7 @@ task setup_cumulus {
 	command <<<
 		set -e
 		export TMPDIR=/tmp
+		#printenv
 
 		python CODE>>
 		import sys
@@ -140,46 +140,23 @@ task scp_outputs {
 	String alexandria_docker
 	String cumulus_output_directory_slash
 	Int preemptible
-	File cluster_file
+	File scp_outputs_list
 	String bucket_slash
-	#File metadata_type_map #LOCAL
 
 	command {
 		set -e
 		export TMPDIR=/tmp
 
-		# in inputs, make scp_ouputs input as single text file using write_lines()
-
-		python <<CODE
-		import pandas as pd
-
-		cluster_file="${cluster_file}"
-		input_csv_file="${input_csv_file}"
-
-		amd = pd.read_csv(cluster_file, dtype=str, sep='\t', header=0)
-		amd = amd.drop(columns=['X','Y'])
-		def get_sample(element):
-			if element == "TYPE": return "group"
-			else: return '-'.join(element.split('-')[:-1])
-		amd.insert(1, "Channel", pd.Series(amd["NAME"].map(get_sample)))
-
-		csv = pd.read_csv(input_csv_file, dtype=str, header=0).dropna(subset=['Sample'])
-		#$mtm = pd.read_csv("metadata_type_map.tsv", dtype=str, header=0, sep='\t') #LOCAL
-		mtm = pd.read_csv("/tmp/metadata_type_map.tsv", dtype=str, header=0, sep='\t') #TERRA
-		if "R1_Path" in csv.columns and "R2_Path" in csv.columns: csv = csv.drop(columns=["R1_Path", "R2_Path"])
-		if "BCL_Path" in csv.columns: csv = csv.drop(columns=["BCL_Path"])
-		def get_metadata(element, csv, metadata, mtm):
-			# TODO: Support outside metadata? Type cast data to validate that numeric is int/float, group is whatever.
-			if element == "group": return mtm.loc[mtm.ATTRIBUTE == metadata, "TYPE"].to_string(index=False).strip() #For TYPE row, search for type in map
-			else: return csv.loc[csv.Sample == element, metadata].to_string(index=False).strip()
-		for metadata in csv.columns:
-			if metadata == "Sample": continue
-			amd[metadata] = amd["Channel"].apply(func=get_metadata, args=(csv, metadata, mtm))
-		amd.to_csv("alexandria_metadata.txt", sep='\t', index=False)
-		print("ALEXANDRIA SUCCESS: Wrote alexandria_metadata.txt, finishing the dropseq_cumulus workflow.")
-		CODE
+		cd /alexandria
+		mkdir -p ${cumulus_output_directory_slash}
+		python scp_outputs.py \
+			-i ${input_csv_file} \
+			-s ${scp_outputs_list} \
+			-m /alexandria/metadata_type_map.tsv \
+			-o /alexandria/${cumulus_output_directory_slash}
 		
-		gsutil -q -m cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_directory_slash}
+		cd /alexandria/${cumulus_output_directory_slash}
+		gsutil -m cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_directory_slash}
 	}
 	output {
 		File alexandria_metadata = "alexandria_metadata.txt"
