@@ -17,12 +17,14 @@ class Tool(object):
 
 	@classmethod
 	def get_tool(cls, name):
-		if name == "Dropseq":
+		if name == "dropseq":
 			return Dropseq()
-		elif name == "Smartseq2":
+		elif name == "smartseq2":
 			return Smartseq2()
+		elif name == "kallisto-bustools":
+			return Kallisto_Bustools()
 		else:
-			raise Exception("ALEXANDRIA: ERROR! Tool "+name+" must be one of the valid options: (Dropseq, Smartseq2)")
+			raise Exception("ALEXANDRIA: ERROR! Tool "+name+" must be one of the valid options: (dropseq, smartseq2)")
 
 	@classmethod
 	def check_bucket(cls, bucket):
@@ -108,13 +110,13 @@ class Tool(object):
 		if len(entries) is not 0: 
 			return entries
 		else:
-			raise Exception("ALEXANDRIA ERROR: Checked input_csv_file "+bcl_path+" no samples were found in"+sample_sheet_path)
+			raise Exception("ALEXANDRIA: ERROR! Checked input_csv_file "+bcl_path+" no samples were found in"+sample_sheet_path)
 
 	@classmethod
 	def check_entry(cls, entry, ss):
 		print("Checking if", entry, "exists in sample_sheet")
 		if not ss.Sample_Name.str.contains(entry, regex=False).any(): # Check if Sample_Name column contains the sample.
-			raise Exception("ALEXANDRIA ERROR: entry "+entry+" in input_csv_file does not match any samples listed in the sample sheet")
+			raise Exception("ALEXANDRIA: ERROR! entry "+entry+" in input_csv_file does not match any samples listed in the sample sheet")
 		print("FOUND", entry)
 
 	# Essentially main
@@ -229,8 +231,8 @@ class Tool(object):
 	#######################################################################################################################################
 
 	@classmethod
-	def serialize_scp_outputs(cls, scp_outputs_file, names):
-		with open (scp_outputs_file, 'r') as scp_outputs:
+	def serialize_scp_outputs(cls, scp_outputs_list, names):
+		with open (scp_outputs_list, 'r') as scp_outputs:
 			for name in names:
 				is_found = False
 				for path in scp_outputs:
@@ -257,10 +259,10 @@ class Tool(object):
 		amd.insert(1, "Channel", pd.Series(amd["NAME"].map(get_entry)))
 		return amd
 
-	def cumulus_transform_csv_file(self, input_csv_file):
+	def isolate_metadata_columns(self, input_csv_file):
 		csv = pd.read_csv(input_csv_file, dtype=str, header=0)
 		#csv = csv.dropna(subset=['Sample'])
-		drop_columns = [self.entry, self.plate, self.R1_path, self.BCL_path, self.R2_path, self.SS_path]
+		drop_columns = [self.plate, self.R1_path, self.BCL_path, self.R2_path, self.SS_path]
 		drop_columns = filter(None, ignore_columns)
 		csv = csv.drop(columns=drop_columns, errors="ignore")
 		return csv
@@ -281,7 +283,7 @@ class Tool(object):
 
 class Dropseq(Tool):
 	def __init__(self):
-		self.name = "Dropseq"
+		self.name = "dropseq"
 		self.entry = "Sample"
 		self.R1_path = "R1_Path"
 		self.R2_path = "R2_Path"
@@ -305,7 +307,7 @@ class Dropseq(Tool):
 
 class Smartseq2(Tool):
 	def __init__(self):
-		self.name = "Smartseq2"
+		self.name = "smartseq2"
 		self.entry = "Cell"
 		self.R1_path = "Read1"
 		self.R2_path = "Read2"
@@ -328,3 +330,13 @@ class Smartseq2(Tool):
 
 	def write_locations(self, tls):
 		tls.to_csv(self.name+"_locations.tsv", header=True, index=False)
+
+class Kallisto_Bustools(Tool):
+	def __init__(self):
+		self.name = "kallisto-bustools"
+		self.entry = "Sample"
+		self.R1_path = "R1_Paths"
+		self.R2_path = "R1_Paths"
+		self.plate = None
+		self.BCL_path = "BCL_Path"
+		self.SS_path = "SS_Path"
