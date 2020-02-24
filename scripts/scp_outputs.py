@@ -1,8 +1,7 @@
 import pandas as pd
-import os.path as osp
 import argparse as ap
 
-def serialize_scp_outputs(scp_outputs_file, names):#, output_directory_slash):
+def serialize_scp_outputs(scp_outputs_file, names):
 	with open (scp_outputs_file, 'r') as scp_outputs:
 		for name in names:
 			is_found = False

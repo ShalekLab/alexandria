@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 if [ ! -e presets.sh ]; then 
 	echo "ALEXANDRIA DEV: ERROR! presets.sh library script not found."
@@ -12,13 +13,12 @@ else
 	$1
 fi
 
-set -euo pipefail
-
-src="/Users/jggatter/Desktop/Alexandria/alexandria_repository/src"
-cd $src
+source presets.sh
+scripts="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts"
+cd $scripts
 
 # WDL COMMAND START
-python setup_dropseq.py \
+python setup_smartseq2.py \
 	-i=${input_csv_file} \
 	-g=${bucket_slash} \
 	${is_bcl} \
@@ -30,8 +30,8 @@ python setup_dropseq.py \
 # Verify outputs
 if [ -e trimmed_sample_sheet.csv ]; then rm trimmed_sample_sheet.csv; fi
 
-test_outputs="${src}/tests/setup_dropseq/outputs/"
+test_outputs="${scripts}/tests/setup_smartseq2/outputs/"
 if [ -d ${test_outputs} ]; then rm -r ${test_outputs}; fi
 mkdir -p ${test_outputs}
-mv dropseq_locations.tsv $test_outputs
-head ${test_outputs}dropseq_locations.tsv
+mv smartseq2_locations.tsv $test_outputs
+head ${test_outputs}smartseq2_locations.tsv

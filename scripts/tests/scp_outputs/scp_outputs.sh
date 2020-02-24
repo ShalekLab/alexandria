@@ -13,8 +13,8 @@ else
 	$1
 fi
 
-src="/Users/jggatter/Desktop/Alexandria/alexandria_repository/src"
-cd $src
+scripts="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts"
+cd $scripts
 
 # WDL COMMAND START
 python scp_outputs.py \
@@ -23,7 +23,7 @@ python scp_outputs.py \
 	-m ${metadata_type_map}
 # WDL COMMAND END
 
-test_outputs="${src}/tests/scp_outputs/outputs/"
+test_outputs="${scripts}/tests/scp_outputs/outputs/"
 if [ -d ${test_outputs} ]; then rm -r ${test_outputs}; fi
 mkdir -p ${test_outputs}
 mv X_fitsne.coords.txt $test_outputs

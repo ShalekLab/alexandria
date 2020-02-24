@@ -2,7 +2,6 @@
 .DS_Store
 .Rhistory
 .ipynb*
-# .ipynb_checkpoints
 
 # Ignore deprecated files and junk
 junk/

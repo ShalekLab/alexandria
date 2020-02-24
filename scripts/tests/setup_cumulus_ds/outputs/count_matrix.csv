@@ -1,0 +1,5 @@
+Sample,Reference,Location
+CGP,mm10,gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/testing/CGP/CGP_dge.txt.gz
+DMSO,mm10,gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/testing/DMSO/DMSO_dge.txt.gz
+LGD,mm10,gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/testing/LGD/LGD_dge.txt.gz
+LKS_CGP,mm10,gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/testing/LKS_CGP/LKS_CGP_dge.txt.gz

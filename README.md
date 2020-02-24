@@ -3,6 +3,9 @@ A Single-Cell RNA-Seq and Analytics Platform for Global Health
   
 ![logo](docs/imgs/logo.png)
 
+[![Single Cell Portal Build status](https://img.shields.io/circleci/build/github/broadinstitute/single_cell_portal.svg)](https://circleci.com/gh/broadinstitute/single_cell_portal)
+[![Documentation Status](https://readthedocs.org/projects/alexandria-scrna-data-library/badge/?version=latest)](https://alexandria-scrna-data-library.readthedocs.io/en/latest/?badge=latest)
+
 [Here](https://alexandria-scrna-data-library.readthedocs.io/en/latest/) is a link to the work-in-progress documentation for the [Alexandria platform](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and all associated tool workflows and notebooks.
 
 ### Background
