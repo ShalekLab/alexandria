@@ -2,13 +2,14 @@
 A Single-Cell RNA-Seq and Analytics Platform for Global Health
   
 ![](imgs/logo.png)
+[![Single Cell Portal Build status](https://img.shields.io/circleci/build/github/broadinstitute/single_cell_portal.svg)](https://circleci.com/gh/broadinstitute/single_cell_portal)
 
-Work-in-progress documentation for the [Alexandria platform](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and all associated tool workflows and notebooks.
+This is the work-in-progress documentation for the [Alexandria platform](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and all associated tool workflows and notebooks.
 
 ### Background
 
 Alexandria is a single-cell portal and data resource for the global health community.
-Alexandria will use unified pipelines to preprocess, store, and visualize datasets of interest to the global health community, enabling rapid realization of transformative insights and the prioritization of follow-ups. To maximize impact and utility, Alexandria will build upon existing efforts at the Broad, Single Cell Portal, but will be further enhanced to enable queries across gene sets, cell types, and models as inspired by the types of data collected by the global health community. This will power vital cross-comparisons while simultaneously providing novel analytic capabilities for the community at large. Moreover, Alexandra will similarly empower the broader global research community—from individuals with limited experience in single-cell analysis to power users looking to more rapidly isolate specific subsets of data from several experiments—to examine and parse scRNA-Seq data, so that the insights and intuitions of the entire scientific community can be leveraged to enable rapid progress in fighting a variety of human maladies.
+Alexandria will use unified pipelines to preprocess, store, and visualize datasets of interest to the global health community, enabling rapid realization of transformative insights and the prioritization of follow-ups. To maximize impact and utility, Alexandria will build upon existing efforts at the Broad, Single Cell Portal (SCP), but will be further enhanced to enable queries across gene sets, cell types, and models as inspired by the types of data collected by the global health community. This will power vital cross-comparisons while simultaneously providing novel analytic capabilities for the community at large. Moreover, Alexandra will similarly empower the broader global research community—from individuals with limited experience in single-cell analysis to power users looking to more rapidly isolate specific subsets of data from several experiments—to examine and parse scRNA-Seq data, so that the insights and intuitions of the entire scientific community can be leveraged to enable rapid progress in fighting a variety of human maladies.
 
 ![flowchart](/imgs/flowchart.png)
 
@@ -20,7 +21,7 @@ There are a variety of features that Alexandria plans to provide users
 
 ### Data upload
   
-In Alexandria and SCP, data is organized into ‘studies’ which are projects containing data intended to be analyzed together. Visualizations of subsets of single cells are available within a study, and a study may contain data from many samples.
+In Alexandria and the Single Cell Portal, data is organized into ‘studies’ which are projects containing data intended to be analyzed together. Visualizations of subsets of single cells are available within a study, and a study may contain data from many samples. An overview of visualizations provided on SCP can be found [here](https://github.com/broadinstitute/single_cell_portal/wiki/Visualizations-Overview).
   
 Data can be uploaded to Alexandria while samples are still being collected, while the analysis is in progress, or when the final analysis is complete.
   
@@ -28,17 +29,20 @@ Data can be uploaded to Alexandria while samples are still being collected, whil
 1. Newly sequenced data: Raw sequencing data can be uploaded to Alexandria, aligned using integrated pipelines, and analyzed using either automated and interactive environments.
     - Currently, for automated visualization, all data must be uploaded and run on the alignment pipeline at the same time.
     - For human sequencing data, please verify that study is kept private for the time being.
-    - The upload process for sequencing data is described [here](alexandria.html#uploading-sequence-data-files)
+    - The upload process for sequencing data is described [here](alexandria.html#uploading-sequence-data-files).
+    - The process of sharing SCP studies is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Annotations). 
 2. Partially analyzed data: For ongoing analyses or data collection, data can be uploaded using SCP file formats to allow sharing of intermediate results with collaborators.
     - Each time new data is added, all data will be ingested again but may not need to be uploaded again.
     - Only one metadata file is allowed per study so this must be reuploaded each time.
-    - The upload process for SCP file formats is described [here](alexandria.html#uploading-sequence-data-files)
+    - The upload process for SCP file formats is described [here](alexandria.html#uploading-sequence-data-files).
+    - The process of sharing SCP studies is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Annotations). 
 3. Complete analyses: Data from published or under revision manuscripts may be uploaded.
     - We request that as much metadata as is known be added to the project even if it is the same for all cells in the project or is not relevant to the project.
     - These studies can be kept private and shared with reviewers when they are under revision.
-    - The upload process for SCP file formats is described [here](alexandria.html#uploading-sequence-data-files)
+    - The upload process for SCP file formats is described [here](alexandria.html#uploading-sequence-data-files).
+    - The process of sharing SCP studies is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Annotations). 
   
-##### Upload from SCP file formats
+##### Upload from Single Cell Portal file formats
 
 SCP file format upload is documented [here](alexandria.html#uploading-sequence-data-files). The Alexandria Project has several additional requirements on these file types.  
   

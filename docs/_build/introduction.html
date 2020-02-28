@@ -91,7 +91,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#why-use-alexandria">Why use Alexandria?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-upload">Data upload</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#types-of-studies">Types of studies:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#upload-from-scp-file-formats">Upload from SCP file formats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upload-from-single-cell-portal-file-formats">Upload from Single Cell Portal file formats</a></li>
 </ul>
 </li>
 </ul>
@@ -175,14 +175,13 @@
   <div class="section" id="the-alexandria-project">
 <h1>The Alexandria Project<a class="headerlink" href="#the-alexandria-project" title="Permalink to this headline">¶</a></h1>
 <p>A Single-Cell RNA-Seq and Analytics Platform for Global Health</p>
-<p><img alt="_images/logo.png" src="_images/logo.png" /></p>
-<p>Work-in-progress documentation for the <a class="reference external" href="https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project">Alexandria platform</a> and all associated tool workflows.</p>
-<p>The first workflow Alexandria offers is <code class="docutils literal notranslate"><span class="pre">dropseq_cumulus</span></code>, a workflow that joins the preprocessing functionalities of <a class="reference external" href="http://mccarrolllab.org/dropseq/">Drop-Seq pipeline</a> with the visualization functionalities of <a class="reference external" href="https://cumulus-doc.readthedocs.io/en/latest/">Cumulus</a>.</p>
-<p>Another workflow is <code class="docutils literal notranslate"><span class="pre">kallisto-bustools_cumulus</span></code>, which bridges the pseudoaligner <a class="reference external" href="https://www.kallistobus.tools/about">Kallisto-Bustools</a> with Cumulus.</p>
+<p><img alt="_images/logo.png" src="_images/logo.png" />
+<a class="reference external" href="https://circleci.com/gh/broadinstitute/single_cell_portal"><img alt="Single Cell Portal Build status" src="https://img.shields.io/circleci/build/github/broadinstitute/single_cell_portal.svg" /></a></p>
+<p>This is the work-in-progress documentation for the <a class="reference external" href="https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project">Alexandria platform</a> and all associated tool workflows and notebooks.</p>
 <div class="section" id="background">
 <h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
 <p>Alexandria is a single-cell portal and data resource for the global health community.
-Alexandria will use unified pipelines to preprocess, store, and visualize datasets of interest to the global health community, enabling rapid realization of transformative insights and the prioritization of follow-ups. To maximize impact and utility, Alexandria will build upon existing efforts at the Broad, Single Cell Portal, but will be further enhanced to enable queries across gene sets, cell types, and models as inspired by the types of data collected by the global health community. This will power vital cross-comparisons while simultaneously providing novel analytic capabilities for the community at large. Moreover, Alexandra will similarly empower the broader global research community—from individuals with limited experience in single-cell analysis to power users looking to more rapidly isolate specific subsets of data from several experiments—to examine and parse scRNA-Seq data, so that the insights and intuitions of the entire scientific community can be leveraged to enable rapid progress in fighting a variety of human maladies.</p>
+Alexandria will use unified pipelines to preprocess, store, and visualize datasets of interest to the global health community, enabling rapid realization of transformative insights and the prioritization of follow-ups. To maximize impact and utility, Alexandria will build upon existing efforts at the Broad, Single Cell Portal (SCP), but will be further enhanced to enable queries across gene sets, cell types, and models as inspired by the types of data collected by the global health community. This will power vital cross-comparisons while simultaneously providing novel analytic capabilities for the community at large. Moreover, Alexandra will similarly empower the broader global research community—from individuals with limited experience in single-cell analysis to power users looking to more rapidly isolate specific subsets of data from several experiments—to examine and parse scRNA-Seq data, so that the insights and intuitions of the entire scientific community can be leveraged to enable rapid progress in fighting a variety of human maladies.</p>
 <p><img alt="flowchart" src="_images/flowchart.png" /></p>
 </div>
 <div class="section" id="why-use-alexandria">
@@ -196,7 +195,7 @@ Alexandria will use unified pipelines to preprocess, store, and visualize datase
 </div>
 <div class="section" id="data-upload">
 <h2>Data upload<a class="headerlink" href="#data-upload" title="Permalink to this headline">¶</a></h2>
-<p>In Alexandria and SCP, data is organized into ‘studies’ which are projects containing data intended to be analyzed together. Visualizations of subsets of single cells are available within a study, and a study may contain data from many samples.</p>
+<p>In Alexandria and the Single Cell Portal, data is organized into ‘studies’ which are projects containing data intended to be analyzed together. Visualizations of subsets of single cells are available within a study, and a study may contain data from many samples. An overview of visualizations provided on SCP can be found <a class="reference external" href="https://github.com/broadinstitute/single_cell_portal/wiki/Visualizations-Overview">here</a>.</p>
 <p>Data can be uploaded to Alexandria while samples are still being collected, while the analysis is in progress, or when the final analysis is complete.</p>
 <div class="section" id="types-of-studies">
 <h3>Types of studies:<a class="headerlink" href="#types-of-studies" title="Permalink to this headline">¶</a></h3>
@@ -205,27 +204,30 @@ Alexandria will use unified pipelines to preprocess, store, and visualize datase
 <ul class="simple">
 <li><p>Currently, for automated visualization, all data must be uploaded and run on the alignment pipeline at the same time.</p></li>
 <li><p>For human sequencing data, please verify that study is kept private for the time being.</p></li>
-<li><p>The upload process for sequencing data is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a></p></li>
+<li><p>The upload process for sequencing data is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a>.</p></li>
+<li><p>The process of sharing SCP studies is described <a class="reference external" href="https://github.com/broadinstitute/single_cell_portal/wiki/Annotations">here</a>.</p></li>
 </ul>
 </li>
 <li><p>Partially analyzed data: For ongoing analyses or data collection, data can be uploaded using SCP file formats to allow sharing of intermediate results with collaborators.</p>
 <ul class="simple">
 <li><p>Each time new data is added, all data will be ingested again but may not need to be uploaded again.</p></li>
 <li><p>Only one metadata file is allowed per study so this must be reuploaded each time.</p></li>
-<li><p>The upload process for SCP file formats is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a></p></li>
+<li><p>The upload process for SCP file formats is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a>.</p></li>
+<li><p>The process of sharing SCP studies is described <a class="reference external" href="https://github.com/broadinstitute/single_cell_portal/wiki/Annotations">here</a>.</p></li>
 </ul>
 </li>
 <li><p>Complete analyses: Data from published or under revision manuscripts may be uploaded.</p>
 <ul class="simple">
 <li><p>We request that as much metadata as is known be added to the project even if it is the same for all cells in the project or is not relevant to the project.</p></li>
 <li><p>These studies can be kept private and shared with reviewers when they are under revision.</p></li>
-<li><p>The upload process for SCP file formats is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a></p></li>
+<li><p>The upload process for SCP file formats is described <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a>.</p></li>
+<li><p>The process of sharing SCP studies is described <a class="reference external" href="https://github.com/broadinstitute/single_cell_portal/wiki/Annotations">here</a>.</p></li>
 </ul>
 </li>
 </ol>
 </div>
-<div class="section" id="upload-from-scp-file-formats">
-<h3>Upload from SCP file formats<a class="headerlink" href="#upload-from-scp-file-formats" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="upload-from-single-cell-portal-file-formats">
+<h3>Upload from Single Cell Portal file formats<a class="headerlink" href="#upload-from-single-cell-portal-file-formats" title="Permalink to this headline">¶</a></h3>
 <p>SCP file format upload is documented <a class="reference external" href="alexandria.html#uploading-sequence-data-files">here</a>. The Alexandria Project has several additional requirements on these file types.</p>
 <p>We will provide an interactive notebook to facilitate conversion of Seurat or Scanpy objects to these file types.</p>
 <ol class="simple">
