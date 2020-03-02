@@ -2,8 +2,7 @@ import subprocess as sp
 import pandas as pd
 
 class Tool(object):
-
-	def __init__(self, name, entry, R1_path=None, R2_path=None, plate=None, BCL=None, SS_path=None):
+	def __init__(self, name, entry, R1_path=None, R2_path=None, plate=None, BCL_path=None, SS_path=None):
 		self.name = name
 		self.entry = entry
 		self.R1_path = R1_path
@@ -12,7 +11,7 @@ class Tool(object):
 		self.SS_path = SS_path
 
 	#######################################################################################################################################
-	#														COMMON INPUTS/OUTPUTS
+	#	COMMON INPUTS/OUTPUTS
 	#######################################################################################################################################
 
 	@classmethod
@@ -62,7 +61,7 @@ class Tool(object):
 		tls.to_csv(self.name+"_locations.tsv", sep='\t', header=None, index=False)
 
 	#######################################################################################################################################
-	#															BCLs
+	#	BCLs
 	#######################################################################################################################################
 
 	@classmethod
@@ -138,7 +137,7 @@ class Tool(object):
 		return sample_sheet_path
 
 	#######################################################################################################################################
-	#															FASTQs
+	#	FASTQs
 	#######################################################################################################################################
 
 	def determine_location_override(self, csv):
@@ -169,7 +168,7 @@ class Tool(object):
 
 	@classmethod
 	def validate_fastq_path(cls, fastq_path, default_path):
-		# First Check the fastq_path, then if it fails then check the default directory.
+		# First Check the fastq_path, then if it fails then check the fastq default directory.
 		try:
 			fastq_path = sp.check_output(args=["gsutil", "ls", fastq_path]).strip().decode()
 		except sp.CalledProcessError: 
@@ -203,7 +202,7 @@ class Tool(object):
 		return validated_fastq_path
 
 	#######################################################################################################################################
-	#														CUMULUS SETUP
+	#	CUMULUS SETUP
 	#######################################################################################################################################
 
 	def get_dge_location(self, entry, bucket_slash, output_directory_slash):
@@ -227,7 +226,7 @@ class Tool(object):
 		return cm
 
 	#######################################################################################################################################
-	#														SCP OUTPUTS
+	#	SCP OUTPUTS
 	#######################################################################################################################################
 
 	@classmethod
@@ -262,8 +261,8 @@ class Tool(object):
 	def isolate_metadata_columns(self, input_csv_file):
 		csv = pd.read_csv(input_csv_file, dtype=str, header=0)
 		#csv = csv.dropna(subset=['Sample'])
-		drop_columns = [self.plate, self.R1_path, self.BCL_path, self.R2_path, self.SS_path]
-		drop_columns = filter(None, ignore_columns)
+		drop_columns = [self.R1_path, self.BCL_path, self.R2_path, self.SS_path]
+		drop_columns = filter(None, drop_columns)
 		csv = csv.drop(columns=drop_columns, errors="ignore")
 		return csv
 
@@ -280,6 +279,10 @@ class Tool(object):
 			if metadata == self.entry: continue
 			amd[metadata] = amd["Channel"].apply(func=get_metadata, args=(csv, metadata, mtm))
 		return amd
+
+#######################################################################################################################################
+#	TOOLS
+#######################################################################################################################################
 
 class Dropseq(Tool):
 	def __init__(self):
@@ -299,7 +302,7 @@ class Dropseq(Tool):
 		if "R1_fastq" in csv.columns or "R2_fastq" in csv.columns:
 			errors.append("Please rename both of your FASTQ path column headers to '"+self.R1_path+"'' and '"+self.R2_path+"'.")
 		if len(errors) > 0:
-			raise Exception("ALEXANDRIA: ERROR! " + "\n ".join(errors))
+			raise Exception("ALEXANDRIA: ERROR! " + "\n".join(errors))
 		return csv #.dropna(subset=[self.entry]) 
 
 	def write_locations(self, tls):
@@ -340,3 +343,14 @@ class Kallisto_Bustools(Tool):
 		self.plate = None
 		self.BCL_path = "BCL_Path"
 		self.SS_path = "SS_Path"
+
+	def transform_csv_file(self, csv):
+		csv = super().transform_csv_file(csv)
+		errors=[]
+		if self.entry not in csv.columns:
+			errors.append("Please ensure your cell column is named '"+self.entry+"'.")
+		if "R1_Path" in csv.columns or "R2_Path" in csv.columns:
+			errors.append("Please rename both of your FASTQ path column headers to '"+self.R1_path+"' and '"+self.R2_path+"'.")
+		if len(errors) > 0:
+			raise Exception("ALEXANDRIA: ERROR! " + "\n ".join(errors))
+		return csv #.dropna(subset=[self.entry])

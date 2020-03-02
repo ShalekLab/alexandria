@@ -19,7 +19,7 @@ cd $scripts
 # WDL COMMAND START
 python scp_outputs.py \
 	-i ${input_csv_file} \
-	-s ${scp_outputs} \
+	-s ${output_scp_files} \
 	-m ${metadata_type_map}
 # WDL COMMAND END
 

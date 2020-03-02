@@ -6,16 +6,11 @@
 # Ignore deprecated files and junk
 junk/
 __pycache__
+deprecated/
 
 # Ignore certain junk in the WDL Folder
-WDL/bucket/
-WDL/inputs/
-WDL/old_jsons/
-WDL/local*
-WDL/dummy*
-WDL/*.sh
-WDL/test.wdl
-WDL/WDL_tutorial.wdl
+workflows/bucket
+workflows/other
 *cromwell*
 *womtool*
 
