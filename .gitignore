@@ -9,10 +9,10 @@ __pycache__
 deprecated/
 
 # Ignore certain junk in the WDL Folder
-workflows/bucket
 workflows/other
 *cromwell*
 *womtool*
+dummies/
 
 # Ignore testing data for notebooks
 Seurat_Objects/

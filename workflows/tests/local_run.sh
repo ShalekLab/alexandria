@@ -4,8 +4,6 @@ inputs="$2"
 workflows="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows"
 
 CROMWELL_PATH="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/tests/cromwell/cromwell-*.jar"
-CROMWELL_CONFIG="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/tests/cromwell/cromwell.conf"
-WORKFLOW_OPTIONS="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/tests/cromwell/cromwell_workflow_options.json"
 
 set -euo pipefail
 
@@ -20,4 +18,4 @@ if [ -z $inputs ]; then
 fi
 
 set -x
-java -Dconfig.file=${CROMWELL_CONFIG} -jar ${CROMWELL_PATH} run $wdl --inputs $inputs --options $WORKFLOW_OPTIONS
+java -jar ${CROMWELL_PATH} run $wdl --inputs $inputs

@@ -5,7 +5,7 @@ set -euo pipefail
 echo -----------------------------------------------------------------------------------------------------
 # Variable initialization
 wdl="$1"
-output_dir="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/tests/dummies/${wdl%.wdl}"
+output_dir="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/tests/dummies/$( basename -s .wdl $wdl)"
 
 printf "FILE ${wdl}: BEGIN PRE-PARSING OUTPUTS TO BUILD TASK DUMMY SCRIPTS.\n\n"
 
@@ -22,7 +22,6 @@ while read line; do
 		if [[ "$stripped_line" == "workflow"*"{" ]]; then
 			in_task="false"
 			workflow="$(echo $stripped_line | sed -e 's/workflow//' -E -e 's/( |{)//g' )"
-			output_dir="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/tests/dummies/${workflow}"
 			echo Identified workflow: $workflow
 			echo Outputted scripts will be sent to $output_dir
 		fi
@@ -34,17 +33,16 @@ while read line; do
 				in_task="true"
 			else
 				printf "\t\tTask already has existing script at ${output_dir}/${task}.sh, skipping parsing of outputs.\n"
+				in_task="false"
 			fi
 		fi
 		if [[ "$in_task" == "true" && "$stripped_line" == "output"*"{" ]]; then
-			#task=$(echo $stripped_line | sed -e 's/output//' -E -e 's/( |{)//g' )
 			printf "\t\tIdentified output block of ${task}.\n"
 			do_parse="true"
 			printf "\t\tParsing outputs of ${task}...\n"
 		fi
 	else
-		#printf "\t\t\t${stripped_line}\n"
-		if [[ "$stripped_line" == "}"* ]]; then
+		if [[ "$stripped_line" == "}" ]]; then
 			do_parse="false"
 			in_task="false"
 		else
@@ -58,9 +56,21 @@ while read line; do
 					printf "\t\t\t\t\tLooking for the name enclosed in the apostrophes...\n"
 					# Get the name between the single/double apostrophes
 					name="$( echo $RHS | sed 's/.*\"\(.*\)\".*/\1/' | sed "s/.*'\(.*\)'.*/\1/" | sed 's/\*/asterisk/g')"
+					# Makes sure it is not a gs:// or filepath. Dummy name should just be one long consecutive string.
 					printf "\t\t\t\t\tName: ${name}\n"
-					mkdir -p $output_dir
-					echo "echo $name >> $name" >> ${output_dir}/${task}.sh 
+					mkdir -p $output_dir 
+					cat <<-SCRIPT >> ${output_dir}/${task}.sh
+					name="$name"
+					if [[ "\$name" != *"/" ]]; then
+						if [[ "\$name" == "gs://"* ]]; then
+							echo \$name >> \$(basename \$name)
+							gsutil cp \$(basename \$name) \$(dirname \$name)/
+						else
+							mkdir -p \$(dirname \$name)
+							echo \$name >> \$name
+						fi
+					fi
+					SCRIPT
 					printf "\t\t\t\t\tAdded to ${output_dir}/${task}.sh.\n"
 				fi
 			fi

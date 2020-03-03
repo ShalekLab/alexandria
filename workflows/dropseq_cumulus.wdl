@@ -1,5 +1,8 @@
 version 1.0
 
+import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/drop-seq/dropseq_workflow.wdl" as dropseq
+import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/cumulus/cumulus.wdl" as cumulus
+
 workflow dropseq_cumulus {
 	input {
 		# User-inputted .csv file that contains in whatever order:
@@ -15,7 +18,7 @@ workflow dropseq_cumulus {
 		String bucket
 
 		# The gsURI path following the bucket root to the folder where you wish the pipeline to deposit files
-		# ex: "gs://your-bucket-id/dropseq_cumulus/my-job/"
+		# ex: "dropseq_cumulus/my-job/" from gs://your-bucket-id/dropseq_cumulus/my-job/
 		# Inside this folder (ex: my-job/) folders for each tool will be created ("dropseq/" and "cumulus/")
 		String output_path
 		
@@ -25,7 +28,7 @@ workflow dropseq_cumulus {
 
 		# If you have some/all of your FASTQs in one folder object on the bucket,
 		# enter the gsURI path to that folder object following the bucket root.
-		# ex: "gs://your-bucket-id/FASTQs/"
+		# ex: "FASTQs/" from full gsURI gs://your-bucket-id/FASTQs/
 		String? fastq_directory
 		
 		# Set true to run alignment by Drop-Seq tools
@@ -145,6 +148,13 @@ workflow dropseq_cumulus {
 				zones=zones
 		}
 	}
+	output {
+		File alexandria_metadata = scp_outputs.alexandria_metadata
+		#File pca_coords = scp_outputs.pca_coords
+		File fitsne_coords = scp_outputs.fitsne_coords
+		File dense_matrix = scp_outputs.dense_matrix
+		File cumulus_metadata = scp_outputs.cumulus_metadata
+	}
 }
 
 task setup_dropseq {
@@ -226,12 +236,16 @@ task scp_outputs {
 	command <<<
 		python /alexandria/scripts/scp_outputs.py \
 			-i ~{input_csv_file} \
-			-s ~{output_scp_files} \
+			-s ~{write_lines(output_scp_files)} \
 			-m /alexandria/scripts/metadata_type_map.tsv
 		gsutil cp alexandria_metadata.txt ~{bucket_slash}~{cumulus_output_directory_slash}
 	>>>
 	output {
 		File alexandria_metadata = "alexandria_metadata.txt"
+		#File? pca_coords = read_string(select_first(glob("*X_diffmap_pca.coords.txt")))
+		File cumulus_metadata = read_string("metadata.txt")
+		File fitsne_coords = read_string(glob("*X_fitsne\.coords\.txt")[0])
+		File dense_matrix = read_string(glob("*expr\.txt")[0])
 	}
 	runtime {
 		docker: "~{alexandria_docker}"

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 wdl="$1"
-workflows="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/"
+workflows="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows"
 WOMTOOL_PATH="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/tests/cromwell/womtool-*.jar"
 
 : '
@@ -27,7 +27,9 @@ set -x
 java -jar $WOMTOOL_PATH inputs $wdl > $inputs
 set +x
 
-output_dir="${workflows}/tests/dummies/$( dirname $wdl )/"
+cat $inputs
+
+output_dir="${workflows}/tests/dummies/$( basename -s _dummy.wdl $wdl )/"
 echo Moving inputs to $output_dir
 mkdir -p $output_dir
 mv $inputs $output_dir
