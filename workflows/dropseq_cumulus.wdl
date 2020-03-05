@@ -1,5 +1,16 @@
-import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/drop-seq/dropseq_workflow.wdl" as dropseq
-import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/cumulus/cumulus.wdl" as cumulus
+# dropseq_cumulus workflow
+# A publicly available WDL workflow made by Shalek Lab for bridging dropseq_workflow and cumulus workflow
+# By jgatter [at] broadinstitute.org, created December 16th, 2019
+# Incorporates subworkflows made by jgould [at] broadinstitute.org of the Cumulus Team
+# Drop-Seq Tools Pipeline by McCarroll Lab (https://github.com/broadinstitute/Drop-seq/blob/master/doc/Drop-seq_Alignment_Cookbook.pdf)
+# Cumulus by the Cumulus Team (https://cumulus-doc.readthedocs.io/en/latest/index.html)
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# VERSION 1
+# Release
+# ------------------------------------------------------------------------------------------------------------------------------------------
+
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/7/plain-WDL/descriptor" as dropseq
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/16/plain-WDL/descriptor" as cumulus
 
 workflow dropseq_cumulus {
 	# User-inputted .csv file that contains in whatever order:
@@ -38,16 +49,20 @@ workflow dropseq_cumulus {
 	# Alexandria/The Single Cell Portal require these data files.
 	Boolean run_cumulus
 
-	# Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
+	### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
+	# dropseq_workflow docker image
 	String dropseq_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/dropseq/tags
 	String dropseq_tools_version = "2.3.0"
+	# bcl2fastq docker image
 	# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
 	# If not Broad-affiliated, see the Alexandria documentation appendix for creating your own bcl2fastq image.
 	String bcl2fastq_registry = "gcr.io/broad-cumulus" # Privately hosted on Regev Lab GCR
 	String bcl2fastq_version = "2.20.0.422"
+	# cumulus workflow docker image
 	String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
 	String cumulus_version = "0.14.0"
-	String alexandria_docker = "shaleklab/alexandria:0.1" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
+	# alexandria docker image
+	String alexandria_docker = "shaleklab/alexandria:0.2" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
 	
 	# The maximum number of attempts Cromwell will request Google for a preemptible VM.
 	# Preemptible VMs are about 5 times cheaper than non-preemptible, but Google can yank them

@@ -116,7 +116,7 @@ while IFS= read line; do
 			sed "s/^/${tabs}/" ${output_dir}/${task}_runtime.txt >> ${output_dir}/$wdl_dummy
 		else
 			printf "\tNo runtime text file was found for $task, inserting ubuntu:latest for docker.\n"
-			printf "\n${tabs}docker: \"ubuntu:latest\"\n" >> ${output_dir}/$wdl_dummy
+			printf "${tabs}docker: \"ubuntu:latest\"\n" >> ${output_dir}/$wdl_dummy
 		fi
 		operator="}"
 		do_write="false"

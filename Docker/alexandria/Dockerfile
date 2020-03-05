@@ -1,7 +1,6 @@
 FROM continuumio/miniconda3:4.7.10
 
-ADD metadata_type_map.tsv /alexandria/
-ADD scp_outputs.py /alexandria/
+ADD scripts/ /alexandria/
 
 RUN apt-get update && \
 apt-get install --no-install-recommends -y curl dpkg-dev gnupg lsb-release procps && \
@@ -10,4 +9,4 @@ echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /e
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
 apt-get update && apt-get install -y google-cloud-sdk
 
-RUN conda install -y numpy=1.16.4 pandas=0.24.2
+RUN conda install -y numpy=1.17.2 pandas=0.25.1
