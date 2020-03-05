@@ -29,22 +29,22 @@ Data can be uploaded to Alexandria while samples are still being collected, whil
 1. Newly sequenced data: Raw sequencing data can be uploaded to Alexandria, aligned using integrated pipelines, and analyzed using either automated and interactive environments.
     - Currently, for automated visualization, all data must be uploaded and run on the alignment pipeline at the same time.
     - For human sequencing data, please verify that study is kept private for the time being.
-    - The upload process for sequencing data is described [here](alexandria.html#uploading-sequence-data-files).
+    - The upload process for sequencing data is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Uploading-Data).
     - The process of sharing SCP studies is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Annotations). 
 2. Partially analyzed data: For ongoing analyses or data collection, data can be uploaded using SCP file formats to allow sharing of intermediate results with collaborators.
     - Each time new data is added, all data will be ingested again but may not need to be uploaded again.
     - Only one metadata file is allowed per study so this must be reuploaded each time.
-    - The upload process for SCP file formats is described [here](alexandria.html#uploading-sequence-data-files).
+    - The upload process for SCP file formats is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Uploading-Data).
     - The process of sharing SCP studies is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Annotations). 
 3. Complete analyses: Data from published or under revision manuscripts may be uploaded.
     - We request that as much metadata as is known be added to the project even if it is the same for all cells in the project or is not relevant to the project.
     - These studies can be kept private and shared with reviewers when they are under revision.
-    - The upload process for SCP file formats is described [here](alexandria.html#uploading-sequence-data-files).
+    - The upload process for SCP file formats is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Uploading-Data).
     - The process of sharing SCP studies is described [here](https://github.com/broadinstitute/single_cell_portal/wiki/Annotations). 
   
 ##### Upload from Single Cell Portal file formats
 
-SCP file format upload is documented [here](alexandria.html#uploading-sequence-data-files). The Alexandria Project has several additional requirements on these file types.  
+SCP file format upload is documented [here](https://github.com/broadinstitute/single_cell_portal/wiki/Uploading-Data). The Alexandria Project has several additional requirements on these file types.  
   
 We will provide an interactive notebook to facilitate conversion of Seurat or Scanpy objects to these file types.  
   

@@ -70,7 +70,7 @@ while IFS= read line; do
 	
 	# If command block closing operator is encountered, reset do_write to true.
 	if [[ "$do_write" == "false" && "$stripped_line" == "${operator}" ]]; then
-		printf "\tEncountered closing operator of command block.\n"
+		printf "\tEncountered closing operator of the block.\n"
 		do_write="true"
 	elif [[ "$stripped_line" == *"command"* ]]; then
 		
@@ -103,6 +103,22 @@ while IFS= read line; do
 		sed "s/^/${tabs}/" ${output_dir}/${task}.sh >> ${output_dir}/$wdl_dummy
 		
 		# Set do_write to false, will be set to true when operator is encountered.
+		do_write="false"
+	elif [[ "$stripped_line" == *"runtime"* ]]; then
+		printf "\tEncountered the runtime block of $task.\n"
+		printf "$line\n" >> ${output_dir}/$wdl_dummy
+		
+		script_indentation=$(( $indentation + 1 ))
+		tabs="$( seq  -f "\t" -s '' ${script_indentation} )"
+
+		if [ -e "${output_dir}/${task}_runtime.txt" ]; then 
+			printf "\tInserting script into $task runtime block...\n"
+			sed "s/^/${tabs}/" ${output_dir}/${task}_runtime.txt >> ${output_dir}/$wdl_dummy
+		else
+			printf "\tNo runtime text file was found for $task, inserting ubuntu:latest for docker.\n"
+			printf "\n${tabs}docker: \"ubuntu:latest\"\n" >> ${output_dir}/$wdl_dummy
+		fi
+		operator="}"
 		do_write="false"
 	fi
 	# If true, write the line provided that it is not a comment (Comments can contain harmful characters)
