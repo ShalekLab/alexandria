@@ -1,6 +1,6 @@
 FROM continuumio/miniconda3:4.7.10
 
-ADD scripts/ /alexandria/
+ADD scripts/ /alexandria/scripts/
 
 RUN apt-get update && \
 apt-get install --no-install-recommends -y curl dpkg-dev gnupg lsb-release procps && \
