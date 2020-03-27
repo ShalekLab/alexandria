@@ -10,11 +10,12 @@ Alexandria: Single-Cell Data Portal
 
 .. toctree::
    :maxdepth: 3
-   :caption: dropseq_cumulus Workflow
+   :caption: dropseq_cumulus workflow
    
    alexandria
    terra
    dropseq_cumulus
+   Custom Genome <dropseq_bundle>
 
 .. toctree::
    :maxdepth: 3

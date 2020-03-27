@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Creating a Custom Genome Reference for dropseq_cumulus &mdash; Alexandria  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bcl2Fastq Dockerfile" href="bcl2fastq.html" />
+    <link rel="prev" title="Inputs/Outputs" href="dropseq_cumulus.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #344563" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/dark_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">The Alexandria Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">The Alexandria Metadata Convention</a></li>
+</ul>
+<p class="caption"><span class="caption-text">dropseq_cumulus workflow</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="alexandria.html">Running on Alexandria</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra.html">Running on Terra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dropseq_cumulus.html">Inputs/Outputs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Custom Genome</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bcl2fastq.html">Bcl2Fastq Dockerfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_upload.html">Alternatives for uploading data</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Alexandria</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Creating a Custom Genome Reference for dropseq_cumulus</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/dropseq_bundle.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="creating-a-custom-genome-reference-for-dropseq-cumulus">
+<h1>Creating a Custom Genome Reference for dropseq_cumulus<a class="headerlink" href="#creating-a-custom-genome-reference-for-dropseq-cumulus" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For now, dropseq_cumulus does not currently does not support upload to Alexandria for matrices containing multiple species. If your data contains data from multiple species, you will need to split your aligned data into multiple matrices such that each matrix contains data from one species. Afterwards, you can run Cumulus only in dropseq_cumulus for each species to generate the necessary files for upload.</p>
+</div>
+<p>The following information is a summary of <a class="reference external" href="https://cumulus.readthedocs.io/en/latest/drop_seq.html">this article by the Cumulus Team</a>.</p>
+<p>dropseq_bundle is a workflow on <a class="reference external" href="https://terra.bio/">Terra</a> by the Cumulus Team that can produce custom genome references that are compatile with dropseq_workflow (and by extension dropseq_cumulus). Alexandria pipelines are run through Terra, which is the Broad Institute’s Cloud Datasciences platform that is built on Google Cloud. Thus, you can use the same Google billing account for Terra that you use for Alexandria/The Single Cell Portal. Once you register, you can follow <a class="reference internal" href="terra.html"><span class="doc">this article</span></a> to gain a better understanding of how to setup your workspace, import workflows, and run workflows.</p>
+<p>Below is a list of important parameters for this workflow.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 92%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Parameter Name</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>fasta_file</p></td>
+<td><p>An array of fasta files. If more than one species, fasta and gtf files must be in the same order.</p></td>
+</tr>
+<tr class="row-odd"><td><p>gtf_file</p></td>
+<td><p>An array of gtf files. If more than one species, fasta and gtf files must be in the same order.</p></td>
+</tr>
+<tr class="row-even"><td><p>genomeSAindexNbases</p></td>
+<td><p>Length (bases) of the SA pre-indexing string. Typically between 10 and 15. Longer strings will use much more memory, but allow faster searches. For small genomes, must be scaled down to min(14, log2(GenomeLength)/2 - 1)</p></td>
+</tr>
+</tbody>
+</table>
+<p>You can find genomic FASTA (.fa or .fasta) and GTF (.gtf) files on databases such as NCBI’s <a class="reference external" href="https://www.ncbi.nlm.nih.gov/refseq/">RefSeq</a>. You will need to upload these files to your Terra workspace. Note that <code class="docutils literal notranslate"><span class="pre">fasta_file</span></code> and <code class="docutils literal notranslate"><span class="pre">gtf_file</span></code> need to be entered as arrays. For example, you can enter one genomic FASTA as <code class="docutils literal notranslate"><span class="pre">[&quot;gs://&lt;bucket_ID&gt;/path/to/file.fa&quot;]</span></code> or multiple as <code class="docutils literal notranslate"><span class="pre">[&quot;gs://&lt;bucket_ID&gt;/path/to/file.fa&quot;,</span> <span class="pre">&quot;gs://&lt;bucket_ID&gt;/path/to/file2.fa&quot;]</span></code> where <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/file.fa</span></code> will need to be full google storage URI to your files. (e.g. <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/&lt;your_gtf&gt;.gtf</span></code>, <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/&lt;your_fasta&gt;.fasta</span></code>, etc.)</p>
+<p>After dropseq_bundle runs successfully for your inputs, you can choose whether to run dropseq_cumulus <a class="reference internal" href="terra.html"><span class="doc">on Terra</span></a> or <a class="reference internal" href="alexandria.html"><span class="doc">on Alexandria</span></a>. Before doing this, however, you will need to open your favorite text editor and save a JSON (.json) file of the dropseq_bundle outputs, using the following template:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+        <span class="s2">&quot;refflat&quot;</span><span class="p">:</span>        <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;reference&gt;_transgenes.refFlat&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genome_fasta&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;reference&gt;_transgenes.fasta&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;star_genome&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/STAR2_5_index_&lt;reference&gt;.tar.gz&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gene_intervals&quot;</span><span class="p">:</span>        <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;reference&gt;_transgenes.genes.intervals&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genome_dict&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;reference&gt;_transgenes.dict&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;star_cpus&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="s2">&quot;star_memory&quot;</span><span class="p">:</span> <span class="s2">&quot;120G&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You will need to replace each <code class="docutils literal notranslate"><span class="pre">path/to/</span></code> string and string in arrow brackets (e.g. <code class="docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code>) with the information specific to your bucket layout and the files you uploaded. Then, upload this JSON to the Google bucket in which you are running dropseq_cumulus and set <code class="docutils literal notranslate"><span class="pre">reference</span></code> to be the full google storage URI to your JSON. (e.g. <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/&lt;your_reference&gt;.json</span></code>). You then should follow the instructions from the article you chose to run dropseq_cumulus.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="bcl2fastq.html" class="btn btn-neutral float-right" title="Bcl2Fastq Dockerfile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dropseq_cumulus.html" class="btn btn-neutral float-left" title="Inputs/Outputs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Shalek Lab
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

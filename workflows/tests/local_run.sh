@@ -14,7 +14,9 @@ if [ -z $wdl ]; then echo ERROR: WDL script does not exist!; exit; fi
 
 if [ -z $inputs ]; then
 	inputs="${wdl%.wdl}.json"
-	#inputs="${inputs%_dummy}.json"
+else	
+	inputs="$( find $workflows -name "${inputs}" )"
+	if [ -z $inputs ]; then echo ERROR: input JSON does not exist!; exit; fi
 fi
 
 set -x

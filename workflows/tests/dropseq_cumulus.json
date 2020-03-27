@@ -1,0 +1,13 @@
+{
+  "dropseq_cumulus.input_csv_file":"gs://shalek-lab-cromwell/dropseq_cumulus/IRAs_remake_this_for_next_job.csv",
+  "dropseq_cumulus.preemptible":"2",
+  "dropseq_cumulus.is_bcl":"false",
+  "dropseq_cumulus.dropseq.drop_deq_tools_prep_bam_memory":"32G",
+  "dropseq_cumulus.reference":"mm10",
+  "dropseq_cumulus.run_cumulus":"true",
+  "dropseq_cumulus.output_path":"dropseq_cumulus/jobs/dc5/",
+  "dropseq_cumulus.fastq_directory":"IRA_FASTQs/",
+  "dropseq_cumulus.dropseq.drop_deq_tools_dge_memory":"32G",
+  "dropseq_cumulus.run_dropseq":"true",
+  "dropseq_cumulus.bucket":"gs://shalek-lab-cromwell/"
+}

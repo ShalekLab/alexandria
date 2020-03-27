@@ -96,7 +96,11 @@ task build_reference {
 		set -e
 		export TMPDIR=/tmp
 
+		df -h
+		df -h /cromwell_root
+		df -h /
 		mkdir ref && cd ref
+		df -h /cromwell_root/ref
 		kb ref --verbose \
 			-i index.idx \
 			-g transcripts_to_genes.txt \
@@ -109,6 +113,8 @@ task build_reference {
 			~{genomic_fasta} \
 			~{reference_gtf}
 		
+		df -h /cromwell_root/ref
+
 		gsutil -m rsync -r . ~{bucket_slash}~{output_path_slash}ref
 	}
 	output {

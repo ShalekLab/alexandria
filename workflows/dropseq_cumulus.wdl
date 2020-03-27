@@ -9,8 +9,8 @@
 # Release
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
-import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/7/plain-WDL/descriptor" as dropseq
-import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/16/plain-WDL/descriptor" as cumulus
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/9/plain-WDL/descriptor" as dropseq
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/17/plain-WDL/descriptor" as cumulus
 
 workflow dropseq_cumulus {
 	# User-inputted .csv file that contains in whatever order:
@@ -34,10 +34,11 @@ workflow dropseq_cumulus {
 	# For making and linking custom dropseq-compatible references, see the Cumulus documentation.
 	String reference
 
+	# OPTIONAL:
 	# If you have some/all of your FASTQs in one folder object on the bucket,
 	# enter the gsURI path to that folder object following the bucket root.
 	# ex: "FASTQs/" from full gsURI gs://your-bucket-id/FASTQs/
-	String? fastq_directory
+	String fastq_directory = ''
 	
 	# Set true to run alignment by Drop-Seq tools
 	Boolean run_dropseq
@@ -60,13 +61,13 @@ workflow dropseq_cumulus {
 	String bcl2fastq_version = "2.20.0.422"
 	# cumulus workflow docker image
 	String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
-	String cumulus_version = "0.14.0"
+	String cumulus_version = "0.15.0"
 	# alexandria docker image
 	String alexandria_docker = "shaleklab/alexandria:0.2" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
 	
 	# The maximum number of attempts Cromwell will request Google for a preemptible VM.
 	# Preemptible VMs are about 5 times cheaper than non-preemptible, but Google can yank them
-	# out from under you at anytime. If in a rush, set it to 0.
+	# out from under you at anytime. If in a rush, set it to 0 but remember costs will be higher!
 	Int preemptible = 2
 	
 	# The priority queue for requesting a Google Cloud Platform zone.
@@ -78,7 +79,7 @@ workflow dropseq_cumulus {
 	
 	### MANIPULATIONS: PLEASE IGNORE ###
 	String bucket_slash = sub(bucket, "/+$", '')+'/'
-	String output_path_slash = if output_path == '' then '' else sub(output_path, "/+$", '')+'/'
+	String output_path_slash = if output_path == '' then '' else sub(output_path, "/+$", '')+'/' 
 	String fastq_directory_slash = if fastq_directory == '' then '' else sub(fastq_directory, "/+$", '')+'/'
 
 	String base_fastq_directory_slash = sub(fastq_directory_slash, bucket_slash, '')
@@ -100,8 +101,8 @@ workflow dropseq_cumulus {
 				is_bcl=is_bcl,
 				input_csv_file=input_csv_file,
 				reference=reference,
-				dropseq_output_directory_slash=dropseq_output_directory_slash,
-				fastq_directory_slash=fastq_directory_slash,
+				dropseq_output_path_slash=dropseq_output_path_slash,
+				fastq_directory_slash=base_fastq_directory_slash,
 				alexandria_docker=alexandria_docker,
 				preemptible=preemptible,
 				zones=zones
@@ -110,11 +111,11 @@ workflow dropseq_cumulus {
 			input:
 				input_tsv_file=setup_dropseq.dropseq_locations,
 				run_bcl2fastq=is_bcl,
-				output_directory=bucket_slash + sub(dropseq_output_directory_slash, "/+$", ''),
+				output_directory=bucket_slash + sub(dropseq_output_path_slash, "/+$", ''),
 				reference=reference,
 				docker_registry=dropseq_registry_stripped,
 				drop_seq_tools_version=dropseq_tools_version,
-				bcl2fastq_registry=bcl2fastq_registry_stripped,
+				bcl2fastq_docker_registry=bcl2fastq_registry_stripped,
 				bcl2fastq_version=bcl2fastq_version,
 				zones=zones,
 				preemptible=preemptible
@@ -129,8 +130,9 @@ workflow dropseq_cumulus {
 				input_csv_file=input_csv_file,
 				reference=reference,
 				bucket_slash=bucket_slash,
-				dropseq_output_directory_slash=dropseq_output_directory_slash,
-				cumulus_output_directory_slash=cumulus_output_directory_slash,
+				dropseq_output_path_slash=dropseq_output_path_slash,
+				cumulus_output_path_slash=cumulus_output_path_slash,
+				dges=dropseq.dge,
 				alexandria_docker=alexandria_docker,
 				preemptible=preemptible,
 				zones=zones
@@ -138,7 +140,7 @@ workflow dropseq_cumulus {
 		call cumulus.cumulus as cumulus {
 			input:
 				input_file=setup_cumulus.count_matrix,
-				output_name=bucket_slash + cumulus_output_directory_slash + cumulus_output_prefix,
+				output_name=bucket_slash + cumulus_output_path_slash + cumulus_output_prefix,
 				is_dropseq=true,
 				generate_scp_outputs=true,
 				output_dense=true,
@@ -152,8 +154,7 @@ workflow dropseq_cumulus {
 			input:
 				input_csv_file=input_csv_file,
 				bucket_slash=bucket_slash,
-				cumulus_output_directory_slash=cumulus_output_directory_slash,
-				cumulus_output_prefix=cumulus_output_prefix, 
+				cumulus_output_path_slash=cumulus_output_path_slash, 
 				output_scp_files=cumulus.output_scp_files,
 				alexandria_docker=alexandria_docker,
 				preemptible=preemptible,
@@ -161,11 +162,14 @@ workflow dropseq_cumulus {
 		}
 	}
 	output {
-		File alexandria_metadata = scp_outputs.alexandria_metadata
-		#File pca_coords = scp_outputs.pca_coords
-		File fitsne_coords = scp_outputs.fitsne_coords
-		File dense_matrix = scp_outputs.dense_matrix
-		File cumulus_metadata = scp_outputs.cumulus_metadata
+		Array[String?]? raw_matrices = dropseq.dge
+		String? dropseq_output_path = bucket_slash+dropseq_output_path_slash
+        String? cumulus_output_path = bucket_slash+cumulus_output_path_slash
+        
+        File? alexandria_metadata = scp_outputs.alexandria_metadata
+		File? fitsne_coords = scp_outputs.fitsne_coords
+		File? dense_matrix = scp_outputs.dense_matrix
+		File? cumulus_metadata = scp_outputs.cumulus_metadata
 	}
 }
 
@@ -175,7 +179,7 @@ task setup_dropseq {
 	Boolean is_bcl
 	File input_csv_file
 	String reference
-	String dropseq_output_directory_slash
+	String dropseq_output_path_slash
 	String? fastq_directory_slash
 	String alexandria_docker
 	Int preemptible
@@ -191,7 +195,7 @@ task setup_dropseq {
 			-m=/alexandria/scripts/metadata_type_map.tsv \
 			-f=${fastq_directory_slash} \
 			-r=${reference}
-		gsutil cp dropseq_locations.tsv ${bucket_slash}${dropseq_output_directory_slash}
+		gsutil cp dropseq_locations.tsv ${bucket_slash}${dropseq_output_path_slash}
 	}
 	output {
 		File dropseq_locations = "dropseq_locations.tsv"
@@ -209,11 +213,12 @@ task setup_cumulus {
 	File input_csv_file
 	String reference
 	String bucket_slash
-	String dropseq_output_directory_slash
-	String cumulus_output_directory_slash
+	String dropseq_output_path_slash
+	String cumulus_output_path_slash
 	String alexandria_docker
 	Int preemptible
 	String zones
+	Array[String?]? dges
 	
 	command {
 		set -e
@@ -224,8 +229,8 @@ task setup_cumulus {
 			${true="--check_inputs" false='' check_inputs} \
 			-r=${reference} \
 			-m=/alexandria/scripts/metadata_type_map.tsv \
-			-o=${dropseq_output_directory_slash}
-		gsutil cp count_matrix.csv ${bucket_slash}${cumulus_output_directory_slash}
+			-o=${dropseq_output_path_slash}
+		gsutil cp count_matrix.csv ${bucket_slash}${cumulus_output_path_slash}
 	}
 	output {
 		File count_matrix = "count_matrix.csv"
@@ -240,8 +245,8 @@ task setup_cumulus {
 task scp_outputs {
 	
 	File input_csv_file
-	String cumulus_output_directory_slash
-	Array[String] output_scp_files
+	String cumulus_output_path_slash
+	Array[File] output_scp_files
 	String bucket_slash
 	String alexandria_docker
 	Int preemptible
@@ -249,18 +254,19 @@ task scp_outputs {
 	
 	command {
 		set -e
+		printf "${sep='\n' output_scp_files}" >> output_scp_files.txt
 		python /alexandria/scripts/scp_outputs.py \
+			-t dropseq \
 			-i ${input_csv_file} \
-			-s ${write_lines(output_scp_files)} \
+			-s output_scp_files.txt \
 			-m /alexandria/scripts/metadata_type_map.tsv
-		gsutil cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_directory_slash}
+		gsutil cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_path_slash}
 	}
 	output {
 		File alexandria_metadata = "alexandria_metadata.txt"
-		#File? pca_coords = read_string(select_first(glob("*X_diffmap_pca.coords.txt")))
 		File cumulus_metadata = read_string("metadata.txt")
-		File fitsne_coords = read_string(glob("*X_fitsne\.coords\.txt")[0])
-		File dense_matrix = read_string(glob("*expr\.txt")[0])
+		File fitsne_coords = read_string("X_fitsne.coords.txt")
+		File dense_matrix = read_string("expr.txt")
 	}
 	runtime {
 		docker: "${alexandria_docker}"

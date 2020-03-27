@@ -150,9 +150,9 @@ class Tool(object):
 	@classmethod
 	def construct_default_path(cls, bucket_slash, fastq_directory_slash, entry, read):
 		if fastq_directory_slash.startswith("gs://"): 
-			return fastq_directory_slash+entry+'_'+read+"*.fastq*" # TODO: Does SS2 allow uncompressed fastqs?
+			return fastq_directory_slash+entry+"_*R"+read+"*.fastq*" # TODO: Does SS2 allow uncompressed fastqs?
 		else: 
-			return bucket_slash+fastq_directory_slash+entry+'_'+read+"*.fastq*"
+			return bucket_slash+fastq_directory_slash+entry+"_*R"+read+"*.fastq*"
 
 	@classmethod
 	def determine_fastq_path(cls, entry, read, location_override, default_path, bucket_slash, entered_path):
@@ -219,7 +219,7 @@ class Tool(object):
 	def generate_sample_sheet(self, csv, bucket_slash, output_directory_slash, reference):
 		cm = pd.DataFrame()
 		cm[self.entry] = csv[self.entry]
-		cm["Location"] = csv[self.entry].apply(func=get_dge_location, args=(bucket_slash, output_directory_slash))
+		cm["Location"] = csv[self.entry].apply(func=self.get_dge_location, args=(bucket_slash, output_directory_slash))
 		print("Location column added successfully.")
 		cm.insert(1, "Reference", pd.Series(cm[self.entry].map(lambda x: reference)))
 		print("Reference column added successfully.")
@@ -230,7 +230,8 @@ class Tool(object):
 	#######################################################################################################################################
 
 	@classmethod
-	def serialize_scp_outputs(cls, scp_outputs_list, names):
+	def serialize_scp_outputs(cls, scp_outputs_list):
+		names = ["X_fitsne.coords.txt", "expr.txt", "metadata.txt"] #diffmap pca???
 		with open (scp_outputs_list, 'r') as scp_outputs:
 			for name in names:
 				is_found = False

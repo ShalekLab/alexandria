@@ -1,0 +1,12 @@
+{
+  "kallisto_bustools.sample_sheet": "gs://shalek-lab-cromwell/kallisto-bustools/test/kb4_2s.tsv",
+  "kallisto_bustools.delete_bus_files": "false",
+  "kallisto_bustools.output_path": "kallisto-bustools/jobs/testkb4/",
+  "kallisto_bustools.bucket": "gs://shalek-lab-cromwell/",
+  "kallisto_bustools.run_build_reference": "true",
+  "kallisto_bustools.use_lamanno": "true",
+  "kallisto_bustools.reference_gtf": "gs://shalek-lab-cromwell/kallisto-bustools/align_refs/mm_RNAvel_v98/Mus_musculus.GRCm38.98.gtf",
+  "kallisto_bustools.genomic_fasta": "gs://shalek-lab-cromwell/kallisto-bustools/align_refs/mm_RNAvel_v98/Mus_musculus.GRCm38.dna.primary_assembly.fa",
+  "kallisto_bustools.technology": "DROPSEQ",
+  "kallisto_bustools.preemptible": "0"
+}

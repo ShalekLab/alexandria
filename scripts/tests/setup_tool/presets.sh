@@ -38,6 +38,30 @@ function ds_is_bcl_preset {
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
 }
 
+function ds_fq_gsURIs {
+	echo Setting up ds for FQs with gsURIs
+	tool="dropseq"
+	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/dropseq_gsURIs.csv"
+	bucket_slash="gs://shalek-lab-archiving/"
+	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
+	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
+	fastq_directory_slash=""
+	reference="mm10"
+	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+}
+
+function ds_bcl_gsURIs {
+	echo Setting up ds for sequencing directories with gsURIs
+	tool="dropseq"
+	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/bcl_gsURIs.csv"
+	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
+	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
+	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
+	fastq_directory_slash=""
+	reference="mm10"
+	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+}
+
 function ss2_default_preset {
 	echo Setting up ss2 for is_bcl=false and fastq_directory=""
 	tool="smartseq2"

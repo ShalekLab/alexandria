@@ -22,9 +22,15 @@ mkdir -p $output_dir
 wdl_dummy="$( basename -s .wdl ${wdl} )_dummy.wdl"
 
 # If the WDL_dummy file already exists, delete it and start from scratch
-if [ -e ${output_dir}/${wdl_dummy} ]; then
-	trash ${output_dir}/${wdl_dummy}
-	echo Trashed existing $wdl_dummy and making new dummy from scratch!
+if [[ -e ${output_dir}/${wdl_dummy} ]]; then
+	if [[ "$(head -n 1 ${output_dir}/${wdl_dummy} )" != "#OVERRIDE" ]]; then
+		echo FILE: OVERRIDE DETECTED, LEAVING AS IS.
+		exit
+	else
+		trash ${output_dir}/${wdl_dummy}
+		#rm ${output_dir}/${wdl_dummy}
+		echo Trashed existing $wdl_dummy and making new dummy from scratch!
+	fi
 fi
 echo Dummy will be located at ${output_dir}/${wdl_dummy} 
 
@@ -32,12 +38,14 @@ do_write="true"
 operator=""
 stripped_line=""
 task=""
-indentation=0
-while IFS= read line; do
-	
+#indentation=0
+while IFS='' read -r line; do
+#while IFS= read line; do
+
 	# Strip the line of leading and trailing whitespace
 	stripped_line="$( echo $line | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' )"
 	indentation=$(echo "$line" | sed -e 's/[[:space:]]*$//' | awk -F '\t' '{print NF-1}')
+	#echo "$line" $indentation
 
 	### Identify certain keywords
 	# Import statements
@@ -76,7 +84,7 @@ while IFS= read line; do
 		
 		printf "\tEncountered the command block of $task.\n"
 		# Print command keyword line to file.
-		printf "$line\n" >> ${output_dir}/$wdl_dummy
+		echo "$line" >> ${output_dir}/$wdl_dummy
 		
 		printf "\tIdentifying the command block operator..."
 		# Determine the type of operator the command block uses.
@@ -96,8 +104,10 @@ while IFS= read line; do
 			echo ERROR! could not locate task script! && exit
 		fi
 		# Determine what the indentation of the script needs to be
-		script_indentation=$(( $indentation + 1 ))
+		script_indentation=2
+		#script_indentation=$(( $indentation + 1 ))
 		tabs="$( seq  -f "\t" -s '' ${script_indentation} )"
+		#tabs="$( printf "%0.s\\t" {1..$script_indentation} )" # Doesn't work with bash 3.2
 		# Prefix the file with tab indentation and insert into the command block.
 		printf "\tInserting script into $task command block...\n"
 		sed "s/^/${tabs}/" ${output_dir}/${task}.sh >> ${output_dir}/$wdl_dummy
@@ -106,11 +116,13 @@ while IFS= read line; do
 		do_write="false"
 	elif [[ "$stripped_line" == *"runtime"* ]]; then
 		printf "\tEncountered the runtime block of $task.\n"
-		printf "$line\n" >> ${output_dir}/$wdl_dummy
+		echo "$line" >> ${output_dir}/$wdl_dummy
 		
-		script_indentation=$(( $indentation + 1 ))
+		script_indentation=2
+		#script_indentation=$(( $indentation + 1 ))
 		tabs="$( seq  -f "\t" -s '' ${script_indentation} )"
-
+		#tabs="$( printf "%0.s\\t" {1..$script_indentation} )" # Doesn't work with bash 3.2
+		#echo SCRIPT INDENTATION $script_indentation TABS:$tabs
 		if [ -e "${output_dir}/${task}_runtime.txt" ]; then 
 			printf "\tInserting script into $task runtime block...\n"
 			sed "s/^/${tabs}/" ${output_dir}/${task}_runtime.txt >> ${output_dir}/$wdl_dummy
@@ -123,7 +135,7 @@ while IFS= read line; do
 	fi
 	# If true, write the line provided that it is not a comment (Comments can contain harmful characters)
 	if [[ "$do_write" == "true" && "${stripped_line:0:1}" != "#" ]]; then
-		printf "$line\n" >> ${output_dir}/$wdl_dummy
+		echo "$line" >> ${output_dir}/$wdl_dummy
 	fi
 done < $wdl
 
