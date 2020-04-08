@@ -23,16 +23,34 @@ genomeSAindexNbases  Length (bases) of the SA pre-indexing string. Typically bet
 ```
 You can find genomic FASTA (.fa or .fasta) and GTF (.gtf) files on databases such as NCBI's [RefSeq](https://www.ncbi.nlm.nih.gov/refseq/). You will need to upload these files to your Terra workspace. Note that `fasta_file` and `gtf_file` need to be entered as arrays. For example, you can enter one genomic FASTA as `["gs://<bucket_ID>/path/to/file.fa"]` or multiple as `["gs://<bucket_ID>/path/to/file.fa", "gs://<bucket_ID>/path/to/file2.fa"]` where `gs://<bucket_ID>/path/to/file.fa` will need to be full google storage URI to your files. (e.g. `gs://<bucket_ID>/path/to/<your_gtf>.gtf`, `gs://<bucket_ID>/path/to/<your_fasta>.fasta`, etc.)
 
-After dropseq_bundle runs successfully for your inputs, you can choose whether to run dropseq_cumulus [on Terra](terra) or [on Alexandria](alexandria). Before doing this, however, you will need to open your favorite text editor and save a JSON (.json) file of the dropseq_bundle outputs, using the following template:
+After dropseq_bundle runs successfully for your inputs, you should [run standalone dropseq_workflow](https://cumulus.readthedocs.io/en/latest/drop_seq.html) on Terra. Before doing this, however, you will need to open your favorite text editor and save a JSON (.json) file of the dropseq_bundle outputs, using the following template:
 ```
 {
-        "refflat":        "gs://<bucket_ID>/path/to/<reference>_transgenes.refFlat",
-        "genome_fasta":    "gs://<bucket_ID>/path/to/<reference>_transgenes.fasta",
-        "star_genome":    "gs://<bucket_ID>/path/to/STAR2_5_index_<reference>.tar.gz",
-        "gene_intervals":        "gs://<bucket_ID>/path/to/<reference>_transgenes.genes.intervals",
-        "genome_dict":    "gs://<bucket_ID>/path/to/<reference>_transgenes.dict",
+        "refflat":        "gs://<bucket_ID>/path/to/<ref_flat>",
+        "genome_fasta":    "gs://<bucket_ID>/path/to/<output_fasta>",
+        "star_genome":    "gs://<bucket_ID>/path/to/<index_tar_gz>",
+        "gene_intervals":        "gs://<bucket_ID>/path/to/<genes_intervals>",
+        "genome_dict":    "gs://<bucket_ID>/path/to/<dict>",
         "star_cpus": 32,
-        "star_memory": "120G"
+        "star_memory": "240G"
 }
 ```
-You will need to replace each `path/to/` string and string in arrow brackets (e.g. ```<string>```) with the information specific to your bucket layout and the files you uploaded. Then, upload this JSON to the Google bucket in which you are running dropseq_cumulus and set `reference` to be the full google storage URI to your JSON. (e.g. `gs://<bucket_ID>/path/to/<your_reference>.json`). You then should follow the instructions from the article you chose to run dropseq_cumulus.
+You will need to replace each `path/to/` string and string in arrow brackets (e.g. ```<string>```) with the information specific to your bucket layout and the files you uploaded. Then, upload this JSON to the Google bucket in which you are running dropseq_cumulus and set `reference` to be the full google storage URI to your JSON. (e.g. `gs://<bucket_ID>/path/to/<your_reference>.json`). You then should follow the instructions from the article listed above to run dropseq_workflow. It is recommended you set the following parameters for good measure:
+```
+add_bam_tags_disk_space_multiplier = 35
+merge_bam_alignment_memory = "32G"
+star_disk_space_multiplier = 20
+star_extra_disk_space = 100
+star_memory = "240G"
+drop_deq_tools_dge_memory = "16G"
+drop_deq_tools_prep_bam_memory = "16G"
+```
+
+Then, run dropseq_cumulus [on Terra](terra) or [on Alexandria](alexandria) with the following parameters:
+```
+run_dropseq = false
+run_cumulus = true
+output_path = <output_directory inputted for dropseq_workflow>
+reference = <reference inputted for dropseq_workflow>
+```
+Your Alexandria Sheet can be created from the input_tsv_file used for dropseq_workflow. No need to include 'R1_Path' or 'R2_Path' columns, just make sure the 'Sample' columns matches the sample/array names in the input_tsv_file.

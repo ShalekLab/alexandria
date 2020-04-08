@@ -7,7 +7,7 @@ WOMTOOL_PATH="/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows
 
 echo Looking for WDL script starting from the workflows folder
 if [ ! -d $workflows ]; then echo ERROR: Workflows folder does not exist!; exit; fi
-wdl="$( find $workflows -name "$wdl" )"
+wdl="$( find $workflows -name "$wdl" -print -quit )"
 if [ -z $wdl ]; then echo ERROR: WDL script does not exist!; exit; fi 
 
 set -x

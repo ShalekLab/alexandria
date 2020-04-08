@@ -1,14 +1,14 @@
 # Inputs/Outputs
 
-## The input_csv_file
+## The Alexandria Sheet
 
-To instruct the workflow, you must create a comma-separated-value (csv) sample sheet called the input_csv_file which contains sample names, paths to sequencing data on the workspace bucket, and any metadata you wish to include on Alexandria.
+To instruct the workflow, you must create a comma-separated-value (csv) sample sheet called the Alexandria Sheet which contains sample names, paths to sequencing data on the workspace bucket, and any metadata you wish to include on Alexandria.
 
-### Formatting your input_csv_file for FASTQ files
+### Formatting your Alexandria Sheet for FASTQ files
 
 For processing a sequencing directory full of BCL files, see the below section instead.
 
-Write your input_csv_file in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The input_csv_file must have column headers and contains the following in whatever order:
+Write your Alexandria Sheet in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The Alexandria Sheet must have column headers and contains the following in whatever order:
 
 ```eval_rst
 .. Important::
@@ -19,16 +19,16 @@ Write your input_csv_file in a text editor or a spreadsheet manipulation program
   
 ![](imgs/csv.png)
 
-To verify that the paths you listed in the file are correct, you can navigate to your Google bucket and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your input_csv_file can be the entire URI or all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`.
+To verify that the paths you listed in the file are correct, you can navigate to your Google bucket and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your Alexandria Sheet can be the entire URI or all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`.
 ![](imgs/scp/bucket2.png)
   
-### Formatting your input_csv_file for bcl2fastq
+### Formatting your Alexandria Sheet for bcl2fastq
 
 Due to legal requirements, the default Docker image for bcl2fastq workflow made by the Cumulus Team is privately available for use by Broad Institute affiliates. Affiliates must create a Docker account using their broadinstitute.org email address, download [Docker Desktop](https://www.docker.com/products/docker-desktop), and log in through typing `docker login` in their terminal. Only then can you launch the bcl2fastq workflow on Alexandria or Terra.  
 
 If you are not an affiliate, you can either [create and reference your own Docker image](bcl2fastq) or you can download the Bcl2Fastq software [here](https://support.illumina.com/downloads/bcl2fastq-conversion-software-v2-20.html) and run it locally on a computer with plenty of disk space. If you chose the latter, once you get your FASTQs you can see the above section for writing a csv to process them. 
 
-Write your input_csv_file in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The input_csv_file must have column headers and contains the following in whatever order:
+Write your Alexandria Sheet in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The Alexandria Sheet must have column headers and contains the following in whatever order:
 
 ```eval_rst
 .. Important::
@@ -39,7 +39,7 @@ Write your input_csv_file in a text editor or a spreadsheet manipulation program
 ```
 ![](imgs/csv_bcl.png)  
 
-To verify that the paths you listed in the file are correct, you must navigate to your Google bucket and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/sequencing_run_directory/` in the case of sequencing run directories. The locations you should enter in the path columns of your input_csv_file should be all of the characters following the bucket ID and trailing slash, in this case `path/to/sequencing_run_directory`.
+To verify that the paths you listed in the file are correct, you must navigate to your Google bucket and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/sequencing_run_directory/` in the case of sequencing run directories. The locations you should enter in the path columns of your Alexandria Sheet should be all of the characters following the bucket ID and trailing slash, in this case `path/to/sequencing_run_directory`.
 ![](imgs/bucket_bcl.png)
 
 ### Understanding the fastq_directory parameter
@@ -63,11 +63,11 @@ Here the pipeline will search the `gs://[bucket ID]/mouse_fastqs` directory for 
 =========================================================================================================== ===============
 bucket                                                                                                      gsURL of the workspace bucket to which you have permissions, ex: ``gs://fc-e0000000-0000-0000-0000-000000000000/``. This value is not exposed on Alexandria and is locked to the workspace bucket.
 output_path                                                                                                 Path to bucket folder where outputs (count matrices, metadata files, etc.) will be stored. All folders in this path will be created if they do not exist. Ex: Entering ``data/20200326/`` stores Drop-Seq Tools outputs at ``gs://<bucket>/data/20200326/dropseq/`` and Cumulus outputs at ``gs://<bucket>/data/20200326/cumulus/``
-input\_csv\_file                                                                                            Sample sheet (comma-separated value file) uploaded in the miscellaneous tab of this study’s Upload/Edit Study Data page. `**Formatting must adhere to the criteria!** <dropseq_cumulus.html#the-input-csv-file>`_
+input\_csv\_file                                                                                            Sample sheet (comma-separated value file) uploaded in the miscellaneous tab of this study’s Upload/Edit Study Data page. `**Formatting must adhere to the criteria!** <dropseq_cumulus.html#the-alexandria-sheet>`_
 reference                                                                                                   Genome for alignment. Supported options: ``hg19``, ``GRCh38``, ``mm10``, or ``mmul_8.0.1``. See `here <dropseq_bundle.html>`_ for building a custom genome for Drop-Seq Tools.
 run\_dropseq                                                                                                Yes: run `Drop-seq pipeline <https://cumulus-doc.readthedocs.io/en/latest/drop_seq.html>`_ (sequence alignment and QC). Sequencing data must be uploaded to the Google bucket associated with this study.
-is\_bcl                                                                                                     Yes: `bcl2fastq <dropseq_cumulus.html#formatting-your-input-csv-file-for-bcl2fastq>`_ will be run to convert all of your BCL directories to fastq.gz. No: all of your data is already of fastq.gz type.
-`fastq\_directory <dropseq_cumulus.html#understanding-the-fastq-directory-parameter>`_, default = ''        Sequence data directory name for sequence uploaded to the SCP study google bucket. Ex: Enter ``data/mouse_fastqs`` for folder mouse_fastqs located at ``gs://study bucket ID/data/mouse_fastqs/`` If not applicable, list paths in the `input_csv_file <dropseq_cumulus.html#the-input-csv-file>`_. 
+is\_bcl                                                                                                     Yes: `bcl2fastq <dropseq_cumulus.html#formatting-your-alexandria-sheet-for-bcl2fastq>`_ will be run to convert all of your BCL directories to fastq.gz. No: all of your data is already of fastq.gz type.
+`fastq\_directory <dropseq_cumulus.html#understanding-the-fastq-directory-parameter>`_, default = ''        Sequence data directory name for sequence uploaded to the SCP study google bucket. Ex: Enter ``data/mouse_fastqs`` for folder mouse_fastqs located at ``gs://study bucket ID/data/mouse_fastqs/`` If not applicable, list paths in the `Alexandria Sheet <dropseq_cumulus.html#the-alexandria-sheet>`_. 
 run\_cumulus                                                                                                Yes: run `Cumulus <https://cumulus-doc.readthedocs.io/en/latest/cumulus.html>`_ (generate metadata, cluster files, coordinate files for data exploration in Alexandria). If ``run_cumulus`` Yes and ``run_dropseq`` No: each digital gene expression matrix, <sample>_dge.txt.gz, must be located within the bucket at ``<output_path>/dropseq/<sample>/<sample>_dge.txt.gz``.
 =========================================================================================================== ===============
 ```
@@ -105,4 +105,4 @@ See [Illumina's bcl2fastq manual](https://support.illumina.com/content/dam/illum
 
 When running the Drop-Seq pipeline and/or Cumulus through dropseq_cumulus, the workflow yields the same outputs as its component workflows. You can see those documentations in the section above.
   
-Explicitly, dropseq_cumulus presents the Single-Cell Portal with the alexandria metadata file (alexandria_metadata.txt), the dense expression matrix (ends with .scp.expr.txt), and the coordinate file (ends with .scp.X_fitsne.coords.txt).
+Explicitly, dropseq_cumulus presents the Single-Cell Portal with the alexandria metadata file (alexandria_metadata.txt), the dense expression matrix (ends with scp.expr.txt), and the coordinate file (ends with scp.X_fitsne.coords.txt).

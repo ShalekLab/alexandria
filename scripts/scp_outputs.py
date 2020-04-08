@@ -14,7 +14,8 @@ def main():
 	print("ALEXANDRIA: Started scp_outputs.py task script.")
 	tool = Tool.get_tool(args.tool)
 	print("Parsing scp_outputs list...")
-	cluster_file = tool.serialize_scp_outputs(args.scp_outputs_list)
+	filenames = ["X_fitsne.coords.txt", "expr.txt", "metadata.txt"] #diffmap pca???
+	cluster_file = tool.serialize_scp_outputs(args.scp_outputs_list, filenames)
 
 	print("Transforming cluster_file to make alexandria_metadata.txt...")
 	am = Tool.transform_cluster_file(cluster_file)

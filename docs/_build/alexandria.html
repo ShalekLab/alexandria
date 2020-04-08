@@ -195,7 +195,7 @@
 </div>
 <div class="section" id="create-a-new-study">
 <h2>2. Create a new study<a class="headerlink" href="#create-a-new-study" title="Permalink to this headline">¶</a></h2>
-<p>To create a new study, click Add a Study. <em>Alternatively</em>, to run the workflow on a pre-existing study, select “My Studies”, click the Upload/Edit Study button for your study of choice and proceed to <a class="reference external" href="alexandria.html#creating-and-uploading-your-input-csv-file">upload your sequence data files</a>.
+<p>To create a new study, click Add a Study. <em>Alternatively</em>, to run the workflow on a pre-existing study, select “My Studies”, click the Upload/Edit Study button for your study of choice and proceed to <a class="reference external" href="alexandria.html#creating-and-uploading-your-alexandria-sheet">upload your sequence data files</a>.
 <img alt="_images/add_study.png" src="_images/add_study.png" /></p>
 <p>When you arrive at the New Study page, first enter the name that you and others will use to identify your study.</p>
 <p>Then, use the FireCloud Billing Project dropdown menu to select a billing project other than Default Project in order to run workflows in your study. If you do not have a billing project associated with your account, first click the “create a billing project” hyperlink under the Billing Projects header, on the next page click New Billing Project, and then follow the instructions supplied by clicking the <a class="reference external" href="https://software.broadinstitute.org/firecloud/documentation/article?id=9762">“Instructions on creating Google billing accounts”</a> button. You must include a billing project to access pipelines.</p>
@@ -230,11 +230,11 @@
 <li><p>(OPTIONAL) Other metadata columns that will be appended to the alexandria_metadata.txt file generated after running Cumulus. Column headers <em>must match exacty</em> the names of attributes found in the <a class="reference internal" href="metadata.html"><span class="doc">Alexandria Metadata Convention</span></a>. Labels outside of this convention will be supported in the future.
 <img alt="_images/csv.png" src="_images/csv.png" /></p></li>
 </ul>
-<p>For processing sequencing run directories containing BCL files, see <a class="reference external" href="dropseq_cumulus.html#formatting-your-input-csv-file-for-bcl2fastq">here</a>.</p>
+<p>For processing sequencing run directories containing BCL files, see <a class="reference external" href="dropseq_cumulus.html#formatting-your-alexandria-sheet-for-bcl2fastq">here</a>.</p>
 <p>To verify that the paths you listed in the file are correct, you can navigate to your bucket using the instructions listed <a class="reference external" href="alexandria.html#uploading-sequence-data-files">above</a> and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket</span> <span class="pre">ID&gt;/path/to/file.fastq.gz</span></code> in the case of <code class="docutils literal notranslate"><span class="pre">gzip</span></code>-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your input CSV file should be all of the characters following the bucket ID and trailing slash, in this case <code class="docutils literal notranslate"><span class="pre">path/to/file.fastq.gz</span></code>.
 <img alt="_images/bucket2.png" src="_images/bucket2.png" /></p>
-<p>When you have finished creating your sequencing data, proceed to the “Miscellaneous” tab in Alexandria. Here is where you will upload your input_CSV_file (spreadsheet) that will instruct the workflow.
-To upload the input CSV file, click the “Choose File” button and navigate to select your input CSV file. Then set the file type as “Other” and click “Save” under the “Actions” text.
+<p>When you have finished creating your sequencing data, proceed to the “Miscellaneous” tab in Alexandria. Here is where you will upload your Alexandria Sheet (spreadsheet) that will instruct the workflow.
+To upload the Alexandria Sheet, click the “Choose File” button and navigate to select your Alexandria Sheet. Then set the file type as “Other” and click “Save” under the “Actions” text.
 <img alt="_images/miscellaneous.png" src="_images/miscellaneous.png" /></p>
 </div>
 <div class="section" id="configure-and-launch-dropseq-cumulus-workflow">
@@ -254,7 +254,7 @@ To upload the input CSV file, click the “Choose File” button and navigate to
 <img alt="_images/troubleshooting.png" src="_images/troubleshooting.png" /></p>
 <p>Navigate to the log file of the failed task, which in this case is setup_dropseq.
 <img alt="_images/fail2.png" src="_images/fail2.png" /></p>
-<p>Evaluate the error based on the message and decide whether you need to alter variables, move files in your bucket, or change and reupload your input CSV file.</p>
+<p>Evaluate the error based on the message and decide whether you need to alter variables, move files in your bucket, or change and reupload your Alexandria Sheet.</p>
 <p><strong>Make sure to synchronize your study before relaunching the job.</strong></p>
 </div>
 <div class="section" id="synchronizing-and-exploring-visualization-options">

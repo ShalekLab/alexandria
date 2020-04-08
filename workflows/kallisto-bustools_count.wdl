@@ -38,12 +38,14 @@ workflow kallisto_bustools_count {
 
 		String bucket
 		String output_path
-		File sample_sheet
 
 		File index
 		File T2G_mapping
-		String technology # DROPSEQ, 10XV1, 10XV2, 10XV3 or see the README for more
+		String technology # DROPSEQ, 10XV1, 10XV2, 10XV3 or README for more
+		File R1_fastq
 
+		String? sample_name
+		File? R2_fastq
 		File? barcodes_whitelist
 		Boolean use_lamanno
 		File? cDNA_transcripts_to_capture
@@ -54,47 +56,43 @@ workflow kallisto_bustools_count {
 		Boolean h5ad=false
 		Boolean delete_bus_files
 	}
+	String output_folder = if defined(sample_name) then "count_"+sample_name else "count"
+	String output_path_slash = if output_path == '' then output_folder+'/' else sub(output_path, "/+$", '')+'/'+output_folder+'/'
 	String bucket_slash = sub(bucket, "/+$", '') + '/'
+	String base_output_path_slash = sub(output_path_slash, bucket_slash, '')
 
-	scatter (sample in read_objects(sample_sheet)) {
-		
-		String sample_name=sample.Sample
-		String base_output_path_slash = sub(output_path_slash, bucket_slash, '')
-		String output_folder = if defined(sample_name) then "count_"+sample_name else "count"
-		String output_path_slash = if output_path == '' then output_folder+'/' else sub(output_path, "/+$", '')+'/'+output_folder+'/'
-		
-		call count {
-			input:
-				docker=docker,
-				number_cpu_threads=number_cpu_threads,
-				task_memory_GB=task_memory_GB,
-				preemptible=preemptible,
-				zones=zones,
-				disks=disks,
-				boot_disk_size_GB=boot_disk_size_GB,
-				sample_sheet=sample_sheet,
-				bucket_slash=bucket_slash,
-				output_path_slash=base_output_path_slash,
-				output_folder=output_folder,
-				index=index,
-				T2G_mapping=T2G_mapping,
-				technology=technology,
-				sample_name=sample_name,
-				barcodes_whitelist=barcodes_whitelist,
-				use_lamanno=use_lamanno,
-				cDNA_transcripts_to_capture=cDNA_transcripts_to_capture,
-				intron_transcripts_to_capture=intron_transcripts_to_capture,
-				nucleus=nucleus,
-				bustools_filter=bustools_filter,
-				loom=loom,
-				h5ad=h5ad,
-				delete_bus_files=delete_bus_files
-		}
+	call count {
+		input:
+			docker=docker,
+			number_cpu_threads=number_cpu_threads,
+			task_memory_GB=task_memory_GB,
+			preemptible=preemptible,
+			zones=zones,
+			disks=disks,
+			boot_disk_size_GB=boot_disk_size_GB,
+			bucket_slash=bucket_slash,
+			output_path_slash=base_output_path_slash,
+			output_folder=output_folder,
+			index=index,
+			T2G_mapping=T2G_mapping,
+			technology=technology,
+			R1_fastq=R1_fastq,
+			sample_name=sample_name,
+			R2_fastq=R2_fastq,
+			barcodes_whitelist=barcodes_whitelist,
+			use_lamanno=use_lamanno,
+			cDNA_transcripts_to_capture=cDNA_transcripts_to_capture,
+			intron_transcripts_to_capture=intron_transcripts_to_capture,
+			nucleus=nucleus,
+			bustools_filter=bustools_filter,
+			loom=loom,
+			h5ad=h5ad,
+			delete_bus_files=delete_bus_files
 	}
 	output {
-		Array[File] counts_unfiltered_matrices = count.counts_unfiltered_matrix
-		Array[File] counts_filtered_matrices = count.counts_filtered_matrix
-		Array[String] count_output_paths = count.count_output_path
+		File counts_unfiltered_matrix = count.counts_unfiltered_matrix
+		File counts_filtered_matrix = count.counts_filtered_matrix
+		String count_output_path = count.count_output_path
 	}
 }
 
@@ -108,15 +106,16 @@ task count {
 		String disks
 		Int boot_disk_size_GB
 
-		File sample_sheet
 		String bucket_slash
 		String output_folder
 		String output_path_slash
 		File index
 		File T2G_mapping
 		String technology
+		File R1_fastq
 		
-		String sample_name
+		String? sample_name
+		File? R2_fastq
 		File? barcodes_whitelist
 		Boolean use_lamanno
 		File? cDNA_transcripts_to_capture
@@ -129,26 +128,9 @@ task count {
 	}
 	command {
 		set -e
-		export TMPDIR=/tmp
+		#export TMPDIR=/tmp
 
 		df -h
-		df -h /cromwell_root
-		df -h /
-		df -h .
-
-		python <<CODE
-		import pandas as pd
-		sample="~{sample_name}"
-		pd.options.display.max_colwidth = 100000 # Ensure the entire cell prints out
-		df = pd.read_csv("~{sample_sheet}", sep='\t', header=0)
-		R1_paths = df.loc[ df["Sample"] == sample, "R1_Paths"].to_string(index=False).strip().split(',')
-		R2_paths = df.loc[ df["Sample"] == sample, "R2_Paths"].to_string(index=False).strip().split(',')
-		fastq_pairs_zipped = list(zip(R1_paths, R2_paths))
-		fastq_pairs = list(sum(fastq_pairs_zipped, ()))
-		cleaned_fastq_pairs = [fastq for fastq in fastq_pairs if fastq != "NaN"]
-		open("fastqs.tsv", 'w').write(' '.join(cleaned_fastq_pairs))
-		CODE
-		cat fastqs.tsv
 
 		kb count --verbose \
 			-i ~{index} \
@@ -165,14 +147,15 @@ task count {
 			~{true="--h5ad" false='' h5ad} \
 			~{"-t "+number_cpu_threads} \
 			~{"-m "+task_memory_GB+'G'} \
-			$(cat fastqs.tsv)
+			~{R1_fastq} \
+			~{R2_fastq}
 
-		df -h .
+		df -h
 
 		if [ "~{delete_bus_files}" = "true" ]; then
 			rm -vf ~{output_folder}/*.bus
 		fi
-		gsutil -m rsync -r ~{output_folder} ~{bucket_slash}~{output_path_slash}~{output_folder}
+		gsutil -m rsync -r ~{output_folder} ~{bucket_slash}~{output_path_slash}
 	}
 	output {
 		String count_output_path = "~{bucket_slash}~{output_path_slash}"

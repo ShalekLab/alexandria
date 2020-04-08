@@ -1,6 +1,6 @@
 # The Alexandria Metadata Convention
   
-In order to upload data with metadata to Alexandria, your metadata must conform to the [Alexandria Metadata Convention](https://github.com/broadinstitute/scp-ingest-pipeline/blob/master/tests/data/AMC_v1.1.3.tsv). For upload through the alignment pipeline, this metadata should be included within your [input CSV file](dropseq_cumulus.html#the-input-csv-file) which should include any metadata that can be applied to all cells in a single sample. 
+In order to upload data with metadata to Alexandria, your metadata must conform to the [Alexandria Metadata Convention](https://github.com/broadinstitute/scp-ingest-pipeline/blob/master/tests/data/AMC_v1.1.3.tsv). For upload through the alignment pipeline, this metadata should be included within your [input CSV file](dropseq_cumulus.html#the-alexandria-sheet) which should include any metadata that can be applied to all cells in a single sample. 
 
 For direct upload from Single Cell Portal formatted file types, these metadata should be included in the metadata file, referred to in this description as the 'cell-level metadata file'. In your cell-level metadata file, each attribute name in the metadata can be a column name. To enforce some structure to the database, several fields are required and others require specific formatting guidelines. Users are encouraged to include as much metadata as possible, including metadata attributes which are the same for all samples in the study (ex. sequencing technology) as they will be important to users comparing data between studies.  
   
@@ -82,7 +82,7 @@ See the below table for descriptions of columns in this spreadsheet that are use
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------+
 | **Column**              | **Description**                                                                                                          |
 +=========================+==========================================================================================================================+
-| attribute               | Serve as valid metadata column headers in the `input_csv_file <dropseq_cumulus.html#the-input-csv-file>`_ for            |
+| attribute               | Serve as valid metadata column headers in the `Alexandria Sheet <dropseq_cumulus.html#the-alexandria-sheet>`_ for        |
 |                         | dropseq_cumulus workflow or the cell-level metadata file. Spaces between words are denoted by a single '_' while         |
 |                         | subattributes are denoted with a double '\_' between the attribute parent and the attribute child.                       |
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------+

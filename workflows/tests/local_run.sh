@@ -14,10 +14,18 @@ if [ -z $wdl ]; then echo ERROR: WDL script does not exist!; exit; fi
 
 if [ -z $inputs ]; then
 	inputs="${wdl%.wdl}.json"
-else	
-	inputs="$( find $workflows -name "${inputs}" )"
-	if [ -z $inputs ]; then echo ERROR: input JSON does not exist!; exit; fi
+	inputs="--inputs ${inputs}"
+else
+	if [[ "$inputs" == *".json" ]]; then
+		inputs="$( find $workflows -name "${inputs}" )"
+		if [ -z $inputs ]; then echo ERROR: input JSON does not exist!; exit; fi
+		inputs="--inputs ${inputs}"
+	else 
+		echo WARNING: No .json suffix detected, running without input json!
+		inputs=""
+	fi
+
 fi
 
 set -x
-java -jar ${CROMWELL_PATH} run $wdl --inputs $inputs
+java -jar ${CROMWELL_PATH} run $wdl ${inputs}

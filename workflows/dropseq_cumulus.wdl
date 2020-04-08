@@ -1,25 +1,30 @@
 # dropseq_cumulus workflow
 # A publicly available WDL workflow made by Shalek Lab for bridging dropseq_workflow and cumulus workflow
-# By jgatter [at] broadinstitute.org, created December 16th, 2019
+# By jgatter [at] broadinstitute.org, published March 27th, 2020
 # Incorporates subworkflows made by jgould [at] broadinstitute.org of the Cumulus Team
 # Drop-Seq Tools Pipeline by McCarroll Lab (https://github.com/broadinstitute/Drop-seq/blob/master/doc/Drop-seq_Alignment_Cookbook.pdf)
 # Cumulus by the Cumulus Team (https://cumulus-doc.readthedocs.io/en/latest/index.html)
 # ------------------------------------------------------------------------------------------------------------------------------------------
-# VERSION 1
+# SNAPSHOT 1
 # Release
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# SNAPSHOT 2
+# Fixed delocalization of scp files 
+# Renamed input_csv_file to alexandria_sheet, which will be tab-delimited going forward.
+# Set new defaults for cumulus_output_prefix and zones
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/9/plain-WDL/descriptor" as dropseq
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/17/plain-WDL/descriptor" as cumulus
 
 workflow dropseq_cumulus {
-	# User-inputted .csv file that contains in whatever order:
+	# User-inputted .tsv file that contains in whatever order:
 	#	(REQUIRED) the 'Sample' column, 
 	#	(OPTIONAL) both 'R1_Path' and 'R2_Path' columns
 	#	(OPTIONAL) 'BCL_Path' column
 	#	(OPTIONAL) 'SS_Path' column
 	#	(OPTIONAL) other metadata columns that currently aren't used/outputted by the workflow
-	File input_csv_file
+	File alexandria_sheet
 
 	# The gsURI of your Google Bucket, ex: "gs://your-bucket-id/FASTQs/"
 	# Alexandria/The Single Cell Portal requires this variable.
@@ -50,19 +55,22 @@ workflow dropseq_cumulus {
 	# Alexandria/The Single Cell Portal require these data files.
 	Boolean run_cumulus
 
+	#The filename prefix assigned to the Cumulus outputs.
+	String cumulus_output_prefix = "dsc"
+
 	### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
-	# dropseq_workflow docker image
+	# dropseq_workflow docker image: <dropseq_registry>/dropseq:<dropseq_tools_version>
 	String dropseq_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/dropseq/tags
 	String dropseq_tools_version = "2.3.0"
-	# bcl2fastq docker image
+	# bcl2fastq docker image: <bcl2fastq_registry>/bcl2fastq:<bcl2fastq_version>
 	# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
 	# If not Broad-affiliated, see the Alexandria documentation appendix for creating your own bcl2fastq image.
 	String bcl2fastq_registry = "gcr.io/broad-cumulus" # Privately hosted on Regev Lab GCR
 	String bcl2fastq_version = "2.20.0.422"
-	# cumulus workflow docker image
+	# cumulus workflow docker image: <cumulus_registry>/cumulus:<cumulus_version>
 	String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
 	String cumulus_version = "0.15.0"
-	# alexandria docker image
+	# alexandria docker image: <alexandria_docker>
 	String alexandria_docker = "shaleklab/alexandria:0.2" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
 	
 	# The maximum number of attempts Cromwell will request Google for a preemptible VM.
@@ -72,10 +80,7 @@ workflow dropseq_cumulus {
 	
 	# The priority queue for requesting a Google Cloud Platform zone.
 	# Change the default value to reflect where your bucket is located.
-	String zones = "us-east1-d us-west1-a us-west1-b"
-
-	#The filename prefix assigned to the Cumulus outputs.
-	String cumulus_output_prefix = "sco"
+	String zones = "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-west1-a us-west1-b us-west1-c"
 	
 	### MANIPULATIONS: PLEASE IGNORE ###
 	String bucket_slash = sub(bucket, "/+$", '')+'/'
@@ -94,12 +99,12 @@ workflow dropseq_cumulus {
 	Boolean check_inputs = !run_dropseq
 
 	if (run_dropseq) {
-		# Check user input_csv_file and create dropseq_locations.tsv for Drop-Seq Tools
+		# Check user alexandria_sheet and create dropseq_locations.tsv for Drop-Seq Tools
 		call setup_dropseq {
 			input:
 				bucket_slash=bucket_slash,
 				is_bcl=is_bcl,
-				input_csv_file=input_csv_file,
+				alexandria_sheet=alexandria_sheet,
 				reference=reference,
 				dropseq_output_path_slash=dropseq_output_path_slash,
 				fastq_directory_slash=base_fastq_directory_slash,
@@ -123,11 +128,11 @@ workflow dropseq_cumulus {
 	}
 
 	if (run_cumulus) {
-		# Check user input_csv_file if check_inputs==true and create count_matrix.csv for Cumulus
-		call setup_cumulus{
+		# Check user alexandria_sheet if check_inputs==true and create count_matrix.csv for Cumulus
+		call setup_cumulus {
 			input: 
 				check_inputs=check_inputs,
-				input_csv_file=input_csv_file,
+				alexandria_sheet=alexandria_sheet,
 				reference=reference,
 				bucket_slash=bucket_slash,
 				dropseq_output_path_slash=dropseq_output_path_slash,
@@ -149,10 +154,10 @@ workflow dropseq_cumulus {
 				docker_registry=cumulus_registry_stripped,
 				cumulus_version=cumulus_version
 		}
-		# Segregate the output scp files and map the input_csv_file's metadata to create the alexandria_metadata.txt
+		# Segregate the output scp files and map the alexandria_sheet's metadata to create the alexandria_metadata.txt
 		call scp_outputs {
 			input:
-				input_csv_file=input_csv_file,
+				alexandria_sheet=alexandria_sheet,
 				bucket_slash=bucket_slash,
 				cumulus_output_path_slash=cumulus_output_path_slash, 
 				output_scp_files=cumulus.output_scp_files,
@@ -163,10 +168,11 @@ workflow dropseq_cumulus {
 	}
 	output {
 		Array[String?]? raw_matrices = dropseq.dge
+		# Array[String?]? cumulus_matrices = cumulus.???
 		String? dropseq_output_path = bucket_slash+dropseq_output_path_slash
-        String? cumulus_output_path = bucket_slash+cumulus_output_path_slash
-        
-        File? alexandria_metadata = scp_outputs.alexandria_metadata
+		String? cumulus_output_path = bucket_slash+cumulus_output_path_slash
+		
+		File? alexandria_metadata = scp_outputs.alexandria_metadata
 		File? fitsne_coords = scp_outputs.fitsne_coords
 		File? dense_matrix = scp_outputs.dense_matrix
 		File? cumulus_metadata = scp_outputs.cumulus_metadata
@@ -177,7 +183,7 @@ task setup_dropseq {
 	
 	String bucket_slash
 	Boolean is_bcl
-	File input_csv_file
+	File alexandria_sheet
 	String reference
 	String dropseq_output_path_slash
 	String? fastq_directory_slash
@@ -189,7 +195,7 @@ task setup_dropseq {
 		set -e
 		python /alexandria/scripts/setup_tool.py \
 			-t=dropseq \
-			-i=${input_csv_file} \
+			-i=${alexandria_sheet} \
 			-g=${bucket_slash} \
 			${true="--is_bcl" false='' is_bcl} \
 			-m=/alexandria/scripts/metadata_type_map.tsv \
@@ -210,7 +216,7 @@ task setup_dropseq {
 task setup_cumulus {
 	
 	Boolean check_inputs
-	File input_csv_file
+	File alexandria_sheet
 	String reference
 	String bucket_slash
 	String dropseq_output_path_slash
@@ -223,7 +229,7 @@ task setup_cumulus {
 	command {
 		set -e
 		python /alexandria/scripts/setup_cumulus.py \
-			-i=${input_csv_file} \
+			-i=${alexandria_sheet} \
 			-t=dropseq \
 			-g=${bucket_slash} \
 			${true="--check_inputs" false='' check_inputs} \
@@ -244,7 +250,7 @@ task setup_cumulus {
 
 task scp_outputs {
 	
-	File input_csv_file
+	File alexandria_sheet
 	String cumulus_output_path_slash
 	Array[File] output_scp_files
 	String bucket_slash
@@ -257,16 +263,16 @@ task scp_outputs {
 		printf "${sep='\n' output_scp_files}" >> output_scp_files.txt
 		python /alexandria/scripts/scp_outputs.py \
 			-t dropseq \
-			-i ${input_csv_file} \
+			-i ${alexandria_sheet} \
 			-s output_scp_files.txt \
 			-m /alexandria/scripts/metadata_type_map.tsv
 		gsutil cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_path_slash}
 	}
 	output {
 		File alexandria_metadata = "alexandria_metadata.txt"
-		File cumulus_metadata = read_string("metadata.txt")
-		File fitsne_coords = read_string("X_fitsne.coords.txt")
-		File dense_matrix = read_string("expr.txt")
+		File cumulus_metadata = glob("*scp.metadata.txt")[0]
+		File fitsne_coords = glob("*scp.X_fitsne.coords.txt")[0]
+		File dense_matrix = glob("*scp.expr.txt")[0]
 	}
 	runtime {
 		docker: "${alexandria_docker}"

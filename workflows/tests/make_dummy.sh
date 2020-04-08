@@ -23,7 +23,7 @@ wdl_dummy="$( basename -s .wdl ${wdl} )_dummy.wdl"
 
 # If the WDL_dummy file already exists, delete it and start from scratch
 if [[ -e ${output_dir}/${wdl_dummy} ]]; then
-	if [[ "$(head -n 1 ${output_dir}/${wdl_dummy} )" != "#OVERRIDE" ]]; then
+	if [[ "$( head -n 1 ${output_dir}/${wdl_dummy} )" == "#OVERRIDE" ]]; then
 		echo FILE: OVERRIDE DETECTED, LEAVING AS IS.
 		exit
 	else

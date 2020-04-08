@@ -94,9 +94,9 @@
 <li class="toctree-l1"><a class="reference internal" href="alexandria.html">Running on Alexandria</a></li>
 <li class="toctree-l1"><a class="reference internal" href="terra.html">Running on Terra</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Inputs/Outputs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#the-input-csv-file">The input_csv_file</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#formatting-your-input-csv-file-for-fastq-files">Formatting your input_csv_file for FASTQ files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#formatting-your-input-csv-file-for-bcl2fastq">Formatting your input_csv_file for bcl2fastq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-alexandria-sheet">The Alexandria Sheet</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#formatting-your-alexandria-sheet-for-fastq-files">Formatting your Alexandria Sheet for FASTQ files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#formatting-your-alexandria-sheet-for-bcl2fastq">Formatting your Alexandria Sheet for bcl2fastq</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#understanding-the-fastq-directory-parameter">Understanding the fastq_directory parameter</a></li>
 </ul>
 </li>
@@ -181,13 +181,13 @@
             
   <div class="section" id="inputs-outputs">
 <h1>Inputs/Outputs<a class="headerlink" href="#inputs-outputs" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="the-input-csv-file">
-<h2>The input_csv_file<a class="headerlink" href="#the-input-csv-file" title="Permalink to this headline">¶</a></h2>
-<p>To instruct the workflow, you must create a comma-separated-value (csv) sample sheet called the input_csv_file which contains sample names, paths to sequencing data on the workspace bucket, and any metadata you wish to include on Alexandria.</p>
-<div class="section" id="formatting-your-input-csv-file-for-fastq-files">
-<h3>Formatting your input_csv_file for FASTQ files<a class="headerlink" href="#formatting-your-input-csv-file-for-fastq-files" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="the-alexandria-sheet">
+<h2>The Alexandria Sheet<a class="headerlink" href="#the-alexandria-sheet" title="Permalink to this headline">¶</a></h2>
+<p>To instruct the workflow, you must create a comma-separated-value (csv) sample sheet called the Alexandria Sheet which contains sample names, paths to sequencing data on the workspace bucket, and any metadata you wish to include on Alexandria.</p>
+<div class="section" id="formatting-your-alexandria-sheet-for-fastq-files">
+<h3>Formatting your Alexandria Sheet for FASTQ files<a class="headerlink" href="#formatting-your-alexandria-sheet-for-fastq-files" title="Permalink to this headline">¶</a></h3>
 <p>For processing a sequencing directory full of BCL files, see the below section instead.</p>
-<p>Write your input_csv_file in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The input_csv_file must have column headers and contains the following in whatever order:</p>
+<p>Write your Alexandria Sheet in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The Alexandria Sheet must have column headers and contains the following in whatever order:</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <ul class="simple">
@@ -197,14 +197,14 @@
 </ul>
 </div>
 <p><img alt="_images/csv.png" src="_images/csv.png" /></p>
-<p>To verify that the paths you listed in the file are correct, you can navigate to your Google bucket and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket</span> <span class="pre">ID&gt;/path/to/file.fastq.gz</span></code> in the case of <code class="docutils literal notranslate"><span class="pre">gzip</span></code>-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your input_csv_file can be the entire URI or all of the characters following the bucket ID and trailing slash, in this case <code class="docutils literal notranslate"><span class="pre">path/to/file.fastq.gz</span></code>.
+<p>To verify that the paths you listed in the file are correct, you can navigate to your Google bucket and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket</span> <span class="pre">ID&gt;/path/to/file.fastq.gz</span></code> in the case of <code class="docutils literal notranslate"><span class="pre">gzip</span></code>-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your Alexandria Sheet can be the entire URI or all of the characters following the bucket ID and trailing slash, in this case <code class="docutils literal notranslate"><span class="pre">path/to/file.fastq.gz</span></code>.
 <img alt="_images/bucket2.png" src="_images/bucket2.png" /></p>
 </div>
-<div class="section" id="formatting-your-input-csv-file-for-bcl2fastq">
-<h3>Formatting your input_csv_file for bcl2fastq<a class="headerlink" href="#formatting-your-input-csv-file-for-bcl2fastq" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="formatting-your-alexandria-sheet-for-bcl2fastq">
+<h3>Formatting your Alexandria Sheet for bcl2fastq<a class="headerlink" href="#formatting-your-alexandria-sheet-for-bcl2fastq" title="Permalink to this headline">¶</a></h3>
 <p>Due to legal requirements, the default Docker image for bcl2fastq workflow made by the Cumulus Team is privately available for use by Broad Institute affiliates. Affiliates must create a Docker account using their broadinstitute.org email address, download <a class="reference external" href="https://www.docker.com/products/docker-desktop">Docker Desktop</a>, and log in through typing <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">login</span></code> in their terminal. Only then can you launch the bcl2fastq workflow on Alexandria or Terra.</p>
 <p>If you are not an affiliate, you can either <a class="reference internal" href="bcl2fastq.html"><span class="doc">create and reference your own Docker image</span></a> or you can download the Bcl2Fastq software <a class="reference external" href="https://support.illumina.com/downloads/bcl2fastq-conversion-software-v2-20.html">here</a> and run it locally on a computer with plenty of disk space. If you chose the latter, once you get your FASTQs you can see the above section for writing a csv to process them.</p>
-<p>Write your input_csv_file in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The input_csv_file must have column headers and contains the following in whatever order:</p>
+<p>Write your Alexandria Sheet in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. The Alexandria Sheet must have column headers and contains the following in whatever order:</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <ul class="simple">
@@ -215,7 +215,7 @@
 </ul>
 </div>
 <p><img alt="_images/csv_bcl.png" src="_images/csv_bcl.png" /></p>
-<p>To verify that the paths you listed in the file are correct, you must navigate to your Google bucket and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket</span> <span class="pre">ID&gt;/path/to/sequencing_run_directory/</span></code> in the case of sequencing run directories. The locations you should enter in the path columns of your input_csv_file should be all of the characters following the bucket ID and trailing slash, in this case <code class="docutils literal notranslate"><span class="pre">path/to/sequencing_run_directory</span></code>.
+<p>To verify that the paths you listed in the file are correct, you must navigate to your Google bucket and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket</span> <span class="pre">ID&gt;/path/to/sequencing_run_directory/</span></code> in the case of sequencing run directories. The locations you should enter in the path columns of your Alexandria Sheet should be all of the characters following the bucket ID and trailing slash, in this case <code class="docutils literal notranslate"><span class="pre">path/to/sequencing_run_directory</span></code>.
 <img alt="_images/bucket_bcl.png" src="_images/bucket_bcl.png" /></p>
 </div>
 <div class="section" id="understanding-the-fastq-directory-parameter">
@@ -250,7 +250,7 @@
 <td><p>Path to bucket folder where outputs (count matrices, metadata files, etc.) will be stored. All folders in this path will be created if they do not exist. Ex: Entering <code class="docutils literal notranslate"><span class="pre">data/20200326/</span></code> stores Drop-Seq Tools outputs at <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket&gt;/data/20200326/dropseq/</span></code> and Cumulus outputs at <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket&gt;/data/20200326/cumulus/</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>input_csv_file</p></td>
-<td><p>Sample sheet (comma-separated value file) uploaded in the miscellaneous tab of this study’s Upload/Edit Study Data page. <a class="reference external" href="dropseq_cumulus.html#the-input-csv-file">**Formatting must adhere to the criteria!**</a></p></td>
+<td><p>Sample sheet (comma-separated value file) uploaded in the miscellaneous tab of this study’s Upload/Edit Study Data page. <a class="reference external" href="dropseq_cumulus.html#the-alexandria-sheet">**Formatting must adhere to the criteria!**</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>reference</p></td>
 <td><p>Genome for alignment. Supported options: <code class="docutils literal notranslate"><span class="pre">hg19</span></code>, <code class="docutils literal notranslate"><span class="pre">GRCh38</span></code>, <code class="docutils literal notranslate"><span class="pre">mm10</span></code>, or <code class="docutils literal notranslate"><span class="pre">mmul_8.0.1</span></code>. See <a class="reference external" href="dropseq_bundle.html">here</a> for building a custom genome for Drop-Seq Tools.</p></td>
@@ -259,10 +259,10 @@
 <td><p>Yes: run <a class="reference external" href="https://cumulus-doc.readthedocs.io/en/latest/drop_seq.html">Drop-seq pipeline</a> (sequence alignment and QC). Sequencing data must be uploaded to the Google bucket associated with this study.</p></td>
 </tr>
 <tr class="row-odd"><td><p>is_bcl</p></td>
-<td><p>Yes: <a class="reference external" href="dropseq_cumulus.html#formatting-your-input-csv-file-for-bcl2fastq">bcl2fastq</a> will be run to convert all of your BCL directories to fastq.gz. No: all of your data is already of fastq.gz type.</p></td>
+<td><p>Yes: <a class="reference external" href="dropseq_cumulus.html#formatting-your-alexandria-sheet-for-bcl2fastq">bcl2fastq</a> will be run to convert all of your BCL directories to fastq.gz. No: all of your data is already of fastq.gz type.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference external" href="dropseq_cumulus.html#understanding-the-fastq-directory-parameter">fastq_directory</a>, default = ‘’</p></td>
-<td><p>Sequence data directory name for sequence uploaded to the SCP study google bucket. Ex: Enter <code class="docutils literal notranslate"><span class="pre">data/mouse_fastqs</span></code> for folder mouse_fastqs located at <code class="docutils literal notranslate"><span class="pre">gs://study</span> <span class="pre">bucket</span> <span class="pre">ID/data/mouse_fastqs/</span></code> If not applicable, list paths in the <a class="reference external" href="dropseq_cumulus.html#the-input-csv-file">input_csv_file</a>.</p></td>
+<td><p>Sequence data directory name for sequence uploaded to the SCP study google bucket. Ex: Enter <code class="docutils literal notranslate"><span class="pre">data/mouse_fastqs</span></code> for folder mouse_fastqs located at <code class="docutils literal notranslate"><span class="pre">gs://study</span> <span class="pre">bucket</span> <span class="pre">ID/data/mouse_fastqs/</span></code> If not applicable, list paths in the <a class="reference external" href="dropseq_cumulus.html#the-alexandria-sheet">Alexandria Sheet</a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p>run_cumulus</p></td>
 <td><p>Yes: run <a class="reference external" href="https://cumulus-doc.readthedocs.io/en/latest/cumulus.html">Cumulus</a> (generate metadata, cluster files, coordinate files for data exploration in Alexandria). If <code class="docutils literal notranslate"><span class="pre">run_cumulus</span></code> Yes and <code class="docutils literal notranslate"><span class="pre">run_dropseq</span></code> No: each digital gene expression matrix, &lt;sample&gt;_dge.txt.gz, must be located within the bucket at <code class="docutils literal notranslate"><span class="pre">&lt;output_path&gt;/dropseq/&lt;sample&gt;/&lt;sample&gt;_dge.txt.gz</span></code>.</p></td>
@@ -330,7 +330,7 @@
 <div class="section" id="outputs-of-the-dropseq-cumulus-workflow">
 <h2>Outputs of the dropseq_cumulus workflow<a class="headerlink" href="#outputs-of-the-dropseq-cumulus-workflow" title="Permalink to this headline">¶</a></h2>
 <p>When running the Drop-Seq pipeline and/or Cumulus through dropseq_cumulus, the workflow yields the same outputs as its component workflows. You can see those documentations in the section above.</p>
-<p>Explicitly, dropseq_cumulus presents the Single-Cell Portal with the alexandria metadata file (alexandria_metadata.txt), the dense expression matrix (ends with .scp.expr.txt), and the coordinate file (ends with .scp.X_fitsne.coords.txt).</p>
+<p>Explicitly, dropseq_cumulus presents the Single-Cell Portal with the alexandria metadata file (alexandria_metadata.txt), the dense expression matrix (ends with scp.expr.txt), and the coordinate file (ends with scp.X_fitsne.coords.txt).</p>
 </div>
 </div>
 

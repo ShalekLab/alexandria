@@ -196,19 +196,36 @@
 </tbody>
 </table>
 <p>You can find genomic FASTA (.fa or .fasta) and GTF (.gtf) files on databases such as NCBI’s <a class="reference external" href="https://www.ncbi.nlm.nih.gov/refseq/">RefSeq</a>. You will need to upload these files to your Terra workspace. Note that <code class="docutils literal notranslate"><span class="pre">fasta_file</span></code> and <code class="docutils literal notranslate"><span class="pre">gtf_file</span></code> need to be entered as arrays. For example, you can enter one genomic FASTA as <code class="docutils literal notranslate"><span class="pre">[&quot;gs://&lt;bucket_ID&gt;/path/to/file.fa&quot;]</span></code> or multiple as <code class="docutils literal notranslate"><span class="pre">[&quot;gs://&lt;bucket_ID&gt;/path/to/file.fa&quot;,</span> <span class="pre">&quot;gs://&lt;bucket_ID&gt;/path/to/file2.fa&quot;]</span></code> where <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/file.fa</span></code> will need to be full google storage URI to your files. (e.g. <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/&lt;your_gtf&gt;.gtf</span></code>, <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/&lt;your_fasta&gt;.fasta</span></code>, etc.)</p>
-<p>After dropseq_bundle runs successfully for your inputs, you can choose whether to run dropseq_cumulus <a class="reference internal" href="terra.html"><span class="doc">on Terra</span></a> or <a class="reference internal" href="alexandria.html"><span class="doc">on Alexandria</span></a>. Before doing this, however, you will need to open your favorite text editor and save a JSON (.json) file of the dropseq_bundle outputs, using the following template:</p>
+<p>After dropseq_bundle runs successfully for your inputs, you should <a class="reference external" href="https://cumulus.readthedocs.io/en/latest/drop_seq.html">run standalone dropseq_workflow</a> on Terra. Before doing this, however, you will need to open your favorite text editor and save a JSON (.json) file of the dropseq_bundle outputs, using the following template:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-        <span class="s2">&quot;refflat&quot;</span><span class="p">:</span>        <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;reference&gt;_transgenes.refFlat&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genome_fasta&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;reference&gt;_transgenes.fasta&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;star_genome&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/STAR2_5_index_&lt;reference&gt;.tar.gz&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gene_intervals&quot;</span><span class="p">:</span>        <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;reference&gt;_transgenes.genes.intervals&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;genome_dict&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;reference&gt;_transgenes.dict&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;refflat&quot;</span><span class="p">:</span>        <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;ref_flat&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genome_fasta&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;output_fasta&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;star_genome&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;index_tar_gz&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gene_intervals&quot;</span><span class="p">:</span>        <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;genes_intervals&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;genome_dict&quot;</span><span class="p">:</span>    <span class="s2">&quot;gs://&lt;bucket_ID&gt;/path/to/&lt;dict&gt;&quot;</span><span class="p">,</span>
         <span class="s2">&quot;star_cpus&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
-        <span class="s2">&quot;star_memory&quot;</span><span class="p">:</span> <span class="s2">&quot;120G&quot;</span>
+        <span class="s2">&quot;star_memory&quot;</span><span class="p">:</span> <span class="s2">&quot;240G&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>You will need to replace each <code class="docutils literal notranslate"><span class="pre">path/to/</span></code> string and string in arrow brackets (e.g. <code class="docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code>) with the information specific to your bucket layout and the files you uploaded. Then, upload this JSON to the Google bucket in which you are running dropseq_cumulus and set <code class="docutils literal notranslate"><span class="pre">reference</span></code> to be the full google storage URI to your JSON. (e.g. <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/&lt;your_reference&gt;.json</span></code>). You then should follow the instructions from the article you chose to run dropseq_cumulus.</p>
+<p>You will need to replace each <code class="docutils literal notranslate"><span class="pre">path/to/</span></code> string and string in arrow brackets (e.g. <code class="docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code>) with the information specific to your bucket layout and the files you uploaded. Then, upload this JSON to the Google bucket in which you are running dropseq_cumulus and set <code class="docutils literal notranslate"><span class="pre">reference</span></code> to be the full google storage URI to your JSON. (e.g. <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket_ID&gt;/path/to/&lt;your_reference&gt;.json</span></code>). You then should follow the instructions from the article listed above to run dropseq_workflow. It is recommended you set the following parameters for good measure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">add_bam_tags_disk_space_multiplier</span> <span class="o">=</span> <span class="mi">35</span>
+<span class="n">merge_bam_alignment_memory</span> <span class="o">=</span> <span class="s2">&quot;32G&quot;</span>
+<span class="n">star_disk_space_multiplier</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">star_extra_disk_space</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">star_memory</span> <span class="o">=</span> <span class="s2">&quot;240G&quot;</span>
+<span class="n">drop_deq_tools_dge_memory</span> <span class="o">=</span> <span class="s2">&quot;16G&quot;</span>
+<span class="n">drop_deq_tools_prep_bam_memory</span> <span class="o">=</span> <span class="s2">&quot;16G&quot;</span>
+</pre></div>
+</div>
+<p>Then, run dropseq_cumulus <a class="reference internal" href="terra.html"><span class="doc">on Terra</span></a> or <a class="reference internal" href="alexandria.html"><span class="doc">on Alexandria</span></a> with the following parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run_dropseq</span> <span class="o">=</span> <span class="n">false</span>
+<span class="n">run_cumulus</span> <span class="o">=</span> <span class="n">true</span>
+<span class="n">output_path</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">output_directory</span> <span class="n">inputted</span> <span class="k">for</span> <span class="n">dropseq_workflow</span><span class="o">&gt;</span>
+<span class="n">reference</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">reference</span> <span class="n">inputted</span> <span class="k">for</span> <span class="n">dropseq_workflow</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Your Alexandria Sheet can be created from the input_tsv_file used for dropseq_workflow. No need to include ‘R1_Path’ or ‘R2_Path’ columns, just make sure the ‘Sample’ columns matches the sample/array names in the input_tsv_file.</p>
 </div>
 
 

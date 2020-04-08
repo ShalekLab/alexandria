@@ -38,8 +38,9 @@
 # -----------------------------------------------------------------------------------------------------------
 # SNAPSHOT 4+ (PLANNED)
 # sample_sheet now requires headers to be 'Sample', 'R1_Paths', and 'R2_Paths'
-# R1_Paths and R2_Paths in the sample_sheet can now fit per sample: a single fastq pair, multiple fastq pairs, or just a single R1 + null.
+# R1_Paths and R2_Paths in the sample_sheet can now fit multiple fastq pairs or just a single R1 + null.
 # Scattering of count is done within kb_count rather than this main workflow.
+# The filtered count matrix can now be fed into Cumulus by setting run_cumulus=true
 # -----------------------------------------------------------------------------------------------------------
 
 version 1.0
@@ -101,26 +102,37 @@ workflow kallisto_bustools {
 				boot_disk_size_GB=ref_boot_disk_size_GB
 		}
 	}
-	call kb_count.kallisto_bustools_count as count {
-		input:
-			bucket=bucket,
-			output_path=output_path,
-			docker=docker,
-			preemptible=preemptible,
-			zones=zones,
-			technology=technology,
-			use_lamanno=use_lamanno,
-			cDNA_transcripts_to_capture=if use_lamanno then select_first([build_reference.cDNA_transcripts_to_capture, preexisting_cDNA_transcripts_to_capture]) else preexisting_cDNA_transcripts_to_capture,
-			intron_transcripts_to_capture=if use_lamanno then select_first([build_reference.intron_transcripts_to_capture, preexisting_intron_transcripts_to_capture]) else preexisting_intron_transcripts_to_capture,
-			index=select_first([build_reference.index, preexisting_index]),
-			T2G_mapping=select_first([build_reference.T2G_mapping, preexisting_T2G_mapping]),
-			sample_sheet=sample_sheet,
-			delete_bus_files=delete_bus_files,
-			disks=count_disks,
-			number_cpu_threads=count_number_cpu_threads,
-			task_memory_GB=count_task_memory_GB,
-			boot_disk_size_GB=count_boot_disk_size_GB
+	scatter (sample in read_objects(sample_sheet)) {
+		call kb_count.kallisto_bustools_count as count {
+			input:
+				bucket=bucket,
+				output_path=output_path,
+				docker=docker,
+				preemptible=preemptible,
+				zones=zones,
+				technology=technology,
+				use_lamanno=use_lamanno,
+				cDNA_transcripts_to_capture=if use_lamanno then select_first([build_reference.cDNA_transcripts_to_capture, preexisting_cDNA_transcripts_to_capture]) else preexisting_cDNA_transcripts_to_capture,
+				intron_transcripts_to_capture=if use_lamanno then select_first([build_reference.intron_transcripts_to_capture, preexisting_intron_transcripts_to_capture]) else preexisting_intron_transcripts_to_capture,
+				index=select_first([build_reference.index, preexisting_index]),
+				T2G_mapping=select_first([build_reference.T2G_mapping, preexisting_T2G_mapping]),
+				#sample_sheet=sample_sheet, # Will be necessary for scattering withing kb_count
+				sample_name=sample.Sample,
+				R1_fastq=sample.R1_Path,
+				R2_fastq=sample.R2_Path, # R2_Path must be entered, TODO: Handle single-end reads.
+				delete_bus_files=delete_bus_files,
+				disks=count_disks,
+				number_cpu_threads=count_number_cpu_threads,
+				task_memory_GB=count_task_memory_GB,
+				boot_disk_size_GB=count_boot_disk_size_GB
+		}
 	}
+	#if (run_cumulus) {
+	#	call cumulus.cumulus as cumulus {
+	#		input:
+	#		
+	#	}
+	#}
 	output {
 		File? index = build_reference.index
 		File? T2G_mapping = build_reference.T2G_mapping
@@ -130,8 +142,8 @@ workflow kallisto_bustools {
 		File? intron_transcripts_to_capture = build_reference.intron_transcripts_to_capture
 		String? ref_output_path = build_reference.ref_output_path
 
-		Array[File?]? counts_unfiltered_matrices = count.counts_unfiltered_matrices
-		Array[File?]? counts_filtered_matrices = count.counts_filtered_matrices
-		Array[String?]? count_output_paths = count.count_output_paths
+		Array[File?]? counts_unfiltered_matrices = count.counts_unfiltered_matrix
+		Array[File?]? counts_filtered_matrices = count.counts_filtered_matrix
+		Array[String?]? count_output_paths = count.count_output_path
 	}
 }

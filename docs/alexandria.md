@@ -21,7 +21,7 @@ Visit [Alexandria](https://singlecell.broadinstitute.org/single_cell?scpbr=the-a
 ![](imgs/alexandria/sign_in.png)
   
 ### 2. Create a new study
-To create a new study, click Add a Study. *Alternatively*, to run the workflow on a pre-existing study, select "My Studies", click the Upload/Edit Study button for your study of choice and proceed to [upload your sequence data files](alexandria.html#creating-and-uploading-your-input-csv-file).
+To create a new study, click Add a Study. *Alternatively*, to run the workflow on a pre-existing study, select "My Studies", click the Upload/Edit Study button for your study of choice and proceed to [upload your sequence data files](alexandria.html#creating-and-uploading-your-alexandria-sheet).
 ![](imgs/alexandria/add_study.png)
   
 When you arrive at the New Study page, first enter the name that you and others will use to identify your study.  
@@ -64,13 +64,13 @@ To instruct the workflow, you must create a sample sheet, called the input CSV f
 * (OPTIONAL) Other metadata columns that will be appended to the alexandria_metadata.txt file generated after running Cumulus. Column headers _must match exacty_ the names of attributes found in the [Alexandria Metadata Convention](metadata). Labels outside of this convention will be supported in the future.
 ![](imgs/csv.png)
   
-For processing sequencing run directories containing BCL files, see [here](dropseq_cumulus.html#formatting-your-input-csv-file-for-bcl2fastq).
+For processing sequencing run directories containing BCL files, see [here](dropseq_cumulus.html#formatting-your-alexandria-sheet-for-bcl2fastq).
   
 To verify that the paths you listed in the file are correct, you can navigate to your bucket using the instructions listed [above](alexandria.html#uploading-sequence-data-files) and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your input CSV file should be all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`. 
 ![](imgs/scp/bucket2.png)
   
-When you have finished creating your sequencing data, proceed to the "Miscellaneous" tab in Alexandria. Here is where you will upload your input_CSV_file (spreadsheet) that will instruct the workflow. 
-To upload the input CSV file, click the "Choose File" button and navigate to select your input CSV file. Then set the file type as "Other" and click "Save" under the "Actions" text.
+When you have finished creating your sequencing data, proceed to the "Miscellaneous" tab in Alexandria. Here is where you will upload your Alexandria Sheet (spreadsheet) that will instruct the workflow. 
+To upload the Alexandria Sheet, click the "Choose File" button and navigate to select your Alexandria Sheet. Then set the file type as "Other" and click "Save" under the "Actions" text.
 ![](imgs/alexandria/miscellaneous.png)
   
 ### 5. Configure and launch dropseq_cumulus workflow
@@ -96,7 +96,7 @@ To do this, click the Link URL of the failed job.
 Navigate to the log file of the failed task, which in this case is setup_dropseq.
 ![](imgs/scp/fail2.png)
 
-Evaluate the error based on the message and decide whether you need to alter variables, move files in your bucket, or change and reupload your input CSV file. 
+Evaluate the error based on the message and decide whether you need to alter variables, move files in your bucket, or change and reupload your Alexandria Sheet. 
 
 **Make sure to synchronize your study before relaunching the job.**
 
