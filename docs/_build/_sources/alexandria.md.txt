@@ -10,11 +10,7 @@ If you truly would like certain parameters to be exposed, please post an issue o
 
 ### Known Bugs
 
-```eval_rst
-.. Attention:: For the time being, an older version of the workflow, dropseq_scCloud v74, is currently hosted on Alexandria. This workflow will not allow you to use bcl2fastq and will not allow you to upload data from the root of the bucket. You can use the `Terra version of the workflow <terra.html>`_ if need be.
-```
-
-For any discovered bugs, please contact us with bug reports on our GitHub repo.
+For any discovered bugs, please contact us with bug reports on [our GitHub repository](https://github.com/ShalekLab/alexandria).
 
 ### 1. Sign in
 Visit [Alexandria](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) and at the top-right click "Sign In". Sign in using your broadinstitute.org email account and allow permissions.
@@ -55,9 +51,9 @@ Any desination path that does not exist already will be created upon entering th
   
 To see other methods of uploading data, see [here](data_upload).  
 
-### 4. Creating and uploading your input CSV file
+### 4. Creating and uploading your Alexandria Sheet
   
-To instruct the workflow, you must create a sample sheet, called the input CSV file, that contains sample names, paths to sequencing data on the workspace bucket, and any metadata you wish to include on Alexandria. Write your input CSV file in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. For FASTQs The input CSV file must have column headers and contains the following in whatever order:
+To instruct the workflow, you must create a sample sheet, called the Alexandria Sheet, that contains sample names, paths to sequencing data on the workspace bucket, and any metadata you wish to include on Alexandria. Write your Alexandria Sheet in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. For FASTQs The Alexandria Sheet must have column headers and contains the following in whatever order:
 
 * **(REQUIRED)** the 'Sample' column, the sample/array names that must prefix the respective .fastq or .fastq.gz files. Any preexisting count matrices must be prefixed in the same way.
 * **(RECOMMENDED)** both 'R1_Path' and 'R2_Path' columns, the paths to .fastq/.fastq.gz files on the bucket. Alternatively, see the section on [understanding the dropseq_default_directory parameter](dropseq_cumulus.html#understanding-the-dropseq-default-directory-parameter)  
@@ -66,7 +62,7 @@ To instruct the workflow, you must create a sample sheet, called the input CSV f
   
 For processing sequencing run directories containing BCL files, see [here](dropseq_cumulus.html#formatting-your-alexandria-sheet-for-bcl2fastq).
   
-To verify that the paths you listed in the file are correct, you can navigate to your bucket using the instructions listed [above](alexandria.html#uploading-sequence-data-files) and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your input CSV file should be all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`. 
+To verify that the paths you listed in the file are correct, you can navigate to your bucket using the instructions listed [above](alexandria.html#uploading-sequence-data-files) and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format `gs://<bucket ID>/path/to/file.fastq.gz` in the case of `gzip`-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your Alexandria Sheet should be all of the characters following the bucket ID and trailing slash, in this case `path/to/file.fastq.gz`. 
 ![](imgs/scp/bucket2.png)
   
 When you have finished creating your sequencing data, proceed to the "Miscellaneous" tab in Alexandria. Here is where you will upload your Alexandria Sheet (spreadsheet) that will instruct the workflow. 

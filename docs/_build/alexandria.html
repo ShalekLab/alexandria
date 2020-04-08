@@ -96,7 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#sign-in">1. Sign in</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#create-a-new-study">2. Create a new study</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#uploading-sequence-data-files">3. Uploading sequence data files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#creating-and-uploading-your-input-csv-file">4. Creating and uploading your input CSV file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-and-uploading-your-alexandria-sheet">4. Creating and uploading your Alexandria Sheet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configure-and-launch-dropseq-cumulus-workflow">5. Configure and launch dropseq_cumulus workflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#advice-for-troubleshooting">6. Advice for troubleshooting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#synchronizing-and-exploring-visualization-options">7. Synchronizing and exploring visualization options</a></li>
@@ -182,11 +182,7 @@
 <p>If you truly would like certain parameters to be exposed, please post an issue on our GitHub repo.</p>
 <div class="section" id="known-bugs">
 <h2>Known Bugs<a class="headerlink" href="#known-bugs" title="Permalink to this headline">¶</a></h2>
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>For the time being, an older version of the workflow, dropseq_scCloud v74, is currently hosted on Alexandria. This workflow will not allow you to use bcl2fastq and will not allow you to upload data from the root of the bucket. You can use the <a class="reference external" href="terra.html">Terra version of the workflow</a> if need be.</p>
-</div>
-<p>For any discovered bugs, please contact us with bug reports on our GitHub repo.</p>
+<p>For any discovered bugs, please contact us with bug reports on <a class="reference external" href="https://github.com/ShalekLab/alexandria">our GitHub repository</a>.</p>
 </div>
 <div class="section" id="sign-in">
 <h2>1. Sign in<a class="headerlink" href="#sign-in" title="Permalink to this headline">¶</a></h2>
@@ -221,9 +217,9 @@
 <p>Any desination path that does not exist already will be created upon entering the command!</p>
 <p>To see other methods of uploading data, see <a class="reference internal" href="data_upload.html"><span class="doc">here</span></a>.</p>
 </div>
-<div class="section" id="creating-and-uploading-your-input-csv-file">
-<h2>4. Creating and uploading your input CSV file<a class="headerlink" href="#creating-and-uploading-your-input-csv-file" title="Permalink to this headline">¶</a></h2>
-<p>To instruct the workflow, you must create a sample sheet, called the input CSV file, that contains sample names, paths to sequencing data on the workspace bucket, and any metadata you wish to include on Alexandria. Write your input CSV file in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. For FASTQs The input CSV file must have column headers and contains the following in whatever order:</p>
+<div class="section" id="creating-and-uploading-your-alexandria-sheet">
+<h2>4. Creating and uploading your Alexandria Sheet<a class="headerlink" href="#creating-and-uploading-your-alexandria-sheet" title="Permalink to this headline">¶</a></h2>
+<p>To instruct the workflow, you must create a sample sheet, called the Alexandria Sheet, that contains sample names, paths to sequencing data on the workspace bucket, and any metadata you wish to include on Alexandria. Write your Alexandria Sheet in a text editor or a spreadsheet manipulation program such as Microsoft Excel and save your file as a comma-separated value (.csv) file. For FASTQs The Alexandria Sheet must have column headers and contains the following in whatever order:</p>
 <ul class="simple">
 <li><p><strong>(REQUIRED)</strong> the ‘Sample’ column, the sample/array names that must prefix the respective .fastq or .fastq.gz files. Any preexisting count matrices must be prefixed in the same way.</p></li>
 <li><p><strong>(RECOMMENDED)</strong> both ‘R1_Path’ and ‘R2_Path’ columns, the paths to .fastq/.fastq.gz files on the bucket. Alternatively, see the section on <a class="reference external" href="dropseq_cumulus.html#understanding-the-dropseq-default-directory-parameter">understanding the dropseq_default_directory parameter</a></p></li>
@@ -231,7 +227,7 @@
 <img alt="_images/csv.png" src="_images/csv.png" /></p></li>
 </ul>
 <p>For processing sequencing run directories containing BCL files, see <a class="reference external" href="dropseq_cumulus.html#formatting-your-alexandria-sheet-for-bcl2fastq">here</a>.</p>
-<p>To verify that the paths you listed in the file are correct, you can navigate to your bucket using the instructions listed <a class="reference external" href="alexandria.html#uploading-sequence-data-files">above</a> and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket</span> <span class="pre">ID&gt;/path/to/file.fastq.gz</span></code> in the case of <code class="docutils literal notranslate"><span class="pre">gzip</span></code>-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your input CSV file should be all of the characters following the bucket ID and trailing slash, in this case <code class="docutils literal notranslate"><span class="pre">path/to/file.fastq.gz</span></code>.
+<p>To verify that the paths you listed in the file are correct, you can navigate to your bucket using the instructions listed <a class="reference external" href="alexandria.html#uploading-sequence-data-files">above</a> and locate your sequence data files. Click on each file to view its URI (gsURL), which should resemble the format <code class="docutils literal notranslate"><span class="pre">gs://&lt;bucket</span> <span class="pre">ID&gt;/path/to/file.fastq.gz</span></code> in the case of <code class="docutils literal notranslate"><span class="pre">gzip</span></code>-compressed FASTQ files (regular FASTQ files are fine too). The locations you should enter in the path columns of your Alexandria Sheet should be all of the characters following the bucket ID and trailing slash, in this case <code class="docutils literal notranslate"><span class="pre">path/to/file.fastq.gz</span></code>.
 <img alt="_images/bucket2.png" src="_images/bucket2.png" /></p>
 <p>When you have finished creating your sequencing data, proceed to the “Miscellaneous” tab in Alexandria. Here is where you will upload your Alexandria Sheet (spreadsheet) that will instruct the workflow.
 To upload the Alexandria Sheet, click the “Choose File” button and navigate to select your Alexandria Sheet. Then set the file type as “Other” and click “Save” under the “Actions” text.
