@@ -17,9 +17,10 @@ bash output_parser.sh $wdl
 echo -----------------------------------------------------------------------------------------------------
 printf "FILE ${wdl}: BEGIN PARSING FILE TO INSERT SCRIPTS IN COMMAND BLOCKS\n\n"
 
-output_dir="${workflows}/tests/dummies/$(basename -s .wdl $wdl)"
+basename="$(basename -s .wdl $wdl)"
+output_dir="${workflows}/tests/dummies/${basename}"
 mkdir -p $output_dir
-wdl_dummy="$( basename -s .wdl ${wdl} )_dummy.wdl"
+wdl_dummy="${basename}_dummy.wdl"
 
 # If the WDL_dummy file already exists, delete it and start from scratch
 if [[ -e ${output_dir}/${wdl_dummy} ]]; then
@@ -28,7 +29,6 @@ if [[ -e ${output_dir}/${wdl_dummy} ]]; then
 		exit
 	else
 		trash ${output_dir}/${wdl_dummy}
-		#rm ${output_dir}/${wdl_dummy}
 		echo Trashed existing $wdl_dummy and making new dummy from scratch!
 	fi
 fi
@@ -38,9 +38,7 @@ do_write="true"
 operator=""
 stripped_line=""
 task=""
-#indentation=0
 while IFS='' read -r line; do
-#while IFS= read line; do
 
 	# Strip the line of leading and trailing whitespace
 	stripped_line="$( echo $line | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' )"
@@ -57,8 +55,9 @@ while IFS='' read -r line; do
 		line="$(echo $line | sed -e "s:\".*\":\"${workflows}/tests/dummies/${import_name}/${import_dummy}\":" )"
 		# Recurse on the import file.
 		# If this file does not exist, the program will crash.
-		import_file="$(basename $( find $workflows -name "${import_name%.wdl}.wdl" ))"
+		import_file=$( find $workflows -name "${import_name%.wdl}.wdl")
 		if [ -z $import_file ]; then echo ERROR: import file $import_file does not exist!; exit; fi
+		import_file="$(basename $import_file)"
 		printf "Recursing on subworkflow $import_file ...\n"
 		bash make_dummy.sh $import_file
 		echo -----------------------------------------------------------------------------------------------------

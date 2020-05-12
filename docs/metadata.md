@@ -1,6 +1,6 @@
 # The Alexandria Metadata Convention
   
-In order to upload data with metadata to Alexandria, your metadata must conform to the [Alexandria Metadata Convention](https://github.com/broadinstitute/scp-ingest-pipeline/blob/master/tests/data/AMC_v1.1.3.tsv). For upload through the alignment pipeline, this metadata should be included within your [input CSV file](dropseq_cumulus.html#the-alexandria-sheet) which should include any metadata that can be applied to all cells in a single sample. 
+In order to upload data with metadata to Alexandria, your metadata must conform to the [Alexandria Metadata Convention](https://github.com/broadinstitute/single_cell_portal_core/tree/master/lib/assets/metadata_schemas/alexandria_convention). For upload through the alignment pipeline, this metadata should be included within your [Alexandria Sheet](dropseq_cumulus.html#the-alexandria-sheet) which should include any metadata that can be applied to all cells in a single sample. 
 
 For direct upload from Single Cell Portal formatted file types, these metadata should be included in the metadata file, referred to in this description as the 'cell-level metadata file'. In your cell-level metadata file, each attribute name in the metadata can be a column name. To enforce some structure to the database, several fields are required and others require specific formatting guidelines. Users are encouraged to include as much metadata as possible, including metadata attributes which are the same for all samples in the study (ex. sequencing technology) as they will be important to users comparing data between studies.  
   
@@ -87,9 +87,6 @@ See the below table for descriptions of columns in this spreadsheet that are use
 |                         | subattributes are denoted with a double '\_' between the attribute parent and the attribute child.                       |
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------+
 | required                | Whether the attribute **MUST** be included as a column in the metadata file of the data you are uploading to Alexandria. |
-+-------------------------+--------------------------------------------------------------------------------------------------------------------------+
-| default                 | The default value which you should include in the metadata file for a required value if it does not apply to your data.  |
-|                         | *There is currently no system to automatically fill this data.*                                                          |
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------+
 | type                    | The datatype of the attribute that Alexandria expects. ``strings`` can be text without quotation marks  `booleans` can   |
 |                         | be either ``True`` or ``False``. ``numbers`` are any numeric character, e.g. ``0``, ``1``, ``2``, ...                    |

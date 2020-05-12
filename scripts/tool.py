@@ -1,5 +1,7 @@
 import subprocess as sp
 import pandas as pd
+import os
+import os.path as osp
 
 class Tool(object):
 	def __init__(self, name, entry, R1_path=None, R2_path=None, plate=None, BCL_path=None, SS_path=None):
@@ -150,9 +152,9 @@ class Tool(object):
 	@classmethod
 	def construct_default_path(cls, bucket_slash, fastq_directory_slash, entry, read):
 		if fastq_directory_slash.startswith("gs://"): 
-			return fastq_directory_slash+entry+'_'+read+"*.fastq*" # TODO: Does SS2 allow uncompressed fastqs?
+			return fastq_directory_slash+entry+"_*R"+read+"*.fastq*" # TODO: Does SS2 allow uncompressed fastqs?
 		else: 
-			return bucket_slash+fastq_directory_slash+entry+'_'+read+"*.fastq*"
+			return bucket_slash+fastq_directory_slash+entry+"_*R"+read+"*.fastq*"
 
 	@classmethod
 	def determine_fastq_path(cls, entry, read, location_override, default_path, bucket_slash, entered_path):
@@ -219,7 +221,7 @@ class Tool(object):
 	def generate_sample_sheet(self, csv, bucket_slash, output_directory_slash, reference):
 		cm = pd.DataFrame()
 		cm[self.entry] = csv[self.entry]
-		cm["Location"] = csv[self.entry].apply(func=get_dge_location, args=(bucket_slash, output_directory_slash))
+		cm["Location"] = csv[self.entry].apply(func=self.get_dge_location, args=(bucket_slash, output_directory_slash))
 		print("Location column added successfully.")
 		cm.insert(1, "Reference", pd.Series(cm[self.entry].map(lambda x: reference)))
 		print("Reference column added successfully.")
@@ -230,16 +232,18 @@ class Tool(object):
 	#######################################################################################################################################
 
 	@classmethod
-	def serialize_scp_outputs(cls, scp_outputs_list, names):
+	def serialize_scp_outputs(cls, scp_outputs_list):
+		names = ["scp.X_fitsne.coords.txt", "scp.expr.txt", "scp.metadata.txt"] #diffmap pca???
 		with open (scp_outputs_list, 'r') as scp_outputs:
 			for name in names:
 				is_found = False
 				for path in scp_outputs:
 					path = path.strip('\n')
-					if path.endswith("X_fitsne.coords.txt"): # Find cluster file
+					os.rename(path, osp.basename(path))
+					path = osp.basename(path)
+					if path.endswith("scp.X_fitsne.coords.txt"): # Find cluster file
 						cluster_file = path
 					if path.endswith(name): # Serialize whatever file path
-						open(name, 'w').write(path)
 						is_found = True
 						break
 				if is_found is False:

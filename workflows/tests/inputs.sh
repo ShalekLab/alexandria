@@ -10,14 +10,29 @@ if [ ! -d $workflows ]; then echo ERROR: Workflows folder does not exist!; exit;
 wdl="$( find $workflows -name "$wdl" -print -quit )"
 if [ -z $wdl ]; then echo ERROR: WDL script does not exist!; exit; fi 
 
-inputs="${wdl%.wdl}.json"
 set -x
-java -jar $WOMTOOL_PATH inputs $wdl > $inputs
+java -jar $WOMTOOL_PATH inputs $wdl
 set +x
 
-cat $inputs
+set +u
+echo "Save input file? (Y/n)"
+read do_save
 
-output_dir="${workflows}/tests/dummies/$( basename -s _dummy.wdl $wdl )/"
-echo Moving inputs to $output_dir
-mkdir -p $output_dir
-mv $inputs $output_dir
+if [[ "$do_save" == "Y" || "$do_save" == "y" ]]; then
+	echo "Save destination?"
+	read destination
+	destination=${destination%/}
+	echo "Filename?"
+	read filename
+	filename="${filename%.json}.json"
+	if [[ -z $filename ]]; then
+		filename="$(basename -s .wdl ${wdl}).json"
+		echo "No input detected, writing as $filename"
+	fi
+	echo Moving $filename to $destination
+	mkdir -p $destination
+	java -jar $WOMTOOL_PATH inputs $wdl > $destination/$filename
+else
+	echo "Not saving."
+fi
+

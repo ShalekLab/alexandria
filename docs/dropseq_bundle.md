@@ -23,7 +23,7 @@ genomeSAindexNbases  Length (bases) of the SA pre-indexing string. Typically bet
 ```
 You can find genomic FASTA (.fa or .fasta) and GTF (.gtf) files on databases such as NCBI's [RefSeq](https://www.ncbi.nlm.nih.gov/refseq/). You will need to upload these files to your Terra workspace. Note that `fasta_file` and `gtf_file` need to be entered as arrays. For example, you can enter one genomic FASTA as `["gs://<bucket_ID>/path/to/file.fa"]` or multiple as `["gs://<bucket_ID>/path/to/file.fa", "gs://<bucket_ID>/path/to/file2.fa"]` where `gs://<bucket_ID>/path/to/file.fa` will need to be full google storage URI to your files. (e.g. `gs://<bucket_ID>/path/to/<your_gtf>.gtf`, `gs://<bucket_ID>/path/to/<your_fasta>.fasta`, etc.)
 
-After dropseq_bundle runs successfully for your inputs, you should [run standalone dropseq_workflow](https://cumulus.readthedocs.io/en/latest/drop_seq.html) on Terra. Before doing this, however, you will need to open your favorite text editor and save a JSON (.json) file of the dropseq_bundle outputs, using the following template:
+After dropseq_bundle runs successfully for your inputs, you can look into [runnning standalone dropseq_workflow](https://cumulus.readthedocs.io/en/latest/drop_seq.html) on Terra. Before doing this, however, you must use the `gsutil mv` command to move each of the dropseq_bundle outputs (listed in the JSON template below) to be in the same folder on your bucket. Then, open your favorite text editor and save a JSON (.json) file of the dropseq_bundle outputs and their new paths using the template below:
 ```
 {
         "refflat":        "gs://<bucket_ID>/path/to/<ref_flat>",
