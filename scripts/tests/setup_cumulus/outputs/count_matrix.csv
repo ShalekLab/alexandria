@@ -1,4 +1,2 @@
 Sample,Reference,Location
-190712_non2,mm10,gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/testing/190712_non2/190712_non2_dge.txt.gz
-3July19PB,mm10,gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/testing/3July19PB/3July19PB_dge.txt.gz
-3July19BM,mm10,gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/dropseq_cumulus/testing/3July19BM/3July19BM_dge.txt.gz
+Broad,mm10,gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/SS2/job/20200424/Broad.dge.txt.gz

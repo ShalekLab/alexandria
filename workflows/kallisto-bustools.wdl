@@ -33,22 +33,20 @@
 # SNAPSHOT 2
 # Imported kb_count 2
 # -----------------------------------------------------------------------------------------------------------
-# SNAPSHOT 3 (CURRENT)
+# SNAPSHOT 3
 # Imported kb_count 3 and kb_ref 2
-# -----------------------------------------------------------------------------------------------------------
-# SNAPSHOT 4+ (PLANNED)
 # sample_sheet now requires headers to be 'Sample', 'R1_Paths', and 'R2_Paths'
-# R1_Paths and R2_Paths in the sample_sheet can now fit multiple fastq pairs or just a single R1 + null.
+# R1_Paths and R2_Paths in the sample_sheet can now fit per sample: a single fastq pair, multiple fastq pairs, or just a single R1 + null.
 # Scattering of count is done within kb_count rather than this main workflow.
-# The filtered count matrix can now be fed into Cumulus by setting run_cumulus=true
+# Several runtime parameter changes
 # -----------------------------------------------------------------------------------------------------------
 
 version 1.0
 
-#import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:kallisto-bustools_reference/versions/2/plain-WDL/descriptor" as kb_ref
-#import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:kallisto-bustools_count/versions/3/plain-WDL/descriptor" as kb_count
-import "kallisto-bustools_reference.wdl" as kb_ref
-import "kallisto-bustools_count.wdl" as kb_count
+import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:kallisto-bustools_reference/versions/2/plain-WDL/descriptor" as kb_ref
+import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:kallisto-bustools_count/versions/3/plain-WDL/descriptor" as kb_count
+#import "kallisto-bustools_reference.wdl" as kb_ref
+#import "kallisto-bustools_count.wdl" as kb_count
 
 workflow kallisto_bustools {
 	input {
@@ -56,21 +54,20 @@ workflow kallisto_bustools {
 		String bucket
 		String output_path
 		File sample_sheet # Tab-delimited text file with headers: Sample, R1_Paths, R2_Paths
-		Boolean run_build_reference # Runs only one time, not for the number of samples in your sample sheet.
-		#Boolean run_cumulus 
+		Boolean run_build_reference # Runs only one time, not for the number of samples in your sample sheet. 
 		String docker = "shaleklab/kallisto-bustools:0.24.4"
 		Int preemptible = 2
-		String zones = "us-east1-d us-west1-a us-west1-b"
+		String zones = "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-west1-a us-west1-b us-west1-c"
 		Boolean use_lamanno
 
 		# REF
-		String? download_index # human mouse linnarsson
+		String? download_index # human, mouse, linnarsson
 		File? genomic_fasta
 		File? reference_gtf
-		String ref_disks = "local-disk 256 HDD"
+		String ref_disks = "local-disk 256 SSD"
 		Int ref_number_cpu_threads = 32
 		Int ref_task_memory_GB = 128
-		Int ref_boot_disk_size_GB = 100
+		Int ref_boot_disk_size_GB = 10
 
 		# COUNT
 		String technology # DROPSEQ, 10XV1, 10XV2, 10XV3 or see kb --list for more
@@ -82,7 +79,8 @@ workflow kallisto_bustools {
 		String count_disks = "local-disk 256 SSD"
 		Int count_number_cpu_threads = 32
 		Int count_task_memory_GB = 256
-		Int count_boot_disk_size_GB = 100
+		Float count_program_memory_multiplier = 0.75
+		Int count_boot_disk_size_GB = 10
 	}
 	if (run_build_reference) {
 		call kb_ref.kallisto_bustools_reference as build_reference {
@@ -102,37 +100,27 @@ workflow kallisto_bustools {
 				boot_disk_size_GB=ref_boot_disk_size_GB
 		}
 	}
-	scatter (sample in read_objects(sample_sheet)) {
-		call kb_count.kallisto_bustools_count as count {
-			input:
-				bucket=bucket,
-				output_path=output_path,
-				docker=docker,
-				preemptible=preemptible,
-				zones=zones,
-				technology=technology,
-				use_lamanno=use_lamanno,
-				cDNA_transcripts_to_capture=if use_lamanno then select_first([build_reference.cDNA_transcripts_to_capture, preexisting_cDNA_transcripts_to_capture]) else preexisting_cDNA_transcripts_to_capture,
-				intron_transcripts_to_capture=if use_lamanno then select_first([build_reference.intron_transcripts_to_capture, preexisting_intron_transcripts_to_capture]) else preexisting_intron_transcripts_to_capture,
-				index=select_first([build_reference.index, preexisting_index]),
-				T2G_mapping=select_first([build_reference.T2G_mapping, preexisting_T2G_mapping]),
-				#sample_sheet=sample_sheet, # Will be necessary for scattering withing kb_count
-				sample_name=sample.Sample,
-				R1_fastq=sample.R1_Path,
-				R2_fastq=sample.R2_Path, # R2_Path must be entered, TODO: Handle single-end reads.
-				delete_bus_files=delete_bus_files,
-				disks=count_disks,
-				number_cpu_threads=count_number_cpu_threads,
-				task_memory_GB=count_task_memory_GB,
-				boot_disk_size_GB=count_boot_disk_size_GB
-		}
+	call kb_count.kallisto_bustools_count as count {
+		input:
+			bucket=bucket,
+			output_path=output_path,
+			docker=docker,
+			preemptible=preemptible,
+			zones=zones,
+			technology=technology,
+			use_lamanno=use_lamanno,
+			cDNA_transcripts_to_capture=if use_lamanno then select_first([build_reference.cDNA_transcripts_to_capture, preexisting_cDNA_transcripts_to_capture]) else preexisting_cDNA_transcripts_to_capture,
+			intron_transcripts_to_capture=if use_lamanno then select_first([build_reference.intron_transcripts_to_capture, preexisting_intron_transcripts_to_capture]) else preexisting_intron_transcripts_to_capture,
+			index=select_first([build_reference.index, preexisting_index]),
+			T2G_mapping=select_first([build_reference.T2G_mapping, preexisting_T2G_mapping]),
+			sample_sheet=sample_sheet,
+			delete_bus_files=delete_bus_files,
+			disks=count_disks,
+			number_cpu_threads=count_number_cpu_threads,
+			task_memory_GB=count_task_memory_GB,
+			program_memory_multiplier=count_program_memory_multiplier,
+			boot_disk_size_GB=count_boot_disk_size_GB
 	}
-	#if (run_cumulus) {
-	#	call cumulus.cumulus as cumulus {
-	#		input:
-	#		
-	#	}
-	#}
 	output {
 		File? index = build_reference.index
 		File? T2G_mapping = build_reference.T2G_mapping
@@ -142,8 +130,8 @@ workflow kallisto_bustools {
 		File? intron_transcripts_to_capture = build_reference.intron_transcripts_to_capture
 		String? ref_output_path = build_reference.ref_output_path
 
-		Array[File?]? counts_unfiltered_matrices = count.counts_unfiltered_matrix
-		Array[File?]? counts_filtered_matrices = count.counts_filtered_matrix
-		Array[String?]? count_output_paths = count.count_output_path
+		Array[File?]? counts_unfiltered_matrices = count.counts_unfiltered_matrices
+		Array[File?]? counts_filtered_matrices = count.counts_filtered_matrices
+		Array[String?]? count_output_paths = count.count_output_paths
 	}
 }

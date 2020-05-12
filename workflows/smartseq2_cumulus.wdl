@@ -1,26 +1,26 @@
-# dropseq_cumulus workflow
-# A publicly available WDL workflow made by Shalek Lab for bridging dropseq_workflow and cumulus workflow
-# By jgatter [at] broadinstitute.org, published March 27th, 2020
-# Incorporates subworkflows made by jgould [at] broadinstitute.org of the Cumulus Team
-# Drop-Seq Tools Pipeline by McCarroll Lab (https://github.com/broadinstitute/Drop-seq/blob/master/doc/Drop-seq_Alignment_Cookbook.pdf)
+# smartseq2_cumulus workflow
+# A publicly available WDL workflow made by Shalek Lab for bridging smartseq2 and cumulus workflow
+# By jgatter [at] broadinstitute.org, published ~!!INSERT HERE!!~
+# Incorporates subworkflows made by the Cumulus Team
 # Cumulus by the Cumulus Team (https://cumulus-doc.readthedocs.io/en/latest/index.html)
 # ------------------------------------------------------------------------------------------------------------------------------------------
 # SNAPSHOT 1
 # Release
 # ------------------------------------------------------------------------------------------------------------------------------------------
-# SNAPSHOT 3
-# Fixed delocalization of scp files 
-# Renamed input_csv_file to alexandria_sheet, which will be tab-delimited going forward.
-# Set new defaults for cumulus_output_prefix and zones
-# ------------------------------------------------------------------------------------------------------------------------------------------
 
-import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/9/plain-WDL/descriptor" as dropseq
-import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/17/plain-WDL/descriptor" as cumulus
+#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:smartseq2/versions/5/plain-WDL/descriptor" as smartseq2
+#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/17/plain-WDL/descriptor" as cumulus
+#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:bcl2fastq/versions/4/plain-WDL/descriptor" as bcl2fastq
 
-workflow dropseq_cumulus {
+import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/smartseq2/smartseq2.wdl" as smartseq2
+import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/cumulus/cumulus.wdl" as cumulus
+import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/bcl2fastq/bcl2fastq.wdl" as bcl2fastq
+
+workflow smartseq2_cumulus {
 	# User-inputted .tsv file that contains in whatever order:
-	#	(REQUIRED) the 'Sample' column, 
-	#	(OPTIONAL) both 'R1_Path' and 'R2_Path' columns
+	#	(REQUIRED) the 'Cell' column, 
+	#	(REQUIRED) the 'Plate' column
+	#	(OPTIONAL) both 'Read1' and 'Read2' columns
 	#	(OPTIONAL) 'BCL_Path' column
 	#	(OPTIONAL) 'SS_Path' column
 	#	(OPTIONAL) other metadata columns that currently aren't used/outputted by the workflow
@@ -31,13 +31,17 @@ workflow dropseq_cumulus {
 	String bucket
 
 	# The gsURI path following the bucket root to the folder where you wish the pipeline to deposit files
-	# ex: "dropseq_cumulus/my-job/" from gs://your-bucket-id/dropseq_cumulus/my-job/
-	# Inside this folder (ex: my-job/) folders for each tool will be created ("dropseq/" and "cumulus/")
+	# ex: "smartseq2_cumulus/my-job/" from gs://your-bucket-id/smartseq2_cumulus/my-job/
+	# Inside this folder (ex: my-job/) folders for each tool will be created ("smartseq2/" and "cumulus/")
 	String output_path
 	
 	# Accepted references are "hg19", "mm10", "hg19_mm10", "mmul_8.0.1", and "GRCh38"
-	# For making and linking custom dropseq-compatible references, see the Cumulus documentation.
+	# For making and linking custom smartseq2-compatible references, see the Cumulus documentation.
 	String reference
+
+	# WARNING: THIS FEATURE IS CURRENTLY UNSUPPORTED UNTIL SMARTSEQ2 UPGRADES TO WDL v1.0
+	# Accepted aligner options are "star" or "hisat2-hca"
+	String aligner = "hisat2-hca"
 
 	# OPTIONAL:
 	# If you have some/all of your FASTQs in one folder object on the bucket,
@@ -46,7 +50,7 @@ workflow dropseq_cumulus {
 	String fastq_directory = ''
 	
 	# Set true to run alignment by Drop-Seq tools
-	Boolean run_dropseq
+	Boolean run_smartseq2
 	
 	# Set to true to convert your BCLs to FASTQs via bcl2fastq
 	Boolean is_bcl #= false
@@ -56,12 +60,12 @@ workflow dropseq_cumulus {
 	Boolean run_cumulus
 
 	#The filename prefix assigned to the Cumulus outputs.
-	String cumulus_output_prefix = "dsc"
+	String cumulus_output_prefix = "s2c"
 
 	### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
-	# dropseq_workflow docker image: <dropseq_registry>/dropseq:<dropseq_tools_version>
-	String dropseq_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/dropseq/tags
-	String dropseq_tools_version = "2.3.0"
+	# smartseq2 docker image: <smartseq2_registry>/smartseq2:<smartseq2_tools_version>
+	String smartseq2_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/smartseq2/tags
+	String smartseq2_version = "1.0.0"
 	# bcl2fastq docker image: <bcl2fastq_registry>/bcl2fastq:<bcl2fastq_version>
 	# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
 	# If not Broad-affiliated, see the Alexandria documentation appendix for creating your own bcl2fastq image.
@@ -71,7 +75,7 @@ workflow dropseq_cumulus {
 	String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
 	String cumulus_version = "0.15.0"
 	# alexandria docker image: <alexandria_docker>
-	String alexandria_docker = "shaleklab/alexandria:0.2" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
+	String alexandria_docker = "shaleklab/alexandria:dev" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
 	
 	# The maximum number of attempts Cromwell will request Google for a preemptible VM.
 	# Preemptible VMs are about 5 times cheaper than non-preemptible, but Google can yank them
@@ -89,39 +93,62 @@ workflow dropseq_cumulus {
 
 	String base_fastq_directory_slash = sub(fastq_directory_slash, bucket_slash, '')
 	String base_output_path_slash = sub(output_path_slash, bucket_slash, '')
-	String dropseq_output_path_slash = base_output_path_slash+"dropseq/"
+	String smartseq2_output_path_slash = base_output_path_slash+"smartseq2/"
 	String cumulus_output_path_slash = base_output_path_slash+"cumulus/"
 
-	String dropseq_registry_stripped = sub(dropseq_registry, "/+$", '')
+	String smartseq2_registry_stripped = sub(smartseq2_registry, "/+$", '')
 	String bcl2fastq_registry_stripped = sub(bcl2fastq_registry, "/+$", '')
 	String cumulus_registry_stripped = sub(cumulus_registry, "/+$", '')
 
-	Boolean check_inputs = !run_dropseq
+	Boolean check_inputs = !run_smartseq2
 
-	if (run_dropseq) {
-		# Check user alexandria_sheet and create dropseq_locations.tsv for Drop-Seq Tools
-		call setup_dropseq {
+	if (run_smartseq2) {
+		# Check user alexandria_sheet and create smartseq2_locations.tsv for Drop-Seq Tools
+		call setup_smartseq2 {
 			input:
 				bucket_slash=bucket_slash,
 				is_bcl=is_bcl,
 				alexandria_sheet=alexandria_sheet,
 				reference=reference,
-				dropseq_output_path_slash=dropseq_output_path_slash,
+				aligner=aligner,
+				smartseq2_output_path_slash=smartseq2_output_path_slash,
 				fastq_directory_slash=base_fastq_directory_slash,
 				alexandria_docker=alexandria_docker,
 				preemptible=preemptible,
 				zones=zones
 		}
-		call dropseq.dropseq_workflow as dropseq {
+		if (is_bcl) {
+			scatter (entry in read_tsv(setup_smartseq2.smartseq2_locations)) {
+				call bcl2fastq.bcl2fastq {
+					input:
+						input_bcl_directory=entry[0],
+						sample_sheet=entry[1],
+						output_directory = bucket_slash + sub(smartseq2_output_path_slash, "/+$", ''),
+						zones=zones,
+						preemptible=preemptible,
+						bcl2fastq_version=bcl2fastq_version,
+						docker_registry=bcl2fastq_registry_stripped
+				}
+			}
+			File alexandria_sheet_plates = select_first(setup_smartseq2.alexandria_sheet_plates)
+			call setup_from_bcl2fastq {
+				input:
+					bucket_slash=bucket_slash,
+					alexandria_sheet=alexandria_sheet_plates,
+					bcl2fastq_sheets=bcl2fastq.fastqs,
+					alexandria_docker=alexandria_docker,
+					zones=zones,
+					preemptible=preemptible
+			}
+		}
+		call smartseq2.smartseq2 as smartseq2 {
 			input:
-				input_tsv_file=setup_dropseq.dropseq_locations,
-				run_bcl2fastq=is_bcl,
-				output_directory=bucket_slash + sub(dropseq_output_path_slash, "/+$", ''),
+				input_csv_file=select_first([setup_from_bcl2fastq.smartseq2_locations, setup_smartseq2.smartseq2_locations]),
+				#aligner=aligner,
+				output_directory=bucket_slash + sub(smartseq2_output_path_slash, "/+$", ''),
 				reference=reference,
-				docker_registry=dropseq_registry_stripped,
-				drop_seq_tools_version=dropseq_tools_version,
-				bcl2fastq_docker_registry=bcl2fastq_registry_stripped,
-				bcl2fastq_version=bcl2fastq_version,
+				docker_registry=smartseq2_registry_stripped,
+				smartseq2_version=smartseq2_version,
 				zones=zones,
 				preemptible=preemptible
 		}
@@ -132,12 +159,12 @@ workflow dropseq_cumulus {
 		call setup_cumulus {
 			input: 
 				check_inputs=check_inputs,
-				alexandria_sheet=alexandria_sheet,
+				alexandria_sheet=select_first([alexandria_sheet_plates, alexandria_sheet]),
 				reference=reference,
 				bucket_slash=bucket_slash,
-				dropseq_output_path_slash=dropseq_output_path_slash,
+				smartseq2_output_path_slash=smartseq2_output_path_slash,
 				cumulus_output_path_slash=cumulus_output_path_slash,
-				dges=dropseq.dge,
+				matrices=smartseq2.output_count_matrix,
 				alexandria_docker=alexandria_docker,
 				preemptible=preemptible,
 				zones=zones
@@ -146,7 +173,7 @@ workflow dropseq_cumulus {
 			input:
 				input_file=setup_cumulus.count_matrix,
 				output_name=bucket_slash + cumulus_output_path_slash + cumulus_output_prefix,
-				is_dropseq=true,
+				is_dropseq=false,
 				generate_scp_outputs=true,
 				output_dense=true,
 				preemptible=preemptible,
@@ -157,7 +184,7 @@ workflow dropseq_cumulus {
 		# Segregate the output scp files and map the alexandria_sheet's metadata to create the alexandria_metadata.txt
 		call scp_outputs {
 			input:
-				alexandria_sheet=alexandria_sheet,
+				alexandria_sheet=select_first([alexandria_sheet_plates, alexandria_sheet]),
 				bucket_slash=bucket_slash,
 				cumulus_output_path_slash=cumulus_output_path_slash, 
 				output_scp_files=cumulus.output_scp_files,
@@ -167,24 +194,25 @@ workflow dropseq_cumulus {
 		}
 	}
 	output {
-		Array[String?]? raw_matrices = dropseq.dge
-		String? dropseq_output_path = bucket_slash+dropseq_output_path_slash
+		String? smartseq2_output_path = bucket_slash+smartseq2_output_path_slash
 		String? cumulus_output_path = bucket_slash+cumulus_output_path_slash
 		
 		File? alexandria_metadata = scp_outputs.alexandria_metadata
 		File? fitsne_coords = scp_outputs.fitsne_coords
 		File? dense_matrix = scp_outputs.dense_matrix
 		File? cumulus_metadata = scp_outputs.cumulus_metadata
+		#File? diffmap_pca_coords = scp_outputs.diffmap_pca_coords
 	}
 }
 
-task setup_dropseq {
+task setup_smartseq2 {
 	
 	String bucket_slash
 	Boolean is_bcl
 	File alexandria_sheet
 	String reference
-	String dropseq_output_path_slash
+	String aligner
+	String smartseq2_output_path_slash
 	String? fastq_directory_slash
 	String alexandria_docker
 	Int preemptible
@@ -193,17 +221,44 @@ task setup_dropseq {
 	command {
 		set -e
 		python /alexandria/scripts/setup_tool.py \
-			-t=dropseq \
+			-t=Smartseq2 \
 			-i=${alexandria_sheet} \
 			-g=${bucket_slash} \
 			${true="--is_bcl" false='' is_bcl} \
 			-m=/alexandria/scripts/metadata_type_map.tsv \
 			-f=${fastq_directory_slash} \
-			-r=${reference}
-		gsutil cp dropseq_locations.tsv ${bucket_slash}${dropseq_output_path_slash}
+			-r=${reference} \
+			-a=${aligner}
+		gsutil cp smartseq2_locations.tsv ${bucket_slash}${smartseq2_output_path_slash}
 	}
 	output {
-		File dropseq_locations = "dropseq_locations.tsv"
+		File smartseq2_locations = "smartseq2_locations.tsv"
+		Array[File?] alexandria_sheet_plates = glob("alexandria_sheet_plates.tsv")
+	}
+	runtime {
+		docker: "${alexandria_docker}"
+		preemptible: "${preemptible}"
+		zones: "${zones}"
+	}
+}
+
+task setup_from_bcl2fastq {
+	String bucket_slash
+	File alexandria_sheet
+	Array[File] bcl2fastq_sheets
+	String zones
+	Int preemptible
+	String alexandria_docker
+
+	command {
+		set -e
+		python /alexandria/scripts/setup_from_bcl2fastq.py \
+			-t=Smartseq2 \
+			-b=${sep=',' bcl2fastq_sheets} \
+			-i=${alexandria_sheet}
+	}
+	output {
+		File smartseq2_locations = "smartseq2_locations.tsv"
 	}
 	runtime {
 		docker: "${alexandria_docker}"
@@ -213,28 +268,27 @@ task setup_dropseq {
 }
 
 task setup_cumulus {
-	
 	Boolean check_inputs
 	File alexandria_sheet
 	String reference
 	String bucket_slash
-	String dropseq_output_path_slash
+	String smartseq2_output_path_slash
 	String cumulus_output_path_slash
 	String alexandria_docker
 	Int preemptible
 	String zones
-	Array[String?]? dges
+	Array[String?]? matrices
 	
 	command {
 		set -e
 		python /alexandria/scripts/setup_cumulus.py \
 			-i=${alexandria_sheet} \
-			-t=dropseq \
+			-t=Smartseq2 \
 			-g=${bucket_slash} \
 			${true="--check_inputs" false='' check_inputs} \
 			-r=${reference} \
 			-m=/alexandria/scripts/metadata_type_map.tsv \
-			-o=${dropseq_output_path_slash}
+			-o=${smartseq2_output_path_slash}
 		gsutil cp count_matrix.csv ${bucket_slash}${cumulus_output_path_slash}
 	}
 	output {
@@ -248,7 +302,6 @@ task setup_cumulus {
 }
 
 task scp_outputs {
-	
 	File alexandria_sheet
 	String cumulus_output_path_slash
 	Array[File] output_scp_files
@@ -261,7 +314,7 @@ task scp_outputs {
 		set -e
 		printf "${sep='\n' output_scp_files}" >> output_scp_files.txt
 		python /alexandria/scripts/scp_outputs.py \
-			-t dropseq \
+			-t Smartseq2 \
 			-i ${alexandria_sheet} \
 			-s output_scp_files.txt \
 			-m /alexandria/scripts/metadata_type_map.tsv
@@ -272,6 +325,7 @@ task scp_outputs {
 		File cumulus_metadata = glob("*scp.metadata.txt")[0]
 		File fitsne_coords = glob("*scp.X_fitsne.coords.txt")[0]
 		File dense_matrix = glob("*scp.expr.txt")[0]
+		#File pca_coords = glob("*scp.diffmap_pca.coords.txt???")
 	}
 	runtime {
 		docker: "${alexandria_docker}"

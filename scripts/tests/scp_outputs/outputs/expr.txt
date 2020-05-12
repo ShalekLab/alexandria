@@ -1,1 +1,0 @@
-/Users/jggatter/Desktop/Alexandria/alexandria_repository/src/tests/scp_outputs/inputs/sco.scp.expr.txt

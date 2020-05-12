@@ -6,8 +6,8 @@ if [ ! -e presets.sh ]; then
 fi
 source presets.sh
 
-if [ $# -eq 0 ];then 
-	default_preset
+if [ $# -eq 0 ]; then 
+	ds_default_preset
 else 
 	$1
 fi
@@ -20,12 +20,13 @@ cd $scripts
 # WDL COMMAND START
 python setup_tool.py \
 	-t=${tool} \
-	-i=${input_csv_file} \
+	-i=${alexandria_sheet} \
 	-g=${bucket_slash} \
 	${is_bcl} \
 	-m=${metadata_type_map} \
 	-f=${fastq_directory_slash} \
-	-r=${reference}
+	-r=${reference} \
+	${aligner}
 # WDL COMMAND END
 
 # Verify outputs

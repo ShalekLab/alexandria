@@ -18,7 +18,7 @@ cd $scripts
 
 # WDL COMMAND START
 python setup_cumulus.py \
-	-i=${input_csv_file} \
+	-i=${alexandria_sheet} \
 	-t=${tool} \
 	-g=${bucket_slash} \
 	${check_inputs} \

@@ -4,8 +4,8 @@ set -euo pipefail
 
 function ds_default_preset {
 	echo Setting up ds for is_bcl=false and fastq_directory=""
-	tool="dropseq"
-	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/default_dir.csv"
+	tool="Dropseq"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/IRA.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
@@ -16,8 +16,8 @@ function ds_default_preset {
 
 function ds_fastq_directory_preset {
 	echo Setting up ds for is_bcl=false and fastq_directory="dropseq_cumulus/IRA_FASTQs/"
-	tool="dropseq"
-	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/default_dir.csv"
+	tool="Dropseq"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/fastq_dir.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
@@ -28,8 +28,8 @@ function ds_fastq_directory_preset {
 
 function ds_is_bcl_preset {
 	echo Setting up ds for is_bcl=true
-	tool="dropseq"
-	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/bcl.csv"
+	tool="Dropseq"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ds_bcl.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
@@ -40,8 +40,8 @@ function ds_is_bcl_preset {
 
 function ds_fq_gsURIs {
 	echo Setting up ds for FQs with gsURIs
-	tool="dropseq"
-	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/dropseq_gsURIs.csv"
+	tool="Dropseq"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/dropseq_gsURIs.tsv"
 	bucket_slash="gs://shalek-lab-archiving/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
@@ -52,8 +52,8 @@ function ds_fq_gsURIs {
 
 function ds_bcl_gsURIs {
 	echo Setting up ds for sequencing directories with gsURIs
-	tool="dropseq"
-	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/bcl_gsURIs.csv"
+	tool="Dropseq"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/bcl_gsURIs.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
@@ -62,46 +62,50 @@ function ds_bcl_gsURIs {
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
 }
 
+
 function ss2_default_preset {
 	echo Setting up ss2 for is_bcl=false and fastq_directory=""
-	tool="smartseq2"
-	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ss2_short.csv"
+	tool="Smartseq2"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ss2_short.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
-	reference="mm10"
+	reference="GRCm38_ens93filt"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner="-a=star"
 }
-
+: '
 function ss2_fastq_directory_preset {
 	echo Setting up ss2 for is_bcl=false and fastq_directory="dropseq_cumulus/IRA_FASTQs/"
-	tool="smartseq2"
-	#input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
+	tool="Smartseq2"
+	#alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash="dropseq_cumulus/IRA_FASTQs/"
-	reference="mm10"
+	reference="GRCh38_ens93filt"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner="star"
 }
-
+'
 function ss2_is_bcl_preset {
 	echo Setting up ss2 for is_bcl=true
-	tool="smartseq2"
-	#input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
+	tool="Smartseq2"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ss2_bcl.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
-	reference="mm10"
+	reference="GRCm38_ens93filt"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner="-a=hisat2-hca"
 }
-
+: '
 function kb_default_preset {
 	echo Setting up kb for is_bcl=false and fastq_directory=""
-	tool="kallisto-bustools"
-	input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ss2_short.csv"
+	tool="Kallisto_Bustools"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ss2_short.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
@@ -112,8 +116,8 @@ function kb_default_preset {
 
 function kb_fastq_directory_preset {
 	echo Setting up kb for is_bcl=false and fastq_directory="dropseq_cumulus/IRA_FASTQs/"
-	tool="kallisto-bustools"
-	#input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
+	tool="Kallisto_Bustools"
+	#alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
@@ -124,8 +128,8 @@ function kb_fastq_directory_preset {
 
 function kb_is_bcl_preset {
 	echo Setting up kb for is_bcl=true
-	tool="kallisto-bustools"
-	#input_csv_file="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
+	tool="Kallisto_Bustools"
+	#alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
 	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
@@ -133,3 +137,4 @@ function kb_is_bcl_preset {
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
 }
+'
