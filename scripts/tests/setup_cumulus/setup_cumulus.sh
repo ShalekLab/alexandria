@@ -23,7 +23,6 @@ python setup_cumulus.py \
 	-g=${bucket_slash} \
 	${check_inputs} \
 	-r=${reference} \
-	-m=${metadata_type_map} \
 	-o=${output_directory_slash}
 # WDL COMMAND END
 

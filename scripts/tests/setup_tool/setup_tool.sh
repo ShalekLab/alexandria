@@ -23,7 +23,6 @@ python setup_tool.py \
 	-i=${alexandria_sheet} \
 	-g=${bucket_slash} \
 	${is_bcl} \
-	-m=${metadata_type_map} \
 	-f=${fastq_directory_slash} \
 	-r=${reference} \
 	${aligner}

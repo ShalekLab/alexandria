@@ -12,6 +12,7 @@ function ds_default_preset {
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner=""
 }
 
 function ds_fastq_directory_preset {
@@ -24,6 +25,7 @@ function ds_fastq_directory_preset {
 	fastq_directory_slash="dropseq_cumulus/IRA_FASTQs/"
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner=""
 }
 
 function ds_is_bcl_preset {
@@ -36,6 +38,7 @@ function ds_is_bcl_preset {
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner=""
 }
 
 function ds_fq_gsURIs {
@@ -48,6 +51,7 @@ function ds_fq_gsURIs {
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner=""
 }
 
 function ds_bcl_gsURIs {
@@ -60,6 +64,7 @@ function ds_bcl_gsURIs {
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner=""
 }
 
 

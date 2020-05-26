@@ -1,3 +1,4 @@
+import alxlogging
 import subprocess as sp
 import pandas as pd
 import numpy as np
@@ -9,12 +10,14 @@ class Alexandria(object):
 	def __init__(self, dictionary): 
 		self.__dict__ = dictionary
 		if not "name" in dictionary.keys():
-			raise Exception("ALEXANDRIA: ERROR! The Alexandria must have a name.")
+			raise Exception("ALEXANDRIA: ERROR! The tool must have a name.")
 		if not "sheet" in dictionary.keys():
-			raise Exception("ALEXANDRIA: ERROR! The Alexandria must have a sample sheet.")
+			raise Exception("ALEXANDRIA: ERROR! The tool must have a sample sheet.")
 		if not "entry" in dictionary.keys():
-			raise Exception("ALEXANDRIA: ERROR! The Alexandria must have a column header for entry identifiers.")
+			raise Exception("ALEXANDRIA: ERROR! The tool must have a column header for entry identifiers.")
 		self.sheet = self.make_dataframe(self.sheet)
+		self.metadata_convention = self.get_metadata_convention()
+		self.log = alxlogging.AlxLog()
 
 	#############################################################################################################################
 	#	COMMON INPUTS/OUTPUTS
@@ -22,7 +25,7 @@ class Alexandria(object):
 
 	@classmethod
 	def get_tool(cls, name, sheet):
-		from presets import Dropseq, Smartseq2, Kallisto_Bustools, Cellranger
+		from alxpresets import Dropseq, Smartseq2, Kallisto_Bustools, Cellranger
 		name = name.lower()
 		if name == "dropseq":
 			return Dropseq(sheet)
@@ -33,8 +36,9 @@ class Alexandria(object):
 		elif name == "cellranger":
 			return Cellranger(sheet)
 		else:
-			raise Exception("ALEXANDRIA: ERROR! Alexandria "+name+" must be one of the valid options: "
-				"(Dropseq, Smartseq2, Kallisto_Bustools, Cellranger)")
+			raise Exception(f"ALEXANDRIA: ERROR! Preset {name} is invalid must be one of the "
+				"valid options: (Dropseq, Smartseq2, Kallisto_Bustools, Cellranger)"
+			)
 
 	@classmethod
 	def make_dataframe(cls, alexandria_sheet):
@@ -52,49 +56,58 @@ class Alexandria(object):
 			sheet[col] = sheet[col].str.strip()
 		return sheet
 
-	def check_dataframe(self):
-		pass
-
-	@classmethod
-	def check_bucket(cls, bucket):
-		print("Checking bucket", bucket+"...")
+	def check_bucket(self, bucket):
+		self.log.info(f"Checking bucket at gsURI '{bucket}'.")
 		try: 
 			sp.check_call(args=["gsutil", "ls", bucket], stdout=sp.DEVNULL)
 		except sp.CalledProcessError:
-			raise Exception("ALEXANDRIA: ERROR! Bucket "+bucket+" was not found.")
+			raise Exception(f"ALEXANDRIA: ERROR! Bucket {bucket} was not found.")
 	
 	def check_custom_reference(self, reference):
 		if not reference.beginswith("gs://"):
-			raise Exception("ALEXANDRIA: ERROR! Custom reference "+reference+" must be on a "
+			raise Exception(f"ALEXANDRIA: ERROR! Custom reference {reference} must be on a "
 				"Google bucket and entered as the full gsURI path!")
 		try: 
 			sp.check_call(args=["gsutil", "ls", reference], stdout=sp.DEVNULL)
 		except sp.CalledProcessError: 
-			raise Exception("ALEXANDRIA: ERROR! Custom reference at "+reference+" was not found.")
+			raise Exception(f"ALEXANDRIA: ERROR! Custom reference at {reference} was not found.")
 
 	def check_reference(self, reference):
 		if self.custom_reference_extension is not None and reference.endswith(self.custom_reference_extension):
 			self.check_custom_reference(reference) 
 		elif reference not in self.provided_references:
-			raise Exception("ALEXANDRIA: ERROR! "+reference+" does not match a provided reference "
-				"("+ ", ".join(self.provided_references) +") or does not have a valid filename extension.") 
-		print("Passing reference", reference)
+			raise Exception(f"ALEXANDRIA: ERROR! {reference} does not match a provided reference "
+				f"({', '.join(self.provided_references)}) or does not have a valid filename extension.") 
+		self.log.info(f"Passing reference {reference}.")
 
 	def check_aligner(self, aligner):
 		if aligner is None or aligner in self.aligners:
 			return
 		else:
-			raise Exception("ALEXANDRIA: ERROR! Aligner '"+aligner+"'' does not match a valid aligner "
-				"(" + ", ".join(self.aligners) + ").")
+			raise Exception(f"ALEXANDRIA: ERROR! Aligner '{aligner}' does not match a valid aligner: "
+				f"({', '.join(self.aligners)}).")
 
-	def check_metadata_headers(self, metadata_type_map):
-		metadata_type_map = pd.read_csv(metadata_type_map, dtype=str, header=0, sep='\t')
+	def get_metadata_convention(self, version="latest"):
+		self.log.info("Fetching Alexandria Metadata Convention from the Single Cell Portal")
+		import requests
+		request = requests.get("https://singlecell.broadinstitute.org/single_cell/api/v1/"
+								f"metadata_schemas/alexandria_convention/{version}/tsv")
+		if request.status_code is not 200:
+			raise Exception("ALEXANDRIA: ERROR! Call to Single Cell Portal for Alexandria Metadata Convention "
+				f"version '{version}' returned status code of {request.status_code}")
+		filename = f"AMC_{version}.tsv"
+		open(filename, 'w').write(request.text)
+		return pd.read_csv(filename, sep='\t')
+
+	def check_metadata_headers(self):
+		if self.metadata_convention is None:
+			raise Exception("ALEXANDRIA: ERROR! No metadata convention was given.")
 		ignore_columns=[value for value in vars(self).values() if isinstance(value, str)]
-		metadata_headers = metadata_type_map["attribute"].tolist()
-		print("Checking headers of all metadata columns.")
+		metadata_headers = self.metadata_convention["attribute"].tolist()
+		self.log.info("Checking headers of all metadata columns.")
 		for col in self.sheet.drop(columns=ignore_columns, errors="ignore").columns:
 			if not col in metadata_headers: # TODO: Warn user? but allow extraneous metadata.
-				raise Exception("ALEXANDRIA: ERROR! Metadata "+col+" is not a valid metadata type.")
+				raise Exception(f"ALEXANDRIA: ERROR! Metadata {col} is not a valid metadata type.")
 
 	def concatenate_sheets(self, sheets):
 		for sheet in sheets:
@@ -105,24 +118,24 @@ class Alexandria(object):
 			self.sheet = pd.concat(objs=[self.sheet, new_sheet], join="outer")
 
 	def write_locations(self, tool_sheet):
-		tool_sheet.to_csv(self.name+"_locations.tsv", sep='\t', header=None, index=False)
+		tool_sheet.to_csv(f"{self.name}_locations.tsv", sep='\t', header=None, index=False)
 
 	#############################################################################################################################
 	#	BCLs
 	#############################################################################################################################
 
 	def check_sequencing_run_path(self, bcl_path, bucket_slash):
-		print("ALEXANDRIA: For BCL_Path entry", bcl_path)
+		self.log.info(f"For BCL_Path entry {osp.basename(bcl_path)}:")
 		if bcl_path.startswith("gs://") is False:
 			bcl_path = bucket_slash + bcl_path
-			print("Prepended the bucket to the entry;", bcl_path)
-		print("Checking existence of sequencing run directory:", bcl_path)
+			self.log.verbose("Prepended the bucket to the entry:\n" + bcl_path)
+		self.log.info("Checking existence of sequencing run directory")
 		try: 
 			sp.check_call(args=["gsutil", "ls", bcl_path], stdout=sp.DEVNULL)
 		except sp.CalledProcessError: 
-			raise Exception("ALEXANDRIA: ERROR! Sequencing run directory at "+bcl_path+" was not found.")
-		print("FOUND", bcl_path)
-		print("--------------------------")
+			raise Exception("ALEXANDRIA: ERROR! Sequencing run directory was not found:\n" + bcl_path)
+		self.log.info(f"FOUND {bcl_path}")
+		self.log.sep()
 		return bcl_path.strip('/')+'/'
 
 	def get_bcl_sheet_path(self, bcl_path, bucket_slash):
@@ -140,13 +153,13 @@ class Alexandria(object):
 		try: 
 			bcl_sheet = sp.check_output(args=["gsutil", "cat", bcl_sheet_path]).strip().decode()
 		except sp.CalledProcessError: 
-			raise Exception("ALEXANDRIA: ERROR! Checked for "+bcl_sheet+", sample sheet was not found in "+bcl_sheet_path)
-		print("FOUND BCL directory sample sheet", bcl_sheet_path)
+			raise Exception(f"ALEXANDRIA: ERROR! Checked for {bcl_sheet}, sample sheet was not found in {bcl_sheet_path}")
+		self.log.info("FOUND BCL directory sample sheet:\n" + bcl_sheet_path)
 		with open("trimmed_bcl_sheet.csv", 'w') as ss:
 			ss.write(bcl_sheet.split("[Data]")[-1]) # Trims sample sheet...
 		ss = pd.read_csv("trimmed_bcl_sheet.csv", dtype=str, header=1) # ...to everything below "[Data]"
 		if "Sample_Name" not in ss.columns:
-			raise Exception("ALEXANDRIA: ERROR! Column Sample_Name was not found in the sample sheet of "+bcl_sheet_path)
+			raise Exception(f"ALEXANDRIA: ERROR! Column 'Sample_Name' was not found in the BCL directory sample sheet of {bcl_sheet_path}")
 		return ss
 
 	def get_entries(self, bcl_path, bcl_sheet_path):
@@ -154,32 +167,33 @@ class Alexandria(object):
 		if len(entries) is not 0: 
 			return entries
 		else:
-			raise Exception("ALEXANDRIA: ERROR! Checked alexandria_sheet "+bcl_path+" no samples were found in"+bcl_sheet_path)
+			raise Exception(f"ALEXANDRIA: ERROR! Checked alexandria_sheet {bcl_path} no samples were found in {bcl_sheet_path}")
 
 	def check_entry(self, entry, ss):
-		print("Checking if", entry, "exists in bcl_sheet")
+		self.log.info(f"Checking if {entry} exists in bcl_sheet")
 		if not ss.Sample_Name.str.contains(entry, regex=False).any(): # Check if Sample_Name column contains the sample.
-			raise Exception("ALEXANDRIA: ERROR! entry "+entry+" in alexandria_sheet does not match"
+			raise Exception(f"ALEXANDRIA: ERROR! entry {entry} in alexandria_sheet does not match"
 				" any samples listed in the sample sheet")
-		print("FOUND entry", entry)
+		self.log.info(f"FOUND entry {entry}")
 
 	def get_validated_bcl_sheet(self, bcl_path, bucket_slash):
 		pd.options.display.max_colwidth = 2048 # Ensure the entire cell prints out
-		print("ALEXANDRIA: Finding sequencing run sample sheet for", osp.basename(bcl_path))
+		self.log.info(f"Finding sequencing run sample sheet for {osp.basename(bcl_path)}")
 		bcl_sheet_path = self.get_bcl_sheet_path(bcl_path, bucket_slash)
-		print("Searching for sample sheet:", bcl_sheet_path)
+		self.log.info("Searching for sample sheet:\n" + bcl_sheet_path)
 		ss = self.get_trimmed_bcl_sheet(bcl_sheet_path)
-		print("Finding and checking samples listed in alexandria_sheet")
-		print("--------------------------")
+		self.log.info("Finding and checking samples listed in alexandria_sheet")
+		self.log.sep()
 		entries = self.get_entries(bcl_path, bcl_sheet_path)
 		entries.apply(func=self.check_entry, args=(ss,))
 		return bcl_sheet_path
 
 	def setup_bcl2fastq_sheet(self, bucket_slash):
-		print("--------------------------")
-		print("ALEXANDRIA: is_bcl is set to true, will be checking ", self.BCL_path, "as well as optional", self.SS_path, "column.")
+		self.log.info(f"is_bcl is set to true, will be checking {self.BCL_path}"
+			f" as well as optional {self.SS_path} column.")
+		self.log.sep()
 		if not self.BCL_path in self.sheet.columns:
-			raise Exception("ALEXANDRIA: ERROR! Missing required column '"+self.BCL_path+"'")
+			raise Exception(f"ALEXANDRIA: ERROR! Missing required column '{self.BCL_path}'")
 		tool_sheet = pd.DataFrame()
 		tool_sheet[self.BCL_path] = self.sheet[self.BCL_path].unique()
 		tool_sheet[self.BCL_path].apply(
@@ -190,8 +204,8 @@ class Alexandria(object):
 			func=self.get_validated_bcl_sheet,
 			args=(bucket_slash,)
 		)
-		self.sheet.to_csv("wtf.tsv", sep='\t', header=True, index=False)
-		tool_sheet.to_csv(self.name+"_locations.tsv", header=False, sep='\t', index=False)
+		#self.sheet.to_csv("wtf.tsv", sep='\t', header=True, index=False)
+		tool_sheet.to_csv(f"{self.name}_locations.tsv", header=False, sep='\t', index=False)
 
 	#############################################################################################################################
 	#	FASTQs
@@ -199,10 +213,10 @@ class Alexandria(object):
 
 	def check_path_columns(self):
 		if not self.R1_path in self.sheet.columns:
-			print("No '"+self.R1_path+"' column found in alexandria_sheet, will consign as NaN and handle as such.")
+			self.log.warn(f"No '{self.R1_path}' column found in alexandria_sheet, will consign as NaN and handle as such.")
 			self.sheet[self.R1_path] = self.sheet[self.entry].replace(self.sheet[self.entry], np.nan)
 		if not self.R2_path in self.sheet.columns:
-			print("No '"+self.R2_path+"' column found in alexandria_sheet, will consign as NaN and handle as such.")
+			self.log.warn(f"No '{self.R2_path}' column found in alexandria_sheet, will consign as NaN and handle as such.")
 			self.sheet[self.R2_path] = self.sheet[self.entry].replace(self.sheet[self.entry], np.nan)
 
 	def construct_default_fastq_path(self, bucket_slash, fastq_directory_slash, entry, read):
@@ -211,16 +225,16 @@ class Alexandria(object):
 		else: 
 			return bucket_slash+fastq_directory_slash+entry+"_*R"+read+"*.fastq*"
 
-	def determine_fastq_path(self, entry, read, default_path, bucket_slash, entered_path):
-		print("For", entry, "read", read+":")
+	def determine_path(self, entry, entity, default_path, bucket_slash, entered_path):
+		self.log.info(f"For {entry} {entity}:")
 		if entered_path == "NaN":
-			print("Path was not entered in alexandria_sheet, checking the constructed default path:\n" + default_path)
+			self.log.info("Path was not entered in alexandria_sheet, checking the constructed default path:\n" + default_path)
 			return default_path
 		elif entered_path.startswith("gs://"):
-			print("Checking entered path that begins with gsURI, checking:\n" + entered_path)
+			self.log.info("Checking entered path that begins with gsURI, checking:\n" + entered_path)
 			return entered_path
 		else: # If not gsURI, prepend the bucket
-			print("Checking entered path:\n" + bucket_slash + entered_path)
+			self.log.info("Checking entered path:\n" + bucket_slash + entered_path)
 			return bucket_slash + entered_path
 
 	def validate_fastq_path(self, fastq_path, default_path):
@@ -228,13 +242,14 @@ class Alexandria(object):
 		try:
 			fastq_path = sp.check_output(args=["gsutil", "ls", fastq_path]).strip().decode()
 		except sp.CalledProcessError: 
-			print("ALEXANDRIA: WARNING! The file was not found at:\n" +fastq_path+ "\nChecking the fastq_directory variable...")
+			self.log.warn("The file was not found at:\n" + fastq_path)
+			self.log.info("Checking for FASTQ at the default path (fastq_directory): \n" + default_path)
 			try: 
 				fastq_path = sp.check_output(args=["gsutil", "ls", default_path]).strip().decode() # Tries again for default path
 			except sp.CalledProcessError: 
-				raise Exception("ALEXANDRIA: ERROR! Checked path "+fastq_path+", the fastq(.gz) was not found!")
-		print("FOUND", fastq_path)
-		print("--------------------------")
+				raise Exception(f"ALEXANDRIA: ERROR! Checked path {fastq_path}, the fastq(.gz) was not found!")
+		self.log.info(f"FOUND {fastq_path}")
+		self.log.sep()
 		return fastq_path
 
 	def get_entered_fastq_path(self, entry, read):
@@ -252,14 +267,14 @@ class Alexandria(object):
 		pd.options.display.max_colwidth = 2048 # Ensure the entire cell prints out
 		entered_path = self.get_entered_fastq_path(entry, read)
 		default_path = self.construct_default_fastq_path(bucket_slash, fastq_directory_slash, entry, read)
-		fastq_path = self.determine_fastq_path(entry, read, default_path, bucket_slash, entered_path)
+		fastq_path = self.determine_path(entry, f"read {read}", default_path, bucket_slash, entered_path)
 		validated_fastq_path = self.validate_fastq_path(fastq_path, default_path)
 		return validated_fastq_path
 
 	def setup_fastq_sheet(self, bucket_slash, fastq_directory_slash):
-		print("--------------------------")
-		print("ALEXANDRIA: is_bcl is set to false, will be checking", self.entry, "column "
-			"as well as", self.R1_path, "and", self.R2_path, "columns.")
+		self.log.info(f"is_bcl is set to false, will be checking {self.entry} column "
+			f"as well as {self.R1_path} and {self.R2_path} columns.")
+		self.log.sep()
 		tool_sheet = pd.DataFrame()
 		tool_sheet[self.entry] = self.sheet[self.entry]
 		self.check_path_columns()
@@ -284,28 +299,15 @@ class Alexandria(object):
 		else: 
 			return bucket_slash + output_directory_slash + entry + '/' + entry + self.MTX_extension
 
-	def determine_mtx_path(self, entry, bucket_slash, default_path, entered_path):
-		print("For", entry+":")
-		if entered_path == "NaN":
-			print("Path was not entered in alexandria_sheet, checking the constructed default path:\n" + default_path)
-			return default_path
-		elif entered_path.startswith("gs://"):
-			print("Checking entered path that begins with gsURI, checking:\n" + entered_path)
-			return entered_path
-		else: # If not gsURI, prepend the bucket
-			print("Checking entered path:\n" + bucket_slash + entered_path)
-			return bucket_slash + entered_path
-
 	def validate_mtx_path(self, mtx_path):
-		print("Searching for count matrix at", mtx_path)
+		self.log.info(f"Searching for count matrix at {mtx_path}.")
 		try:
 			sp.check_call(args=["gsutil", "ls", mtx_path], stdout=sp.DEVNULL)
 		except sp.CalledProcessError: 
-			raise Exception("ALEXANDRIA: ERROR! "+mtx_path+" was not found. Ensure that the path "
-				"is correct and that the count matrix is in <name>"+self.MTX_extension+" format!"
-			)
-		print("FOUND", mtx_path)
-		print("--------------------------")
+			raise Exception(f"ALEXANDRIA: ERROR! {mtx_path} was not found. Ensure that the path "
+				f"is correct and that the count matrix is in <name>{self.MTX_extension} format!")
+		self.log.info(f"FOUND {mtx_path}")
+		self.log.sep()
 		return mtx_path
 
 	def get_validated_mtx_location(self, entry, bucket_slash, output_directory_slash):
@@ -315,7 +317,7 @@ class Alexandria(object):
 		entered_path = self.sheet.loc[ self.sheet[self.entry] == entry, self.MTX_path] \
 			.head(1).to_string(index=False).strip()
 		default_path = self.construct_default_mtx_path(bucket_slash, output_directory_slash, entry)
-		mtx_path = self.determine_mtx_path(entry, bucket_slash, default_path, entered_path)
+		mtx_path = self.determine_path(entry, "matrix", bucket_slash, default_path, entered_path)
 		validated_mtx_path = self.validate_mtx_path(mtx_path)
 		return validated_mtx_path
 
@@ -351,7 +353,7 @@ class Alexandria(object):
 						is_found = True
 						break
 				if is_found is False:
-					raise Exception("Path to "+name+" file was not found.")
+					raise Exception(f"Path to {name} file was not found.")
 		return cluster_file
 
 	def transform_cluster_file(self, cluster_file):
@@ -369,30 +371,34 @@ class Alexandria(object):
 		drop_columns=[value for value in vars(self).values() if isinstance(value, str) and value is not self.entry]
 		self.sheet = self.sheet.drop(columns=drop_columns, errors="ignore")
 
-	def get_metadata(self, entry, metadata, metadata_type_map):
-		# TODO: Support outside metadata? Type cast data to validate that numeric is int/float, group is whatever.
-		attribute_type = metadata_type_map.loc[metadata_type_map.attribute == metadata, "type"].to_string(index=False).strip()
-		if attribute_type == "string" or attribute_type == "boolean" or attribute_type == "group":
-			attribute_type = "group"
-		elif attribute_type == "number" or attribute_type == "numeric":
-			attribute_type = "numeric"
+	def get_attribute_type(self, metadata):
+		attribute_type = self.metadata_convention.loc[
+				self.metadata_convention.attribute == metadata, "type"
+			].to_string(index=False).strip()
+		if attribute_type in ["string", "boolean", "group"]:
+			return "group"
+		elif attribute_type in ["number", "numeric"]:
+			return "numeric"
 		else:
-			raise Exception("ALEXANDRIA: ERROR! attribute type "+attribute_type+" is not a recognized value! "
-				"Valid values for Alexandria Metadata Convention: ('string', 'number', 'boolean').")
+			raise Exception(f"ALEXANDRIA: ERROR! attribute type {attribute_type} is not a recognized value! "
+				"Valid values for Alexandria Metadata Convention: ('string', 'number', 'boolean')."
+			)
+
+	def get_metadata(self, entry, metadata):
+		# TODO: Support outside metadata? Type cast data to validate that numeric is int/float, group is whatever
 		if entry == "group":
 			# For TYPE row, search for type in map
-			return attr
+			return self.get_attribute_type(metadata)
 		else:
 			# For all rows below, get the metadata at entry
 			return self.sheet.loc[ self.sheet[self.entry] == entry, metadata].to_string(index=False).strip()
 
-	def map_metadata(self, alexandria_metadata, metadata_type_map):
-		metadata_type_map = pd.read_csv(metadata_type_map, dtype=str, header=0, sep='\t')
+	def map_metadata(self, alexandria_metadata):
 		for metadata in self.sheet.columns:
 			if metadata == self.entry:
 				continue
 			alexandria_metadata[metadata] = alexandria_metadata["Channel"].apply(
 				func=self.get_metadata, 
-				args=(metadata, metadata_type_map)
+				args=(metadata,)
 			)
 		return alexandria_metadata

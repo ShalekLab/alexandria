@@ -12,7 +12,7 @@ if [ $# -eq 0 ]; then
 else 
 	$1
 fi
-echo hello
+
 scripts="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts"
 scp_outputs="${scripts}/tests/scp_outputs"
 
@@ -25,8 +25,7 @@ echo Running
 python scp_outputs.py \
 	-i ${alexandria_sheet} \
 	-t ${tool} \
-	-s ${output_scp_files} \
-	-m ${metadata_type_map}
+	-s ${output_scp_files}
 # WDL COMMAND END
 
 test_outputs="${scp_outputs}/outputs"
