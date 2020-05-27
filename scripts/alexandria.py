@@ -110,15 +110,25 @@ class Alexandria(object):
 				raise Exception(f"ALEXANDRIA: ERROR! Metadata {col} is not a valid metadata type.")
 
 	def concatenate_sheets(self, sheets):
+		df = pd.DataFrame(columns=[self.entry, self.R1_path, self.R2_path])
 		for sheet in sheets:
-			new_sheet = pd.read_csv(sheet, sep='\t', 
+			sheet = pd.read_csv(
+				sheet, 
+				sep='\t', 
 				usecols=[i for i in range(3)],
 				names=[self.entry, self.R1_path, self.R2_path]
 			)
-			self.sheet = pd.concat(objs=[self.sheet, new_sheet], join="outer")
+			df = pd.concat(objs=[df, sheet], join="outer")
+		return df
 
-	def write_locations(self, tool_sheet):
-		tool_sheet.to_csv(f"{self.name}_locations.tsv", sep='\t', header=None, index=False)
+	def get_plate(self, entry, that):
+		#Bcl2fastq --> SS2
+		pass
+
+	def write_locations(self, sheet=None):
+		if sheet is None:
+			sheet = self.sheet
+		sheet.to_csv(f"{self.name}_locations.tsv", sep='\t', header=None, index=False)
 
 	#############################################################################################################################
 	#	BCLs
@@ -159,7 +169,9 @@ class Alexandria(object):
 			ss.write(bcl_sheet.split("[Data]")[-1]) # Trims sample sheet...
 		ss = pd.read_csv("trimmed_bcl_sheet.csv", dtype=str, header=1) # ...to everything below "[Data]"
 		if "Sample_Name" not in ss.columns:
-			raise Exception(f"ALEXANDRIA: ERROR! Column 'Sample_Name' was not found in the BCL directory sample sheet of {bcl_sheet_path}")
+			raise Exception("ALEXANDRIA: ERROR! Column 'Sample_Name' was not found in the "
+				f"BCL directory sample sheet of {bcl_sheet_path}"
+			)
 		return ss
 
 	def get_entries(self, bcl_path, bcl_sheet_path):
@@ -189,7 +201,7 @@ class Alexandria(object):
 		return bcl_sheet_path
 
 	def setup_bcl2fastq_sheet(self, bucket_slash):
-		self.log.info(f"is_bcl is set to true, will be checking {self.BCL_path}"
+		self.log.info(f"Paremeter is_bcl is enabled, will be checking {self.BCL_path}"
 			f" as well as optional {self.SS_path} column.")
 		self.log.sep()
 		if not self.BCL_path in self.sheet.columns:
@@ -204,7 +216,7 @@ class Alexandria(object):
 			func=self.get_validated_bcl_sheet,
 			args=(bucket_slash,)
 		)
-		#self.sheet.to_csv("wtf.tsv", sep='\t', header=True, index=False)
+		#self.sheet.to_csv("wtf.tsv", sep='\t', header=True, index=False) # DEBUG?
 		tool_sheet.to_csv(f"{self.name}_locations.tsv", header=False, sep='\t', index=False)
 
 	#############################################################################################################################
@@ -305,7 +317,8 @@ class Alexandria(object):
 			sp.check_call(args=["gsutil", "ls", mtx_path], stdout=sp.DEVNULL)
 		except sp.CalledProcessError: 
 			raise Exception(f"ALEXANDRIA: ERROR! {mtx_path} was not found. Ensure that the path "
-				f"is correct and that the count matrix is in <name>{self.MTX_extension} format!")
+				f"is correct and that the count matrix is in <name>{self.MTX_extension} format!"
+			)
 		self.log.info(f"FOUND {mtx_path}")
 		self.log.sep()
 		return mtx_path

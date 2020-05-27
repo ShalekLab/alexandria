@@ -139,8 +139,10 @@ class Smartseq2(Alexandria):
 				raise Exception("ALEXANDRIA: ERROR! No plate found under 'Sample_Plate' in BCL directory's SampleSheet.")
 		self.log.sep()
 
-	def get_plate(self, entry, that):
-		return that.sheet.loc[ that.sheet[that.entry] == entry, that.plate].to_string(index=False).strip()
+	def get_plate(self, entry):
+		return self.sheet.loc[
+			self.sheet[self.entry] == entry, self.plate
+		].to_string(index=False).strip()
 
 	def write_locations(self, tool_sheet):
 		tool_sheet.to_csv(f"{self.name}_locations.tsv", header=True, index=False) # .csv

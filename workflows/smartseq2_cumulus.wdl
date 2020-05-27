@@ -8,85 +8,94 @@
 # Release
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
-#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:smartseq2/versions/5/plain-WDL/descriptor" as smartseq2
-#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/17/plain-WDL/descriptor" as cumulus
-#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:bcl2fastq/versions/4/plain-WDL/descriptor" as bcl2fastq
+version 1.0
+#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:smartseq2/versions/7/plain-WDL/descriptor" as smartseq2
+#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/23/plain-WDL/descriptor" as cumulus
+#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:bcl2fastq/versions/5/plain-WDL/descriptor" as bcl2fastq
 
 import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/smartseq2/smartseq2.wdl" as smartseq2
 import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/cumulus/cumulus.wdl" as cumulus
 import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/bcl2fastq/bcl2fastq.wdl" as bcl2fastq
 
 workflow smartseq2_cumulus {
-	# User-inputted .tsv file that contains in whatever order:
-	#	(REQUIRED) the 'Cell' column, 
-	#	(REQUIRED) the 'Plate' column
-	#	(OPTIONAL) both 'Read1' and 'Read2' columns
-	#	(OPTIONAL) 'BCL_Path' column
-	#	(OPTIONAL) 'SS_Path' column
-	#	(OPTIONAL) other metadata columns that currently aren't used/outputted by the workflow
-	File alexandria_sheet
+	input {
+		# User-inputted .tsv file that contains in whatever order:
+		#	(REQUIRED) the 'Cell' column, 
+		#	(REQUIRED) the 'Plate' column
+		#	(OPTIONAL) both 'Read1' and 'Read2' columns
+		#	(OPTIONAL) 'BCL_Path' column
+		#	(OPTIONAL) 'SS_Path' column
+		#	(OPTIONAL) other metadata columns that currently aren't used/outputted by the workflow
+		File alexandria_sheet
 
-	# The gsURI of your Google Bucket, ex: "gs://your-bucket-id/FASTQs/"
-	# Alexandria/The Single Cell Portal requires this variable.
-	String bucket
+		# The gsURI of your Google Bucket, ex: "gs://your-bucket-id/FASTQs/"
+		# Alexandria/The Single Cell Portal requires this variable.
+		String bucket
 
-	# The gsURI path following the bucket root to the folder where you wish the pipeline to deposit files
-	# ex: "smartseq2_cumulus/my-job/" from gs://your-bucket-id/smartseq2_cumulus/my-job/
-	# Inside this folder (ex: my-job/) folders for each tool will be created ("smartseq2/" and "cumulus/")
-	String output_path
-	
-	# Accepted references are "hg19", "mm10", "hg19_mm10", "mmul_8.0.1", and "GRCh38"
-	# For making and linking custom smartseq2-compatible references, see the Cumulus documentation.
-	String reference
+		# The gsURI path following the bucket root to the folder where you wish the pipeline to deposit files
+		# ex: "smartseq2_cumulus/my-job/" from gs://your-bucket-id/smartseq2_cumulus/my-job/
+		# Inside this folder (ex: my-job/) folders for each tool will be created ("smartseq2/" and "cumulus/")
+		String output_path
+		
+		# Accepted references are "hg19", "mm10", "hg19_mm10", "mmul_8.0.1", and "GRCh38"
+		# For making and linking custom smartseq2-compatible references, see the Cumulus documentation.
+		String reference
 
-	# WARNING: THIS FEATURE IS CURRENTLY UNSUPPORTED UNTIL SMARTSEQ2 UPGRADES TO WDL v1.0
-	# Accepted aligner options are "star" or "hisat2-hca"
-	String aligner = "hisat2-hca"
+		# Accepted aligner options are "star" or "hisat2-hca"
+		String aligner = "hisat2-hca"
 
-	# OPTIONAL:
-	# If you have some/all of your FASTQs in one folder object on the bucket,
-	# enter the gsURI path to that folder object following the bucket root.
-	# ex: "FASTQs/" from full gsURI gs://your-bucket-id/FASTQs/
-	String fastq_directory = ''
-	
-	# Set true to run alignment by Drop-Seq tools
-	Boolean run_smartseq2
-	
-	# Set to true to convert your BCLs to FASTQs via bcl2fastq
-	Boolean is_bcl #= false
-	
-	# Set to true to produce clustering/visualization data via Cumulus
-	# Alexandria/The Single Cell Portal require these data files.
-	Boolean run_cumulus
+		# OPTIONAL:
+		# If you have some/all of your FASTQs in one folder object on the bucket,
+		# enter the gsURI path to that folder object following the bucket root.
+		# ex: "FASTQs/" from full gsURI gs://your-bucket-id/FASTQs/
+		String fastq_directory = ''
+		
+		# Set true to run alignment by Drop-Seq tools
+		Boolean run_smartseq2
+		
+		# Set to true to convert your BCLs to FASTQs via bcl2fastq
+		Boolean is_bcl #= false
+		
+		# Set to true to produce clustering/visualization data via Cumulus
+		# Alexandria/The Single Cell Portal require these data files.
+		Boolean run_cumulus
 
-	#The filename prefix assigned to the Cumulus outputs.
-	String cumulus_output_prefix = "s2c"
+		# The filename prefix assigned to the Cumulus outputs.
+		String cumulus_output_prefix = "s2c"
 
-	### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
-	# smartseq2 docker image: <smartseq2_registry>/smartseq2:<smartseq2_tools_version>
-	String smartseq2_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/smartseq2/tags
-	String smartseq2_version = "1.0.0"
-	# bcl2fastq docker image: <bcl2fastq_registry>/bcl2fastq:<bcl2fastq_version>
-	# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
-	# If not Broad-affiliated, see the Alexandria documentation appendix for creating your own bcl2fastq image.
-	String bcl2fastq_registry = "gcr.io/broad-cumulus" # Privately hosted on Regev Lab GCR
-	String bcl2fastq_version = "2.20.0.422"
-	# cumulus workflow docker image: <cumulus_registry>/cumulus:<cumulus_version>
-	String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
-	String cumulus_version = "0.15.0"
-	# alexandria docker image: <alexandria_docker>
-	String alexandria_docker = "shaleklab/alexandria:dev" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
-	
-	# The maximum number of attempts Cromwell will request Google for a preemptible VM.
-	# Preemptible VMs are about 5 times cheaper than non-preemptible, but Google can yank them
-	# out from under you at anytime. If in a rush, set it to 0 but remember costs will be higher!
-	Int preemptible = 2
-	
-	# The priority queue for requesting a Google Cloud Platform zone.
-	# Change the default value to reflect where your bucket is located.
-	String zones = "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-west1-a us-west1-b us-west1-c"
-	
-	### MANIPULATIONS: PLEASE IGNORE ###
+		# Cumulus parameters
+		# If Cumulus fails, check the filtering pdf charts and the log files it outputs, 
+		# then tweak these accordingly and rerun with run_smartseq2=false.
+		Int cumulus_tsne_perplexity = 10
+		Int cumulus_nPC = 15 # Number of Principal Components
+		Int cumulus_knn_K = 10 # Number of nearest neighbors per node
+		Int cumulus_max_genes = 15000
+		Int cumulus_max_umis = 3000000
+
+		### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
+		# smartseq2 docker image: <smartseq2_registry>/smartseq2:<smartseq2_tools_version>
+		String smartseq2_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/smartseq2/tags
+		String smartseq2_version = "1.0.0"
+		# bcl2fastq docker image: <bcl2fastq_registry>/bcl2fastq:<bcl2fastq_version>
+		# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
+		# If not Broad-affiliated, see the Alexandria documentation appendix for creating your own bcl2fastq image.
+		String bcl2fastq_registry = "gcr.io/broad-cumulus" # Privately hosted on Regev Lab GCR
+		String bcl2fastq_version = "2.20.0.422"
+		# cumulus workflow docker image: <cumulus_registry>/cumulus:<cumulus_version>
+		String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
+		String cumulus_version = "0.15.0"
+		# alexandria docker image: <alexandria_docker>
+		String alexandria_docker = "shaleklab/alexandria:dev" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
+		
+		# The maximum number of attempts Cromwell will request Google for a preemptible VM.
+		# Preemptible VMs are about 5 times cheaper than non-preemptible, but Google can yank them
+		# out from under you at anytime. If in a rush, set it to 0 but remember costs will be higher!
+		Int preemptible = 2
+		
+		# The priority queue for requesting a Google Cloud Platform zone.
+		# Change the default value to reflect where your bucket is located.
+		String zones = "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-west1-a us-west1-b us-west1-c"
+	}
 	String bucket_slash = sub(bucket, "/+$", '')+'/'
 	String output_path_slash = if output_path == '' then '' else sub(output_path, "/+$", '')+'/' 
 	String fastq_directory_slash = if fastq_directory == '' then '' else sub(fastq_directory, "/+$", '')+'/'
@@ -144,7 +153,7 @@ workflow smartseq2_cumulus {
 		call smartseq2.smartseq2 as smartseq2 {
 			input:
 				input_csv_file=select_first([setup_from_bcl2fastq.smartseq2_locations, setup_smartseq2.smartseq2_locations]),
-				#aligner=aligner,
+				aligner=aligner,
 				output_directory=bucket_slash + sub(smartseq2_output_path_slash, "/+$", ''),
 				reference=reference,
 				docker_registry=smartseq2_registry_stripped,
@@ -172,10 +181,16 @@ workflow smartseq2_cumulus {
 		call cumulus.cumulus as cumulus {
 			input:
 				input_file=setup_cumulus.count_matrix,
-				output_name=bucket_slash + cumulus_output_path_slash + cumulus_output_prefix,
+				output_directory=bucket_slash + cumulus_output_path_slash,
+				output_name=cumulus_output_prefix,
 				is_dropseq=false,
 				generate_scp_outputs=true,
 				output_dense=true,
+				tsne_perplexity=cumulus_tsne_perplexity,
+				nPC=cumulus_nPC,
+				knn_K=cumulus_knn_K,
+				max_genes=cumulus_max_genes,
+				max_umis=cumulus_max_umis,
 				preemptible=preemptible,
 				zones=zones,
 				docker_registry=cumulus_registry_stripped,
@@ -201,135 +216,135 @@ workflow smartseq2_cumulus {
 		File? fitsne_coords = scp_outputs.fitsne_coords
 		File? dense_matrix = scp_outputs.dense_matrix
 		File? cumulus_metadata = scp_outputs.cumulus_metadata
-		#File? diffmap_pca_coords = scp_outputs.diffmap_pca_coords
+		File? pca_coords = scp_outputs.pca_coords
 	}
 }
 
 task setup_smartseq2 {
-	
-	String bucket_slash
-	Boolean is_bcl
-	File alexandria_sheet
-	String reference
-	String aligner
-	String smartseq2_output_path_slash
-	String? fastq_directory_slash
-	String alexandria_docker
-	Int preemptible
-	String zones
-	
-	command {
+	input {
+		String bucket_slash
+		Boolean is_bcl
+		File alexandria_sheet
+		String reference
+		String aligner
+		String smartseq2_output_path_slash
+		String fastq_directory_slash
+		String alexandria_docker
+		Int preemptible
+		String zones
+	}
+	command <<<
 		set -e
 		python /alexandria/scripts/setup_tool.py \
 			-t=Smartseq2 \
-			-i=${alexandria_sheet} \
-			-g=${bucket_slash} \
-			${true="--is_bcl" false='' is_bcl} \
-			-m=/alexandria/scripts/metadata_type_map.tsv \
-			-f=${fastq_directory_slash} \
-			-r=${reference} \
-			-a=${aligner}
-		gsutil cp smartseq2_locations.tsv ${bucket_slash}${smartseq2_output_path_slash}
-	}
+			-i=~{alexandria_sheet} \
+			-g=~{bucket_slash} \
+			~{true="--is_bcl" false='' is_bcl} \
+			-f=~{fastq_directory_slash} \
+			-r=~{reference} \
+			-a=~{aligner}
+		gsutil cp smartseq2_locations.tsv ~{bucket_slash}~{smartseq2_output_path_slash}
+	>>>
 	output {
 		File smartseq2_locations = "smartseq2_locations.tsv"
 		Array[File?] alexandria_sheet_plates = glob("alexandria_sheet_plates.tsv")
 	}
 	runtime {
-		docker: "${alexandria_docker}"
-		preemptible: "${preemptible}"
-		zones: "${zones}"
+		docker: "~{alexandria_docker}"
+		preemptible: "~{preemptible}"
+		zones: "~{zones}"
 	}
 }
 
 task setup_from_bcl2fastq {
-	String bucket_slash
-	File alexandria_sheet
-	Array[File] bcl2fastq_sheets
-	String zones
-	Int preemptible
-	String alexandria_docker
-
-	command {
+	input {
+		String bucket_slash
+		File alexandria_sheet
+		Array[File] bcl2fastq_sheets
+		String zones
+		Int preemptible
+		String alexandria_docker
+	}
+	command <<<
 		set -e
 		python /alexandria/scripts/setup_from_bcl2fastq.py \
 			-t=Smartseq2 \
-			-b=${sep=',' bcl2fastq_sheets} \
-			-i=${alexandria_sheet}
-	}
+			-b=~{sep=' ' bcl2fastq_sheets} \
+			-i=~{alexandria_sheet}
+	>>>
 	output {
 		File smartseq2_locations = "smartseq2_locations.tsv"
 	}
 	runtime {
-		docker: "${alexandria_docker}"
-		preemptible: "${preemptible}"
-		zones: "${zones}"
+		docker: "~{alexandria_docker}"
+		preemptible: "~{preemptible}"
+		zones: "~{zones}"
 	}
 }
 
 task setup_cumulus {
-	Boolean check_inputs
-	File alexandria_sheet
-	String reference
-	String bucket_slash
-	String smartseq2_output_path_slash
-	String cumulus_output_path_slash
-	String alexandria_docker
-	Int preemptible
-	String zones
-	Array[String?]? matrices
-	
-	command {
+	input {
+		Boolean check_inputs
+		File alexandria_sheet
+		String reference
+		String bucket_slash
+		String smartseq2_output_path_slash
+		String cumulus_output_path_slash
+		String alexandria_docker
+		Int preemptible
+		String zones
+		Array[String?]? matrices
+	}
+	command <<<
 		set -e
 		python /alexandria/scripts/setup_cumulus.py \
-			-i=${alexandria_sheet} \
+			-i=~{alexandria_sheet} \
 			-t=Smartseq2 \
-			-g=${bucket_slash} \
-			${true="--check_inputs" false='' check_inputs} \
-			-r=${reference} \
-			-m=/alexandria/scripts/metadata_type_map.tsv \
-			-o=${smartseq2_output_path_slash}
-		gsutil cp count_matrix.csv ${bucket_slash}${cumulus_output_path_slash}
-	}
+			-g=~{bucket_slash} \
+			~{true="--check_inputs" false='' check_inputs} \
+			-r=~{reference} \
+			-o=~{smartseq2_output_path_slash}
+		gsutil cp count_matrix.csv ~{bucket_slash}~{cumulus_output_path_slash}
+	>>>
 	output {
 		File count_matrix = "count_matrix.csv"
 	}
 	runtime {
-		docker: "${alexandria_docker}"
-		preemptible: "${preemptible}"
-		zones: "${zones}"
+		docker: "~{alexandria_docker}"
+		preemptible: "~{preemptible}"
+		zones: "~{zones}"
 	}
 }
 
 task scp_outputs {
-	File alexandria_sheet
-	String cumulus_output_path_slash
-	Array[File] output_scp_files
-	String bucket_slash
-	String alexandria_docker
-	Int preemptible
-	String zones
-	
-	command {
+	input {
+		File alexandria_sheet
+		String cumulus_output_path_slash
+		Array[File]? output_scp_files
+		String bucket_slash
+		String alexandria_docker
+		Int preemptible
+		String zones
+	}
+	command <<<
 		set -e
-		printf "${sep='\n' output_scp_files}" >> output_scp_files.txt
+		printf "~{sep='\n' output_scp_files}" >> output_scp_files.txt
 		python /alexandria/scripts/scp_outputs.py \
 			-t Smartseq2 \
-			-i ${alexandria_sheet} \
-			-s output_scp_files.txt \
-			-m /alexandria/scripts/metadata_type_map.tsv
-		gsutil cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_path_slash}
-	}
+			-i ~{alexandria_sheet} \
+			-s output_scp_files.txt
+		gsutil cp alexandria_metadata.txt ~{bucket_slash}~{cumulus_output_path_slash}
+	>>>
 	output {
 		File alexandria_metadata = "alexandria_metadata.txt"
 		File cumulus_metadata = glob("*scp.metadata.txt")[0]
 		File fitsne_coords = glob("*scp.X_fitsne.coords.txt")[0]
 		File dense_matrix = glob("*scp.expr.txt")[0]
-		#File pca_coords = glob("*scp.diffmap_pca.coords.txt???")
+		File pca_coords = glob("*scp.diffmap_pca.coords.txt???")
 	}
 	runtime {
-		docker: "${alexandria_docker}"
-		preemptible: "${preemptible}"
-		zones: "${zones}"
+		docker: "~{alexandria_docker}"
+		preemptible: "~{preemptible}"
+		zones: "~{zones}"
 	}
 }

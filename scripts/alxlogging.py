@@ -76,15 +76,10 @@ class AlxLog(object):
 	def success(self, msg):
 		self.logger.critical(msg)
 
-	def sep(self, character='-', width=None):
-		if width is None:
-			try:
-				width = os.popen("stty size", 'r').read().split()[1]
-			except ValueError:
-				width = 124
+	def sep(self, character='-', width=124):
 		format_original = AlxFormatter.info_fmt
 		AlxFormatter.info_fmt = "%(msg)s"
-		self.info(str(character*int(width)))
+		self.info(str(character*width))
 		AlxFormatter.info_fmt = format_original
 
 	def initialization(self):
