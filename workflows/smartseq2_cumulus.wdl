@@ -9,13 +9,14 @@
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
 version 1.0
-#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:smartseq2/versions/7/plain-WDL/descriptor" as smartseq2
-#import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/23/plain-WDL/descriptor" as cumulus
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:smartseq2/versions/7/plain-WDL/descriptor" as smartseq2
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/24/plain-WDL/descriptor" as cumulus
 #import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:bcl2fastq/versions/5/plain-WDL/descriptor" as bcl2fastq
+import "https://raw.githubusercontent.com/klarman-cell-observatory/cumulus/master/workflows/bcl2fastq/bcl2fastq.wdl" as bcl2fastq
 
-import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/smartseq2/smartseq2.wdl" as smartseq2
-import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/cumulus/cumulus.wdl" as cumulus
-import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/bcl2fastq/bcl2fastq.wdl" as bcl2fastq
+#import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/smartseq2/smartseq2.wdl" as smartseq2
+#import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/cumulus/cumulus.wdl" as cumulus
+#import "/Users/jggatter/Desktop/Alexandria/alexandria_repository/workflows/other/bcl2fastq/bcl2fastq.wdl" as bcl2fastq
 
 workflow smartseq2_cumulus {
 	input {
