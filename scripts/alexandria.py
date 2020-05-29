@@ -237,7 +237,7 @@ class Alexandria(object):
 		else: 
 			return bucket_slash+fastq_directory_slash+entry+"_*R"+read+"*.fastq*"
 
-	def determine_path(self, entry, entity, default_path, bucket_slash, entered_path):
+	def determine_path(self, entry, entity, bucket_slash, default_path, entered_path):
 		self.log.info(f"For {entry} {entity}:")
 		if entered_path == "NaN":
 			self.log.info("Path was not entered in alexandria_sheet, checking the constructed default path:\n" + default_path)
@@ -260,6 +260,8 @@ class Alexandria(object):
 				fastq_path = sp.check_output(args=["gsutil", "ls", default_path]).strip().decode() # Tries again for default path
 			except sp.CalledProcessError: 
 				raise Exception(f"ALEXANDRIA: ERROR! Checked path {fastq_path}, the fastq(.gz) was not found!")
+		if not fastq_path.endswith(".fastq.gz") and not fastq_path.endswith(".fastq"):
+			raise Exception("ALEXANDRIA: ERROR! Ensure the FASTQ ends with the .fastq.gz or .fastq extension!")
 		self.log.info(f"FOUND {fastq_path}")
 		self.log.sep()
 		return fastq_path
@@ -279,7 +281,7 @@ class Alexandria(object):
 		pd.options.display.max_colwidth = 2048 # Ensure the entire cell prints out
 		entered_path = self.get_entered_fastq_path(entry, read)
 		default_path = self.construct_default_fastq_path(bucket_slash, fastq_directory_slash, entry, read)
-		fastq_path = self.determine_path(entry, f"read {read}", default_path, bucket_slash, entered_path)
+		fastq_path = self.determine_path(entry, f"read {read}", bucket_slash, default_path, entered_path)
 		validated_fastq_path = self.validate_fastq_path(fastq_path, default_path)
 		return validated_fastq_path
 
@@ -319,6 +321,8 @@ class Alexandria(object):
 			raise Exception(f"ALEXANDRIA: ERROR! {mtx_path} was not found. Ensure that the path "
 				f"is correct and that the count matrix is in <name>{self.MTX_extension} format!"
 			)
+		if not mtx_path.endswith(self.MTX_extension):
+			raise Exception(f"ALEXANDRIA: ERROR! Ensure the matrix ends with '{self.MTX_extension}'!")
 		self.log.info(f"FOUND {mtx_path}")
 		self.log.sep()
 		return mtx_path
@@ -351,13 +355,13 @@ class Alexandria(object):
 	#############################################################################################################################
 
 	def serialize_scp_outputs(self, scp_outputs_list):
-		names = ["X_fitsne.coords.txt", "expr.txt", "metadata.txt"] #diffmap pca???
+		names = ["X_fitsne.coords.txt", "X_pca.coords.txt", "expr.txt", "metadata.txt"]
 		with open (scp_outputs_list, 'r') as scp_outputs:
 			for name in names:
 				is_found = False
 				for path in scp_outputs:
 					path = path.strip('\n')
-					os.rename(path, osp.basename(path))
+					os.rename(path, osp.basename(path)) # Move file to pwd
 					path = osp.basename(path)
 					if path.endswith("X_fitsne.coords.txt"): # Find cluster file
 						cluster_file = path

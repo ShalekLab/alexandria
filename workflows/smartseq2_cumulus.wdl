@@ -38,7 +38,7 @@ workflow smartseq2_cumulus {
 		# Inside this folder (ex: my-job/) folders for each tool will be created ("smartseq2/" and "cumulus/")
 		String output_path
 		
-		# Accepted references are "hg19", "mm10", "hg19_mm10", "mmul_8.0.1", and "GRCh38"
+		# Accepted references are 
 		# For making and linking custom smartseq2-compatible references, see the Cumulus documentation.
 		String reference
 
@@ -76,7 +76,7 @@ workflow smartseq2_cumulus {
 		### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
 		# smartseq2 docker image: <smartseq2_registry>/smartseq2:<smartseq2_tools_version>
 		String smartseq2_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/smartseq2/tags
-		String smartseq2_version = "1.0.0"
+		String smartseq2_version = "1.1.0"
 		# bcl2fastq docker image: <bcl2fastq_registry>/bcl2fastq:<bcl2fastq_version>
 		# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
 		# If not Broad-affiliated, see the Alexandria documentation appendix for creating your own bcl2fastq image.
@@ -341,7 +341,7 @@ task scp_outputs {
 		File cumulus_metadata = glob("*scp.metadata.txt")[0]
 		File fitsne_coords = glob("*scp.X_fitsne.coords.txt")[0]
 		File dense_matrix = glob("*scp.expr.txt")[0]
-		File pca_coords = glob("*scp.diffmap_pca.coords.txt???")
+		File pca_coords = glob("*scp.X_pca.coords.txt")[0]
 	}
 	runtime {
 		docker: "~{alexandria_docker}"

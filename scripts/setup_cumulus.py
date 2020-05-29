@@ -5,10 +5,10 @@ from alexandria import Alexandria
 def main(args):
 
 	bucket_slash = args.bucket.strip('/')+'/'
-	if args.output_directory is not '':
-		output_directory_slash = args.output_directory.strip('/')+'/'
-	else:
+	if args.output_directory is '':
 		output_directory_slash = args.output_directory
+	else:
+		output_directory_slash = args.output_directory.strip('/')+'/'
 
 	alx = Alexandria.get_tool(args.tool, args.alexandria_sheet)
 	alx.check_dataframe()
