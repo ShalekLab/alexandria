@@ -17,19 +17,20 @@ workflow SeqWellTCR {
 		String bucket
 		String output_path
 		
-		Boolean isFASTQ
+		Boolean is_FASTQ
 
-		# TSV containing for the following columns:
-		# Sample	Species	Data
-		# FASTQ_SAMPLE	[String reference: "human", "mouse"]	[gs://bucket/path/to/fastq]
-		# BAM_SAMPLE	[String reference: "human", "mouse"]	[gs://bucket/path/to/bam;gs://bucket/path/to/barcodes]
-		# Each row will be scattered.
 		File sample_sheet
+		# Tab-delimited text file.
+		# Each row will be scattered. Example:
+		# Sample	Species	Data
+		# FASTQ_SAMPLE	[String reference: "human", "mouse", "macfas"]	[gs://bucket/path/to/fastq]
+		# BAM_SAMPLE	[String reference: "human", "mouse", "macfas"]	[gs://bucket/path/to/bam;gs://bucket/path/to/barcodes]
+		# (and so on...)
 
 		# VM & MACHINE SETTINGS
-		#String docker = "shaleklab/seqwelltcr:1.1" #"mitlovelab/seqwelltcranalysis:v1.0"
-		String docker = "mitlovelab/seqwelltcranalysis:v1.1"
-		Int boot_disk_size_GB = 10 #100
+		String docker = "shaleklab/seqwelltcr:1.1" #"mitlovelab/seqwelltcranalysis:v1.0"
+		#String docker = "mitlovelab/seqwelltcranalysis:v1.1"
+		Int boot_disk_size_GB = 100
 		Int preemptible = 2
 		String zones = "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-west1-a us-west1-b us-west1-c"
 	}
@@ -38,7 +39,7 @@ workflow SeqWellTCR {
 
 	scatter (entry in read_objects(sample_sheet)) {
 		String sample_name = sub(entry.Sample, '/+$', '')
-		if (isFASTQ) {
+		if (is_FASTQ) {
 			call FASTQtoBAM as F2B {
 				input:
 					bucket_slash=bucket_slash,
@@ -52,7 +53,7 @@ workflow SeqWellTCR {
 					boot_disk_size_GB=boot_disk_size_GB
 			}
 		}
-		call SeqWellTCRAnalysis {
+		call Analysis {
 			input:
 				bucket_slash=bucket_slash,
 				output_path_slash=output_path_slash,
@@ -60,7 +61,7 @@ workflow SeqWellTCR {
 				species=entry.Species,
 				BAM=select_first([F2B.BAM, entry.Data]),
 				barcode_list=select_first([F2B.barcode_list, entry.Data]),
-				doSplit=!isFASTQ,
+				is_FASTQ=is_FASTQ,
 				docker=docker,
 				preemptible=preemptible,
 				zones=zones,
@@ -68,7 +69,7 @@ workflow SeqWellTCR {
 		}
 	}
 	output {
-		Array[String] output_paths = SeqWellTCRAnalysis.output_path
+		Array[String] output_paths = Analysis.output_path
 	}
 }
 
@@ -112,7 +113,7 @@ task FASTQtoBAM {
 	}
 }
 
-task SeqWellTCRAnalysis {
+task Analysis {
 	input {
 		String bucket_slash
 		String output_path_slash
@@ -120,7 +121,20 @@ task SeqWellTCRAnalysis {
 		String species
 		String BAM
 		String barcode_list
-		Boolean doSplit
+		Boolean is_FASTQ
+
+		Int BCcutoff = 10
+		Int UMIcutoff = 10
+		Int UMIlim = 1000
+		Float VFreqCutoff = 0.6
+		Float JFreqCutoff = 0.6
+		File? mouseRef
+		File? humanRef
+		File? macfasRef
+		File? mouseCDR3Base
+		File? humanCDR3Base
+		File? macfasCDR3Base
+		File? humanUTRcRef
 
 		String docker
 		Int preemptible
@@ -128,22 +142,24 @@ task SeqWellTCRAnalysis {
 		Int boot_disk_size_GB
 
 		Int cpu_threads = 32
-		String disks = "local-disk 128 HDD"
-		Int task_memory_GB = 32 #128
+		String disks = "local-disk 256 HDD"
+		Int task_memory_GB = 128
 	}
 	command <<<
 		set -e
 		export TMPDIR=/tmp
 		
-		if [[ "~{doSplit}" == "true" ]]; then
+		# If FASTQtoBAM wasn't run
+		# Data column entry = "gs://bucket/path/to/BAM;gs://bucket/path/to/barcode_list"
+		if [[ "~{is_FASTQ}" == "false" ]]; then
 			IFS=';' read -ra bam_barcodes <<< "~{BAM}"
 			BAM="${bam_barcodes[0]}"
 			barcode_list="${bam_barcodes[1]}"
-		else
+		else # FASTQtoBAM was run
 			BAM="~{BAM}"
 			barcode_list="~{barcode_list}"
 		fi
-		echo $BAM && echo $barcode_list
+		echo $BAM && echo $barcode_list  # DEBUG
 		
 		mkdir /~{sample_name}/ && cd /~{sample_name}/
 		gsutil -m cp $BAM .
@@ -151,8 +167,26 @@ task SeqWellTCRAnalysis {
 		BAM="$(realpath $(basename $BAM))"
 		barcode_list="$(realpath $(basename $barcode_list))"
 		
-		ls
-		echo $BAM && echo $barcode_list
+		ls # DEBUG
+		echo $BAM && echo $barcode_list # DEBUG
+
+		cat <<- SETTINGS > TCRsettings.txt
+		BCcutoff	~{BCcutoff}
+		UMIcutoff	~{UMIcutoff}
+		UMIlim	~{UMIlim}
+		VFreqCutoff	~{VFreqCutoff}
+		JFreqCutoff	~{JFreqCutoff}
+		mouseRef	~{default="/TCRAnalysis/bin/mouseTCR_Ctrunc_TRJ_UTR_1allele.fa" mouseRef}
+		humanRef	~{default="/TCRAnalysis/bin/humanTCR_Ctrunc_TRJ_UTR_1allele.fa" humanRef}
+		macfasRef	~{default="/TCRAnalysis/bin/CynoTCRv3.fa" macfasRef}
+		mouseCDR3Base	~{default="/TCRAnalysis/bin/MouseCDR3bases.txt" mouseCDR3Base}
+		humanCDR3Base	~{default="/TCRAnalysis/bin/HumanCDR3bases.txt" humanCDR3Base}
+		macfasCDR3Base	~{default="/TCRAnalysis/bin/macFasCDR3bases_v3.txt" macfasCDR3Base}
+		humanUTRcRef	~{default="/TCRAnalysis/bin/upstream_hTRBC.fa" humanUTRcRef}
+		SETTINGS
+
+		mv TCRsettings.txt /TCRAnalysis/bin/TCRsettings.txt
+		cat /TCRAnalysis/bin/TCRsettings.txt # DEBUG
 
 		printf "${BAM}\t~{species}\t${barcode_list}" > /~{sample_name}/kickoff.tsv
 		SeqWellTCRAnalysis /~{sample_name}/kickoff.tsv ~{cpu_threads}

@@ -13,21 +13,54 @@ module load samtools/1.3
 # Ex: ./FASTQtoBAM.sh fastq sampleA mouse
 sequence="$1"
 sample="$2"
-species="3"
+species="$3"
 
-awk 'NR%4==2' "${sequence}" | rev | tr ATCG TAGC > "${sample}_IndexReads.txt"
+awk 'NR%4==2' "${sequence}" \
+	| rev \
+	| tr ATCG TAGC \
+	> "${sample}_IndexReads.txt"
+
 awk 'NR%4==0' "${sequence}" > "${sample}_QSeq.txt"
-awk 'NR%4==1' "${sequence}" | grep -o "[ATCGN]*" > "${sample}_BCSeq.txt"
-sed 's~[ATGCN]~@~g' "${sample}_BCSeq.txt" > "${sample}_QRead2.txt"
-awk 'NR%4==1' "${sequence}" | grep -o "^.*#" > "${sample}_seqHeaders.txt" 
-sed 's~#~#/1~' "${sample}_seqHeaders.txt" > "${sample}_seqHeadersRead1.txt"
-sed 's~#~#/2~' "${sample}_seqHeaders.txt" > "${sample}_seqHeadersRead2.txt"
-sed 's~@~+~' "${sample}_seqHeadersRead2.txt" > "${sample}_qualHeadersRead2.txt"
-sed 's~@~+~' "${sample}_seqHeadersRead1.txt" > "${sample}_qualHeadersRead1.txt"
-paste -d '\n' "${sample}_seqHeadersRead2.txt" "${sample}_IndexReads.txt" "${sample}_qualHeadersRead2.txt" "${sample}_QSeq.txt" > "${sample}_TCRreadFinal.fastq"
-paste -d '\n' "${sample}_seqHeadersRead1.txt" "${sample}_BCSeq.txt" "${sample}_qualHeadersRead1.txt" "${sample}_QRead2.txt" > "${sample}_Read1.fastq"
 
-bwa mem /TCRAnalysis/bin/${species}TCR.fa \
+awk 'NR%4==1' "${sequence}" \
+	| grep -o "[ATCGN]*" \
+	> "${sample}_BCSeq.txt"
+
+sed 's~[ATGCN]~@~g' "${sample}_BCSeq.txt" > "${sample}_QRead2.txt"
+
+awk 'NR%4==1' "${sequence}" \
+	| grep -o "^.*#" \
+	> "${sample}_seqHeaders.txt" 
+
+sed 's~#~#/1~' "${sample}_seqHeaders.txt" > "${sample}_seqHeadersRead1.txt"
+
+sed 's~#~#/2~' "${sample}_seqHeaders.txt" > "${sample}_seqHeadersRead2.txt"
+
+sed 's~@~+~' "${sample}_seqHeadersRead2.txt" > "${sample}_qualHeadersRead2.txt"
+
+sed 's~@~+~' "${sample}_seqHeadersRead1.txt" > "${sample}_qualHeadersRead1.txt"
+
+paste -d '\n' \
+	"${sample}_seqHeadersRead2.txt" \
+	"${sample}_IndexReads.txt" \
+	"${sample}_qualHeadersRead2.txt" \
+	"${sample}_QSeq.txt" \
+	> "${sample}_TCRreadFinal.fastq"
+
+paste -d '\n' \
+	"${sample}_seqHeadersRead1.txt" \
+	"${sample}_BCSeq.txt" \
+	"${sample}_qualHeadersRead1.txt" \
+	"${sample}_QRead2.txt" \
+	> "${sample}_Read1.fastq"
+
+if [[ "${species}" == "macfas"]]; then
+	fasta="CynoTCRv3.fa"
+else
+	fasta="${species}TCR.fa"
+fi
+
+bwa mem /TCRAnalysis/bin/${fasta} \
 	${sample}_Read1.fastq \
 	${sample}_TCRreadFinal.fastq \
 | samtools view -hF 256 > ${sample}_TCRalign.sam
