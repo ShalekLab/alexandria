@@ -22,13 +22,13 @@ workflow SeqWellTCR {
 		File sample_sheet
 		# Tab-delimited text file.
 		# Each row will be scattered. Example:
-		# Sample	Species	Data
-		# FASTQ_SAMPLE	[String reference: "human", "mouse", "macfas"]	[gs://bucket/path/to/fastq]
-		# BAM_SAMPLE	[String reference: "human", "mouse", "macfas"]	[gs://bucket/path/to/bam;gs://bucket/path/to/barcodes]
+		# Sample	Species	Data	Barcodes
+		# FASTQ_SAMPLE	[String reference: "human", "mouse", "macfas"]	[gs://bucket/path/to/fastq]	[gs://bucket/path/to/barcodes]
+		# BAM_SAMPLE	[String reference: "human", "mouse", "macfas"]	[gs://bucket/path/to/bam]	[gs://bucket/path/to/barcodes]
 		# (and so on...)
 
 		# VM & MACHINE SETTINGS
-		String docker = "shaleklab/seqwelltcr:1.1" #"mitlovelab/seqwelltcranalysis:v1.0"
+		String docker = "shaleklab/seqwelltcr:1.1"
 		#String docker = "mitlovelab/seqwelltcranalysis:v1.1"
 		Int boot_disk_size_GB = 100
 		Int preemptible = 2
@@ -60,8 +60,7 @@ workflow SeqWellTCR {
 				sample_name=sample_name,
 				species=entry.Species,
 				BAM=select_first([F2B.BAM, entry.Data]),
-				barcode_list=select_first([F2B.barcode_list, entry.Data]),
-				is_FASTQ=is_FASTQ,
+				barcodes_list=entry.Barcodes,
 				docker=docker,
 				preemptible=preemptible,
 				zones=zones,
@@ -100,7 +99,6 @@ task FASTQtoBAM {
 	>>>
 	output {
 		File BAM = "/cromwell_root/~{sample_name}/F2B/~{sample_name}_TCRalignSort.bam"
-		File barcode_list = "/cromwell_root/~{sample_name}/F2B/~{sample_name}_BCSeq.txt"
 	}
 	runtime {
 		docker: "~{docker}"
@@ -119,9 +117,8 @@ task Analysis {
 		String output_path_slash
 		String sample_name
 		String species
-		String BAM
-		String barcode_list
-		Boolean is_FASTQ
+		File BAM
+		File barcodes_list
 
 		Int BCcutoff = 10
 		Int UMIcutoff = 10
@@ -142,34 +139,14 @@ task Analysis {
 		Int boot_disk_size_GB
 
 		Int cpu_threads = 32
-		String disks = "local-disk 256 HDD"
+		String disks = "local-disk 1000 HDD"
 		Int task_memory_GB = 128
 	}
 	command <<<
-		set -e
+		set -euo pipefail
 		export TMPDIR=/tmp
 		
-		# If FASTQtoBAM wasn't run
-		# Data column entry = "gs://bucket/path/to/BAM;gs://bucket/path/to/barcode_list"
-		if [[ "~{is_FASTQ}" == "false" ]]; then
-			IFS=';' read -ra bam_barcodes <<< "~{BAM}"
-			BAM="${bam_barcodes[0]}"
-			barcode_list="${bam_barcodes[1]}"
-		else # FASTQtoBAM was run
-			BAM="~{BAM}"
-			barcode_list="~{barcode_list}"
-		fi
-		echo $BAM && echo $barcode_list  # DEBUG
-		
-		mkdir /~{sample_name}/ && cd /~{sample_name}/
-		gsutil -m cp $BAM .
-		gsutil -m cp $barcode_list .
-		BAM="$(realpath $(basename $BAM))"
-		barcode_list="$(realpath $(basename $barcode_list))"
-		
-		ls # DEBUG
-		echo $BAM && echo $barcode_list # DEBUG
-
+		echo Generating TCRSettings.txt
 		cat <<- SETTINGS > TCRsettings.txt
 		BCcutoff	~{BCcutoff}
 		UMIcutoff	~{UMIcutoff}
@@ -184,12 +161,18 @@ task Analysis {
 		macfasCDR3Base	~{default="/TCRAnalysis/bin/macFasCDR3bases_v3.txt" macfasCDR3Base}
 		humanUTRcRef	~{default="/TCRAnalysis/bin/upstream_hTRBC.fa" humanUTRcRef}
 		SETTINGS
-
-		mv TCRsettings.txt /TCRAnalysis/bin/TCRsettings.txt
+		cp TCRsettings.txt /TCRAnalysis/bin/TCRsettings.txt
 		cat /TCRAnalysis/bin/TCRsettings.txt # DEBUG
 
-		printf "${BAM}\t~{species}\t${barcode_list}" > /~{sample_name}/kickoff.tsv
-		SeqWellTCRAnalysis /~{sample_name}/kickoff.tsv ~{cpu_threads}
+		echo Indexing ~{BAM}
+		cd $(dirname ~{BAM})
+		samtools index ~{BAM}
+		ls -1 # DEBUG
+
+		mkdir /~{sample_name}/ && cd /~{sample_name}/
+		printf "~{BAM}\t~{species}\t~{barcodes_list}" > kickoff.tsv
+		
+		SeqWellTCRAnalysis kickoff.tsv ~{cpu_threads}
 		
 		rm -r /~{sample_name}/*/
 		gsutil -m rsync -r /~{sample_name} ~{bucket_slash}~{output_path_slash}~{sample_name}
