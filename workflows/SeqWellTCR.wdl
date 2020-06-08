@@ -174,7 +174,7 @@ task Analysis {
 		
 		SeqWellTCRAnalysis kickoff.tsv ~{cpu_threads}
 		
-		rm -r /~{sample_name}/*/
+		#rm -r /~{sample_name}/*/
 		gsutil -m rsync -r /~{sample_name} ~{bucket_slash}~{output_path_slash}~{sample_name}
 	>>>
 	output {
