@@ -162,20 +162,25 @@ task Analysis {
 		humanUTRcRef	~{default="/TCRAnalysis/bin/upstream_hTRBC.fa" humanUTRcRef}
 		SETTINGS
 		cp TCRsettings.txt /TCRAnalysis/bin/TCRsettings.txt
-		cat /TCRAnalysis/bin/TCRsettings.txt # DEBUG
 
 		echo Indexing ~{BAM}
 		cd $(dirname ~{BAM})
 		samtools index ~{BAM}
-		ls -1 # DEBUG
 
-		mkdir /~{sample_name}/ && cd /~{sample_name}/
+		cd /TCRAnalysis/bin/
 		printf "~{BAM}\t~{species}\t~{barcodes_list}" > kickoff.tsv
 		
+		echo Launching TCR Analysis
 		SeqWellTCRAnalysis kickoff.tsv ~{cpu_threads}
 		
-		#rm -r /~{sample_name}/*/
-		gsutil -m rsync -r /~{sample_name} ~{bucket_slash}~{output_path_slash}~{sample_name}
+		echo Delocalizing files to ~{bucket_slash}~{output_path_slash}~{sample_name}/
+		gsutil -q -m cp log.out ~{bucket_slash}~{output_path_slash}~{sample_name}/
+		gsutil -q -m cp /*TCRalignSort* ~{bucket_slash}~{output_path_slash}~{sample_name}/CoreIndexFiles
+		gsutil -q -m rsync -r /Alignments ~{bucket_slash}~{output_path_slash}~{sample_name}/Alignments
+		gsutil -q -m rsync -r /Assemble ~{bucket_slash}~{output_path_slash}~{sample_name}/Assemble
+		gsutil -q -m rsync -r /BCFASTQ ~{bucket_slash}~{output_path_slash}~{sample_name}/BCFASTQ
+		gsutil -q -m rsync -r /Clones ~{bucket_slash}~{output_path_slash}~{sample_name}/Clones
+		gsutil -q -m rsync -r /SummaryPlots/*_TCRalignSort ~{bucket_slash}~{output_path_slash}~{sample_name}/SummaryPlots
 	>>>
 	output {
 		String output_path = bucket_slash+output_path_slash+sample_name+'/'
