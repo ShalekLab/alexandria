@@ -64,37 +64,49 @@ class Alexandria(object):
 			raise Exception(f"ALEXANDRIA: ERROR! Bucket {bucket} was not found.")
 	
 	def check_custom_reference(self, reference):
-		if not reference.beginswith("gs://"):
-			raise Exception(f"ALEXANDRIA: ERROR! Custom reference {reference} must be on a "
-				"Google bucket and entered as the full gsURI path!")
+		if not reference.startswith("gs://"):
+			raise Exception(
+				f"ALEXANDRIA: ERROR! Custom reference {reference} must be on a "
+				"Google bucket and entered as the full gsURI path!"
+			)
 		try: 
 			sp.check_call(args=["gsutil", "ls", reference], stdout=sp.DEVNULL)
 		except sp.CalledProcessError: 
 			raise Exception(f"ALEXANDRIA: ERROR! Custom reference at {reference} was not found.")
 
 	def check_reference(self, reference):
-		if self.custom_reference_extension is not None and reference.endswith(self.custom_reference_extension):
-			self.check_custom_reference(reference) 
+		if self.custom_reference_extension is not None:
+			for extension in self.custom_reference_extension:
+				if reference.endswith(extension):
+					self.check_custom_reference(reference)
 		elif reference not in self.provided_references:
-			raise Exception(f"ALEXANDRIA: ERROR! {reference} does not match a provided reference "
-				f"({', '.join(self.provided_references)}) or does not have a valid filename extension.") 
+			raise Exception(
+				f"ALEXANDRIA: ERROR! {reference} does not match a provided reference "
+				f"({', '.join(self.provided_references)}) or does not have a valid filename extension."
+			) 
 		self.log.info(f"Passing reference {reference}.")
 
 	def check_aligner(self, aligner):
 		if aligner is None or aligner in self.aligners:
 			return
 		else:
-			raise Exception(f"ALEXANDRIA: ERROR! Aligner '{aligner}' does not match a valid aligner: "
-				f"({', '.join(self.aligners)}).")
+			raise Exception(
+				f"ALEXANDRIA: ERROR! Aligner '{aligner}' does not match a valid aligner: "
+				f"({', '.join(self.aligners)})."
+			)
 
 	def get_metadata_convention(self, version="latest"):
 		self.log.info("Fetching Alexandria Metadata Convention from the Single Cell Portal")
 		import requests
-		request = requests.get("https://singlecell.broadinstitute.org/single_cell/api/v1/"
-								f"metadata_schemas/alexandria_convention/{version}/tsv")
+		request = requests.get(
+			"https://singlecell.broadinstitute.org/single_cell/api/v1/"
+			f"metadata_schemas/alexandria_convention/{version}/tsv"
+		)
 		if request.status_code is not 200:
-			raise Exception("ALEXANDRIA: ERROR! Call to Single Cell Portal for Alexandria Metadata Convention "
-				f"version '{version}' returned status code of {request.status_code}")
+			raise Exception(
+				"ALEXANDRIA: ERROR! Call to Single Cell Portal for Alexandria Metadata Convention "
+				f"version '{version}' returned status code of {request.status_code}"
+			)
 		filename = f"AMC_{version}.tsv"
 		open(filename, 'w').write(request.text)
 		return pd.read_csv(filename, sep='\t')
@@ -125,10 +137,10 @@ class Alexandria(object):
 		#Bcl2fastq --> SS2
 		pass
 
-	def write_locations(self, sheet=None):
+	def write_locations(self, sheet=None, sep='\t', header=False):
 		if sheet is None:
 			sheet = self.sheet
-		sheet.to_csv(f"{self.name}_locations.tsv", sep='\t', header=None, index=False)
+		sheet.to_csv(f"{self.name}_locations.tsv", sep=sep, header=header, index=False)
 
 	#############################################################################################################################
 	#	BCLs
@@ -201,8 +213,10 @@ class Alexandria(object):
 		return bcl_sheet_path
 
 	def setup_bcl2fastq_sheet(self, bucket_slash):
-		self.log.info(f"Paremeter is_bcl is enabled, will be checking {self.BCL_path}"
-			f" as well as optional {self.SS_path} column.")
+		self.log.info(
+			f"Paremeter is_bcl is enabled, will be checking {self.BCL_path}"
+			f" as well as optional {self.SS_path} column."
+		)
 		self.log.sep()
 		if not self.BCL_path in self.sheet.columns:
 			raise Exception(f"ALEXANDRIA: ERROR! Missing required column '{self.BCL_path}'")
@@ -216,7 +230,6 @@ class Alexandria(object):
 			func=self.get_validated_bcl_sheet,
 			args=(bucket_slash,)
 		)
-		#self.sheet.to_csv("wtf.tsv", sep='\t', header=True, index=False) # DEBUG?
 		tool_sheet.to_csv(f"{self.name}_locations.tsv", header=False, sep='\t', index=False)
 
 	#############################################################################################################################
@@ -318,7 +331,8 @@ class Alexandria(object):
 		try:
 			sp.check_call(args=["gsutil", "ls", mtx_path], stdout=sp.DEVNULL)
 		except sp.CalledProcessError: 
-			raise Exception(f"ALEXANDRIA: ERROR! {mtx_path} was not found. Ensure that the path "
+			raise Exception(
+				f"ALEXANDRIA: ERROR! {mtx_path} was not found. Ensure that the path "
 				f"is correct and that the count matrix is in <name>{self.MTX_extension} format!"
 			)
 		if not mtx_path.endswith(self.MTX_extension):
@@ -331,7 +345,7 @@ class Alexandria(object):
 		pd.options.display.max_colwidth = 2048 # Ensure the entire cell prints out
 		if not self.MTX_path in self.sheet.columns:
 			self.sheet[self.MTX_path] = self.sheet[self.entry].replace(self.sheet[self.entry], np.nan)
-		entered_path = self.sheet.loc[ self.sheet[self.entry] == entry, self.MTX_path] \
+		entered_path = self.sheet.loc[ self.sheet[self.entry] == entry, self.MTX_path ] \
 			.head(1).to_string(index=False).strip()
 		default_path = self.construct_default_mtx_path(bucket_slash, output_directory_slash, entry)
 		mtx_path = self.determine_path(entry, "matrix", bucket_slash, default_path, entered_path)

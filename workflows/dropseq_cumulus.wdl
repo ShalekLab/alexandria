@@ -175,6 +175,7 @@ workflow dropseq_cumulus {
 		File? fitsne_coords = scp_outputs.fitsne_coords
 		File? dense_matrix = scp_outputs.dense_matrix
 		File? cumulus_metadata = scp_outputs.cumulus_metadata
+		File? pca_coords = scp_outputs.pca_coords
 	}
 }
 
@@ -197,7 +198,6 @@ task setup_dropseq {
 			-i=${alexandria_sheet} \
 			-g=${bucket_slash} \
 			${true="--is_bcl" false='' is_bcl} \
-			-m=/alexandria/scripts/metadata_type_map.tsv \
 			-f=${fastq_directory_slash} \
 			-r=${reference}
 		gsutil cp dropseq_locations.tsv ${bucket_slash}${dropseq_output_path_slash}
@@ -233,7 +233,6 @@ task setup_cumulus {
 			-g=${bucket_slash} \
 			${true="--check_inputs" false='' check_inputs} \
 			-r=${reference} \
-			-m=/alexandria/scripts/metadata_type_map.tsv \
 			-o=${dropseq_output_path_slash}
 		gsutil cp count_matrix.csv ${bucket_slash}${cumulus_output_path_slash}
 	}
@@ -263,8 +262,7 @@ task scp_outputs {
 		python /alexandria/scripts/scp_outputs.py \
 			-t dropseq \
 			-i ${alexandria_sheet} \
-			-s output_scp_files.txt \
-			-m /alexandria/scripts/metadata_type_map.tsv
+			-s output_scp_files.txt
 		gsutil cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_path_slash}
 	}
 	output {
@@ -272,6 +270,7 @@ task scp_outputs {
 		File cumulus_metadata = glob("*scp.metadata.txt")[0]
 		File fitsne_coords = glob("*scp.X_fitsne.coords.txt")[0]
 		File dense_matrix = glob("*scp.expr.txt")[0]
+		File pca_coords = glob("*scp.X_pca.coords.txt")[0]
 	}
 	runtime {
 		docker: "${alexandria_docker}"

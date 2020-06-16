@@ -20,9 +20,9 @@ def main(args):
 	alx.check_aligner(args.aligner)
 	alx.check_metadata_headers()
 	if args.is_bcl is True:
-		tool_sheet = alx.setup_bcl2fastq_sheet(bucket_slash)	
+		alx.setup_bcl2fastq_sheet(bucket_slash)	
 	else:
-		tool_sheet = alx.setup_fastq_sheet(bucket_slash, fastq_directory_slash)
+		alx.setup_fastq_sheet(bucket_slash, fastq_directory_slash)
 	alx.log.success(f"File {alx.name}_locations.tsv was written. "
 		"Setup for workflow is complete, proceeding to run the workflow."
 	)

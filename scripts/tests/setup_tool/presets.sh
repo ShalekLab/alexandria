@@ -8,7 +8,6 @@ function ds_default_preset {
 	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/IRA.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
@@ -21,7 +20,6 @@ function ds_fastq_directory_preset {
 	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/fastq_dir.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash="dropseq_cumulus/IRA_FASTQs/"
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
@@ -34,7 +32,6 @@ function ds_is_bcl_preset {
 	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ds_bcl.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
@@ -47,7 +44,6 @@ function ds_fq_gsURIs {
 	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/dropseq_gsURIs.tsv"
 	bucket_slash="gs://shalek-lab-archiving/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
@@ -60,7 +56,6 @@ function ds_bcl_gsURIs {
 	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/bcl_gsURIs.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
@@ -74,7 +69,6 @@ function ss2_default_preset {
 	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ss2_short.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
 	reference="GRCm38_ens93filt"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
@@ -87,7 +81,6 @@ function ss2_fastq_directory_preset {
 	#alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash="dropseq_cumulus/IRA_FASTQs/"
 	reference="GRCh38_ens93filt"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
@@ -100,12 +93,24 @@ function ss2_is_bcl_preset {
 	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ss2_bcl.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
 	reference="GRCm38_ens93filt"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
 	aligner="-a=hisat2-hca"
 }
+
+function cr_default {
+	echo Setting up cr
+	tool="Cellranger"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/BIOCRO_PILOT4.tsv"
+	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
+	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
+	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
+	aligner=""
+	fastq_directory_slash=""
+	reference=""
+}
+
 : '
 function kb_default_preset {
 	echo Setting up kb for is_bcl=false and fastq_directory=""
