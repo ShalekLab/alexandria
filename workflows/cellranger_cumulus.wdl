@@ -68,7 +68,7 @@ workflow cellranger_cumulus {
 			input:
 				input_csv_file=setup_cellranger.cellranger_locations,
 				run_mkfastq=is_bcl,
-				output_directory=cellranger_output_path_slash,
+				output_directory=bucket_slash + cellranger_output_path_slash,
 				docker_registry=cellranger_registry_stripped,
 				cellranger_version=cellranger_version,
 				mkfastq_docker_registry=cellranger_mkfastq_registry_stripped,
@@ -95,7 +95,7 @@ workflow cellranger_cumulus {
 		call cumulus.cumulus as cumulus {
 			input:
 				input_file=setup_cumulus.count_matrix,
-				output_directory=cumulus_output_path_slash, # doesn't exist for future snapshots
+				output_directory=bucket_slash + cumulus_output_path_slash, # doesn't exist for future snapshots
 				output_name=cumulus_output_prefix, #future snapshots = bucket_slash + cumulus_output_path_slash + cumulus_output_prefix,
 				generate_scp_outputs=true,
 				output_dense=true,
