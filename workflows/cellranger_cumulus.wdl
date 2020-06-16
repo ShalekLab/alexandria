@@ -43,7 +43,6 @@ workflow cellranger_cumulus {
 	String bucket_slash = sub(bucket, "/+$", '')+'/'
 	String output_path_slash = if output_path == '' then '' else sub(output_path, "/+$", '')+'/' 
 
-	String base_fastq_directory_slash = sub(fastq_directory_slash, bucket_slash, '')
 	String base_output_path_slash = sub(output_path_slash, bucket_slash, '')
 	String cellranger_output_path_slash = base_output_path_slash+"cellranger/"
 	String cumulus_output_path_slash = base_output_path_slash+"cumulus/"
