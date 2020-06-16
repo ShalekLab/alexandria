@@ -6,7 +6,7 @@ import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/24/pla
 workflow cellranger_cumulus {
 	input {
 		# 5 - 8 columns (Sample, Reference, Flowcell, Lane, Index, [Chemistry, DataType, FeatureBarcodeFile]). gs URL
-		File input_csv_file
+		File alexandria_sheet
 
 		# Output bucket
 		String bucket
@@ -57,7 +57,7 @@ workflow cellranger_cumulus {
 		call setup_cellranger {
 			input:
 				bucket_slash=bucket_slash,
-				input_csv_file=input_csv_file,
+				alexandria_sheet=alexandria_sheet,
 				cellranger_output_path_slash=cellranger_output_path_slash,
 				alexandria_docker=alexandria_docker,
 				preemptible=preemptible,
@@ -78,11 +78,11 @@ workflow cellranger_cumulus {
 		}
 	}
 	if (run_cumulus) {
-		# Check user input_csv_file if check_inputs==true and create count_matrix.csv for Cumulus
+		# Check user alexandria_sheet if check_inputs==true and create count_matrix.csv for Cumulus
 		call setup_cumulus {
 			input: 
 				check_inputs=check_inputs,
-				input_csv_file=input_csv_file,
+				alexandria_sheet=alexandria_sheet,
 				bucket_slash=bucket_slash,
 				cellranger_output_path_slash=cellranger_output_path_slash,
 				cumulus_output_path_slash=cumulus_output_path_slash,
@@ -102,10 +102,10 @@ workflow cellranger_cumulus {
 				docker_registry=cumulus_registry_stripped,
 				cumulus_version=cumulus_version
 		}
-		# Segregate the output scp files and map the input_csv_file's metadata to create the alexandria_metadata.txt
+		# Segregate the output scp files and map the alexandria_sheet's metadata to create the alexandria_metadata.txt
 		call scp_outputs {
 			input:
-				input_csv_file=input_csv_file,
+				alexandria_sheet=alexandria_sheet,
 				bucket_slash=bucket_slash,
 				cumulus_output_path_slash=cumulus_output_path_slash, 
 				output_scp_files=cumulus.output_scp_files,
@@ -121,7 +121,7 @@ workflow cellranger_cumulus {
 		File? alexandria_metadata = scp_outputs.alexandria_metadata
 		File? fitsne_coords = scp_outputs.fitsne_coords
 		File? dense_matrix = scp_outputs.dense_matrix
-		File? cumulus_metadata = scp_outputs.cumulus_metadata
+		File? cumulus_metadata = scp_outputs.cumulus_meata
 		File? pca_coords = scp_outputs.pca_coords
  	}
 }
@@ -130,7 +130,7 @@ task setup_cellranger {
 	input {
 		String bucket_slash
 		Boolean is_bcl
-		File input_csv_file
+		File alexandria_sheet
 		String cellranger_output_path_slash
 		String alexandria_docker
 		Int preemptible
@@ -140,7 +140,7 @@ task setup_cellranger {
 		set -e
 		python /alexandria/scripts/setup_tool.py \
 			-t=cellranger \
-			-i=~{input_csv_file} \
+			-i=~{alexandria_sheet} \
 			-g=~{bucket_slash} \
 			~{true="--is_bcl" false='' is_bcl}
 		gsutil cp cellranger_locations.tsv ~{bucket_slash}~{cellranger_output_path_slash}
@@ -158,9 +158,9 @@ task setup_cellranger {
 task setup_cumulus {
 	input {	
 		Boolean check_inputs
-		File input_csv_file
+		File alexandria_sheet
 		String bucket_slash
-		String count_matrix
+		String? count_matrix
 		String cellranger_output_path_slash
 		String cumulus_output_path_slash
 		String alexandria_docker
@@ -170,7 +170,7 @@ task setup_cumulus {
 	command <<<
 		set -e
 		python /alexandria/scripts/setup_cumulus.py \
-			-i=~{input_csv_file} \
+			-i=~{alexandria_sheet} \
 			-t=cellranger \
 			-g=~{bucket_slash} \
 			~{true="--check_inputs" false='' check_inputs} \
@@ -189,7 +189,7 @@ task setup_cumulus {
 
 task scp_outputs {
 	input {
-		File input_csv_file
+		File alexandria_sheet
 		String cumulus_output_path_slash
 		Array[File] output_scp_files
 		String bucket_slash
@@ -202,7 +202,7 @@ task scp_outputs {
 		printf "~{sep='\n' output_scp_files}" >> output_scp_files.txt
 		python /alexandria/scripts/scp_outputs.py \
 			-t cellranger \
-			-i ~{input_csv_file} \
+			-i ~{alexandria_sheet} \
 			-s output_scp_files.txt
 		gsutil cp alexandria_metadata.txt ~{bucket_slash}~{cumulus_output_path_slash}
 	}
