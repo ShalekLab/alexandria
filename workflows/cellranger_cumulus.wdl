@@ -58,6 +58,7 @@ workflow cellranger_cumulus {
 			input:
 				bucket_slash=bucket_slash,
 				alexandria_sheet=alexandria_sheet,
+				is_bcl=is_bcl,
 				cellranger_output_path_slash=cellranger_output_path_slash,
 				alexandria_docker=alexandria_docker,
 				preemptible=preemptible,
@@ -94,7 +95,8 @@ workflow cellranger_cumulus {
 		call cumulus.cumulus as cumulus {
 			input:
 				input_file=setup_cumulus.count_matrix,
-				output_name=bucket_slash + cumulus_output_path_slash + cumulus_output_prefix,
+				output_directory=cumulus_output_path_slash, # doesn't exist for future snapshots
+				output_name=cumulus_output_prefix, #future snapshots = bucket_slash + cumulus_output_path_slash + cumulus_output_prefix,
 				generate_scp_outputs=true,
 				output_dense=true,
 				preemptible=preemptible,
