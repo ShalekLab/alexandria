@@ -9,7 +9,7 @@ workflow cellranger_cumulus {
 		File input_csv_file
 
 		# Output bucket
-	  	String bucket
+		String bucket
 
 		String output_path
 
@@ -32,7 +32,7 @@ workflow cellranger_cumulus {
 		String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
 		String cumulus_version = "0.16.0"
 		 # cumulus_feature_barcoding version, default to "0.2.0"
-        String cumulus_feature_barcoding_version = "0.2.0"
+		String cumulus_feature_barcoding_version = "0.2.0"
 		
 		# alexandria docker image: <alexandria_docker>
 		String alexandria_docker = "shaleklab/alexandria:0.2" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
