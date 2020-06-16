@@ -119,9 +119,9 @@ workflow cellranger_cumulus {
 		String? cumulus_output_path = bucket_slash+cumulus_output_path_slash
 		
 		File? alexandria_metadata = scp_outputs.alexandria_metadata
-		File? fitsne_coords = scp_outputs.fitsne_coords
+		File? umap_coords = scp_outputs.umap_coords
 		File? dense_matrix = scp_outputs.dense_matrix
-		File? cumulus_metadata = scp_outputs.cumulus_meata
+		File? cumulus_metadata = scp_outputs.cumulus_metadata
 		File? pca_coords = scp_outputs.pca_coords
  	}
 }
@@ -191,7 +191,7 @@ task scp_outputs {
 	input {
 		File alexandria_sheet
 		String cumulus_output_path_slash
-		Array[File] output_scp_files
+		Array[File]? output_scp_files
 		String bucket_slash
 		String alexandria_docker
 		Int preemptible
@@ -209,7 +209,7 @@ task scp_outputs {
 	output {
 		File alexandria_metadata = "alexandria_metadata.txt"
 		File cumulus_metadata = glob("*scp.metadata.txt")[0]
-		File fitsne_coords = glob("*scp.X_fitsne.coords.txt")[0]
+		File umap_coords = glob("*scp.X_umap.coords.txt")[0]
 		File dense_matrix = glob("*scp.expr.txt")[0]
 		File pca_coords = glob("*scp.X_pca.coords.txt")[0]
 	}
