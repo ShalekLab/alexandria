@@ -23,10 +23,10 @@ workflow smartseq2_cumulus {
 		# User-inputted .tsv file that contains in whatever order:
 		#	(REQUIRED) the 'Cell' column, 
 		#	(REQUIRED) the 'Plate' column
-		#	(OPTIONAL) both 'Read1' and 'Read2' columns
-		#	(OPTIONAL) 'BCL_Path' column
+		#	(REQUIRED is_bcl==false) both 'Read1' and 'Read2' columns
+		#	(REQUIRED is_bcl==true) 'BCL_Path' column
 		#	(OPTIONAL) 'SS_Path' column
-		#	(OPTIONAL) other metadata columns that currently aren't used/outputted by the workflow
+		#	(OPTIONAL) Metadata columns for upload to SCP
 		File alexandria_sheet
 
 		# The gsURI of your Google Bucket, ex: "gs://your-bucket-id/FASTQs/"
@@ -51,7 +51,7 @@ workflow smartseq2_cumulus {
 		# ex: "FASTQs/" from full gsURI gs://your-bucket-id/FASTQs/
 		String fastq_directory = ''
 		
-		# Set true to run alignment by Drop-Seq tools
+		# Set true to run alignment by Hisat2 or Star
 		Boolean run_smartseq2
 		
 		# Set to true to convert your BCLs to FASTQs via bcl2fastq
@@ -113,7 +113,7 @@ workflow smartseq2_cumulus {
 	Boolean check_inputs = !run_smartseq2
 
 	if (run_smartseq2) {
-		# Check user alexandria_sheet and create smartseq2_locations.tsv for Drop-Seq Tools
+		# Check user alexandria_sheet and create smartseq2_locations.tsv for SS2
 		call setup_smartseq2 {
 			input:
 				bucket_slash=bucket_slash,

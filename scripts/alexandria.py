@@ -56,6 +56,10 @@ class Alexandria(object):
 			sheet[col] = sheet[col].str.strip()
 		return sheet
 
+	def check_dataframe(self):
+		# Defined by preset
+		pass
+
 	def check_bucket(self, bucket):
 		self.log.info(f"Checking bucket at gsURI '{bucket}'.")
 		try: 
@@ -380,7 +384,7 @@ class Alexandria(object):
 					if path.endswith("X_fitsne.coords.txt"): # Find cluster file
 						cluster_file = path
 					if path.endswith(name): # Serialize whatever file path
-						open(name, 'w').write(path)
+						#open(name, 'w').write(path)
 						is_found = True
 						break
 				if is_found is False:
@@ -399,7 +403,10 @@ class Alexandria(object):
 		return alexandria_metadata
 
 	def isolate_metadata_columns(self):
-		drop_columns=[value for value in vars(self).values() if isinstance(value, str) and value is not self.entry]
+		drop_columns=[
+			value for value in vars(self).values() \
+				if isinstance(value, str) and value is not self.entry
+		]
 		self.sheet = self.sheet.drop(columns=drop_columns, errors="ignore")
 
 	def get_attribute_type(self, metadata):
@@ -422,9 +429,14 @@ class Alexandria(object):
 			return self.get_attribute_type(metadata)
 		else:
 			# For all rows below, get the metadata at entry
-			return self.sheet.loc[ self.sheet[self.entry] == entry, metadata].to_string(index=False).strip()
+			return self.sheet.loc[ 
+					self.sheet[self.entry] == entry, metadata
+				].to_string(index=False).strip()
 
 	def map_metadata(self, alexandria_metadata):
+		for sample in alexandria_metadata["Channel"].unique():
+			if sample != "group" and sample not in self.sheet[self.entry].tolist():
+				raise Exception(f"ALEXANDRIA DEV: {sample} was not found in Alexandria Sheet.")
 		for metadata in self.sheet.columns:
 			if metadata == self.entry:
 				continue

@@ -31,7 +31,7 @@ python scp_outputs.py \
 test_outputs="${scp_outputs}/outputs"
 if [ -d ${test_outputs} ]; then trash ${test_outputs}; fi
 mkdir -p ${test_outputs}
-mv *scp.X_fitsne.coords.txt $test_outputs
+mv *scp.X_*.coords.txt $test_outputs
 mv *scp.expr.txt $test_outputs
 mv *scp.metadata.txt $test_outputs
 mv alexandria_metadata.txt $test_outputs

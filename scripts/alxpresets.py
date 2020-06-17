@@ -3,7 +3,9 @@ from alexandria import Alexandria
 import subprocess as sp
 import pandas as pd
 import numpy as np
-from os import path as osp
+import os
+import os.path as osp
+
 
 class Dropseq(Alexandria):
 
@@ -168,6 +170,17 @@ class Smartseq2(Alexandria):
 			return output_directory_slash + entry + self.MTX_extension
 		else: 
 			return bucket_slash + output_directory_slash + entry + self.MTX_extension
+
+	def transform_cluster_file(self, cluster_file):
+		alexandria_metadata = pd.read_csv(cluster_file, dtype=str, sep='\t', header=0)
+		alexandria_metadata = alexandria_metadata.drop(columns=['X','Y'])
+		def get_entry(entry):
+			if entry == "TYPE":
+				return "group"
+			else:
+				return '-'.join(entry.split('-')[1:]) # Get the cell name, everything AFTER the first hyphen
+		alexandria_metadata.insert(1, "Channel", pd.Series(alexandria_metadata["NAME"].map(get_entry)))
+		return alexandria_metadata
 
 class Kallisto_Bustools(Alexandria):
 
@@ -345,25 +358,5 @@ class Cellranger(Alexandria):
 			args=(bucket_slash, output_directory_slash)
 		)
 		return cumulus_sheet
-
-	def serialize_scp_outputs(self, scp_outputs_list):
-		names = ["X_umap.coords.txt", "X_pca.coords.txt", "expr.txt", "metadata.txt"]
-		with open (scp_outputs_list, 'r') as scp_outputs:
-			for name in names:
-				is_found = False
-				for path in scp_outputs:
-					path = path.strip('\n')
-					os.rename(path, osp.basename(path)) # Move file to pwd
-					path = osp.basename(path)
-					if path.endswith("X_umap.coords.txt"): # Find cluster file
-						cluster_file = path
-					if path.endswith(name): # Serialize whatever file path
-						open(name, 'w').write(path)
-						is_found = True
-						break
-				if is_found is False:
-					raise Exception(f"Path to {name} file was not found.")
-		return cluster_file
-	
 
 	
