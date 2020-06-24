@@ -4,15 +4,22 @@ from alexandria import Alexandria
 
 def main(args):
 
-	bucket_slash = args.bucket.strip('/')+'/'
-	if args.output_directory is '':
-		output_directory_slash = args.output_directory
-	else:
-		output_directory_slash = args.output_directory.strip('/')+'/'
-
 	alx = Alexandria.get_tool(args.tool, args.alexandria_sheet)
 	alx.check_dataframe()
 	alx.log.info("Running setup for Cumulus workflow")
+	
+	if args.output_directory is None:
+		alx.log.warn(
+			"Optional flag for tool '--output_directory' not passed, "
+			"if matrix paths are listed in the sheet this is no problem."
+		)
+		output_directory_slash = ''
+	elif args.output_directory is '':
+		output_directory_slash = args.output_directory
+	else:
+		output_directory_slash = args.output_directory.strip('/')+'/'
+	bucket_slash = args.bucket.strip('/')+'/'
+
 	if args.check_inputs is True:
 		alx.log.info("Checking inputs")
 		alx.check_bucket(bucket_slash)
@@ -44,7 +51,9 @@ parser.add_argument("-r", "--reference",
 					help="The valid reference (hg19, GRCh38, mm10, hg19_mm10, or mmul_8.0.1) or the gsURI to a custom reference."
 )
 parser.add_argument("-o", "--output_directory", 
-					help="Path following the bucket root to the directory where outputs will be located."
+					help="Path following the bucket root to the directory where outputs will be located.",
+					required=False,
+					default=None
 )
 args = parser.parse_args()
 

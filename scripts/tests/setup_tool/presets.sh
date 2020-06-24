@@ -111,26 +111,25 @@ function cr_default {
 	reference=""
 }
 
-: '
-function kb_default_preset {
+
+function kb_default {
 	echo Setting up kb for is_bcl=false and fastq_directory=""
-	tool="Kallisto_Bustools"
-	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/ss2_short.tsv"
+	tool="kallisto_bustools"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/kb.tsv"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
-	reference="mm10"
+	reference=""
+	aligner=""
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
 }
-
+: '
 function kb_fastq_directory_preset {
 	echo Setting up kb for is_bcl=false and fastq_directory="dropseq_cumulus/IRA_FASTQs/"
 	tool="Kallisto_Bustools"
 	#alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash="dropseq_cumulus/IRA_FASTQs/"
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"
@@ -142,7 +141,6 @@ function kb_is_bcl_preset {
 	#alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/???"
 	bucket_slash="gs://fc-secure-ec2ce7e8-339a-47b4-b9d9-34f652cbf41f/"
 	is_bcl="--is_bcl" # isbcl=${true="--is_bcl" false="" is_bcl}
-	metadata_type_map="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/metadata_type_map.tsv"
 	fastq_directory_slash=""
 	reference="mm10"
 	output_directory_slash="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/setup_tool/outputs/"

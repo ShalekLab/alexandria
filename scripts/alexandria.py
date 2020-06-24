@@ -26,12 +26,12 @@ class Alexandria(object):
 	@classmethod
 	def get_tool(cls, name, sheet):
 		from alxpresets import Dropseq, Smartseq2, Kallisto_Bustools, Cellranger
-		name = name.lower()
+		name = name.replace('-', '').replace('_','').lower()
 		if name == "dropseq":
 			return Dropseq(sheet)
 		elif name == "smartseq2":
 			return Smartseq2(sheet)
-		elif name.replace('-', '_') == "kallisto_bustools":
+		elif name == "kallistobustools":
 			return Kallisto_Bustools(sheet)
 		elif name == "cellranger":
 			return Cellranger(sheet)
@@ -91,9 +91,7 @@ class Alexandria(object):
 		self.log.info(f"Passing reference {reference}.")
 
 	def check_aligner(self, aligner):
-		if aligner is None or aligner in self.aligners:
-			return
-		else:
+		if aligner is not None and aligner not in self.aligners:
 			raise Exception(
 				f"ALEXANDRIA: ERROR! Aligner '{aligner}' does not match a valid aligner: "
 				f"({', '.join(self.aligners)})."
@@ -154,8 +152,9 @@ class Alexandria(object):
 		self.log.info(f"For BCL_Path entry {osp.basename(bcl_path)}:")
 		if bcl_path.startswith("gs://") is False:
 			bcl_path = bucket_slash + bcl_path
-			self.log.verbose("Prepended the bucket to the entry:\n" + bcl_path)
+			self.log.verbose("Prepended the bucket to the entered path.")
 		self.log.info("Checking existence of sequencing run directory")
+		self.log.verbose(bcl_path)
 		try: 
 			sp.check_call(args=["gsutil", "ls", bcl_path], stdout=sp.DEVNULL)
 		except sp.CalledProcessError: 
@@ -177,15 +176,19 @@ class Alexandria(object):
 
 	def get_trimmed_bcl_sheet(self, bcl_sheet_path):
 		try: 
-			bcl_sheet = sp.check_output(args=["gsutil", "cat", bcl_sheet_path]).strip().decode()
+			bcl_sheet = sp.check_output(
+				args=["gsutil", "cat", bcl_sheet_path]
+			).strip().decode()
 		except sp.CalledProcessError: 
 			raise Exception(f"ALEXANDRIA: ERROR! Checked for {bcl_sheet}, sample sheet was not found in {bcl_sheet_path}")
-		self.log.info("FOUND BCL directory sample sheet:\n" + bcl_sheet_path)
+		self.log.info("FOUND BCL directory sample sheet.")
+		self.log.verbose(bcl_sheet_path)
 		with open("trimmed_bcl_sheet.csv", 'w') as ss:
 			ss.write(bcl_sheet.split("[Data]")[-1]) # Trims sample sheet...
 		ss = pd.read_csv("trimmed_bcl_sheet.csv", dtype=str, header=1) # ...to everything below "[Data]"
 		if "Sample_Name" not in ss.columns:
-			raise Exception("ALEXANDRIA: ERROR! Column 'Sample_Name' was not found in the "
+			raise Exception(
+				"ALEXANDRIA: ERROR! Column 'Sample_Name' was not found in the "
 				f"BCL directory sample sheet of {bcl_sheet_path}"
 			)
 		return ss
@@ -208,7 +211,8 @@ class Alexandria(object):
 		pd.options.display.max_colwidth = 2048 # Ensure the entire cell prints out
 		self.log.info(f"Finding sequencing run sample sheet for {osp.basename(bcl_path)}")
 		bcl_sheet_path = self.get_bcl_sheet_path(bcl_path, bucket_slash)
-		self.log.info("Searching for sample sheet:\n" + bcl_sheet_path)
+		self.log.info("Searching for sample sheet.")
+		self.log.verbose(bcl_sheet_path)
 		ss = self.get_trimmed_bcl_sheet(bcl_sheet_path)
 		self.log.info("Finding and checking samples listed in alexandria_sheet")
 		self.log.sep()
@@ -257,24 +261,32 @@ class Alexandria(object):
 	def determine_path(self, entry, entity, bucket_slash, default_path, entered_path):
 		self.log.info(f"For {entry} {entity}:")
 		if entered_path == "NaN":
-			self.log.info("Path was not entered in alexandria_sheet, checking the constructed default path:\n" + default_path)
+			self.log.info("Path was not entered in alexandria sheet, checking the constructed default path.")
+			self.log.verbose(default_path)
 			return default_path
 		elif entered_path.startswith("gs://"):
-			self.log.info("Checking entered path that begins with gsURI, checking:\n" + entered_path)
+			self.log.info("Checking entered path that begins with gsURI")
+			self.log.verbose(entered_path)
 			return entered_path
 		else: # If not gsURI, prepend the bucket
-			self.log.info("Checking entered path:\n" + bucket_slash + entered_path)
-			return bucket_slash + entered_path
+			self.log.info("Prepending bucket to entered path and checking.")
+			constructed_path = bucket_slash + entered_path
+			self.log.verbose(constructed_path)
+			return constructed_path
+
 
 	def validate_fastq_path(self, fastq_path, default_path):
-		# First Check the fastq_path, then if it fails then check the fastq default directory.
-		try:
+		try: # First, checks the fastq_path. If unsuccessful check the fastq default directory.
 			fastq_path = sp.check_output(args=["gsutil", "ls", fastq_path]).strip().decode()
 		except sp.CalledProcessError: 
-			self.log.warn("The file was not found at:\n" + fastq_path)
-			self.log.info("Checking for FASTQ at the default path (fastq_directory): \n" + default_path)
-			try: 
-				fastq_path = sp.check_output(args=["gsutil", "ls", default_path]).strip().decode() # Tries again for default path
+			self.log.warn("The file was not found at the path!")
+			self.log.verbose(fastq_path)
+			self.log.info("Checking for FASTQ at the default path (fastq_directory)")
+			self.log.verbose(default_path)
+			try: # Tries again for default path
+				fastq_path = sp.check_output(
+					args=["gsutil", "ls", default_path]
+				).strip().decode()
 			except sp.CalledProcessError: 
 				raise Exception(f"ALEXANDRIA: ERROR! Checked path {fastq_path}, the fastq(.gz) was not found!")
 		if not fastq_path.endswith(".fastq.gz") and not fastq_path.endswith(".fastq"):
@@ -289,7 +301,7 @@ class Alexandria(object):
 		elif read in self.R2_path:
 			fastq_column = self.R2_path
 		else:
-			raise Exception("ALEXANDRIA DEV: Read was not found in either R1_path or R2_path.")
+			raise Exception(f"ALEXANDRIA DEV: Read was not found in either {self.R1_path} or {self.R2_path}.")
 		# At the intersection of entry and fastq_column, locate the fastq path
 		fastq_path = self.sheet.loc[ self.sheet[self.entry] == entry, fastq_column]
 		return fastq_path.to_string(index=False).strip()

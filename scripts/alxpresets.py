@@ -63,15 +63,14 @@ class Smartseq2(Alexandria):
 	def check_dataframe(self):
 		errors=[]
 		if self.entry not in self.sheet.columns and "Sample" in self.sheet.columns:
-			self.log.warn("Cell column not detected but Sample is, overriding Sample as entry column.")
+			self.log.warn("'Cell' column not detected but 'Sample' is, overriding Sample as entry column.")
 			self.entry = "Sample"
 		if self.entry not in self.sheet.columns:
 			errors.append(f"Please ensure your cell column is named '{self.entry}'.")
 		if self.R1_path not in self.sheet.columns and "R1_Path" in self.sheet.columns:
-				#errors.append("Please rename both of your FASTQ path column headers to '"+self.R1_path+"' and '"+self.R2_path+"'.")
-				print("Read1/Read2 columns not detected but R1_Path/R2_Path are, overriding the latter as FASTQ columns.")
-				self.R1_path="R1_Path"
-				self.R2_path="R2_Path"
+			print("'Read1'/'Read2' columns not detected but 'R1_Path'/'R2_Path' are, overriding the latter as FASTQ columns.")
+			self.R1_path="R1_Path"
+			self.R2_path="R2_Path"
 		if self.R1_path in self.sheet.columns and self.plate not in self.sheet.columns: # FASTQs
 			# This error is also caught later if they didn't include the optional Read1/Read2 columns
 			errors.append(f"For is_bcl=false, please ensure your plate column is present and named '{self.plate}'.")
@@ -188,44 +187,97 @@ class Kallisto_Bustools(Alexandria):
 		self.name = "kallisto-bustools"
 		self.sheet = super().make_dataframe(sheet)
 		self.log = AlxLog()
+		self.metadata_convention = self.get_metadata_convention()
 		self.entry = "Sample"
-		self.provided_references = ["mouse", "human", "linnarsson"]
-		self.custom_reference_extension = [] # TODO
+		self.provided_references = ["mm9", "mm10", "GRCh38", "hg19"]
+		self.custom_reference_extension = None
 		self.R1_path = "R1_Paths"
 		self.R2_path = "R2_Paths"
 		self.BCL_path = "BCL_Path"
 		self.SS_path = "SS_Path"
 		self.MTX_path = "MTX_Path"
-		self.MTX_extension = ".mtx" # Lots of other choices here too...
+		self.MTX_extension = ".mtx"
 
 	def check_dataframe(self):
 		errors=[]
 		if self.entry not in self.sheet.columns:
 			errors.append(f"Please ensure your cell column is named '{self.entry}'.")
-		if "R1_Path" in self.sheet.columns or "R2_Path" in self.sheet.columns:
-			errors.append(f"Please rename both of your FASTQ path column headers to '{self.R1_path}' and '{self.R2_path}'.")
-		elif self.R1_path in self.sheet.columns and not self.R2_path in self.sheet.columns:
-			errors.append("Please include an 'R2_Paths' column. "
+		if self.R1_path not in self.sheet.columns and "R1_Path" in self.sheet.columns:
+			self.log.warn(
+				"'R1_Paths'/'R2_Paths' columns not detected but 'R1_Path'/'R2_Path' are, "
+				"overriding the latter pair as FASTQ columns."
+			)
+			self.R1_path="R1_Path"
+			self.R2_path="R2_Path"
+		if not self.R2_path in self.sheet.columns:
+			errors.append(
+				f"Please include an '{self.R2_path}' column. "
 				"If your FASTQs are single-end, simply enter 'null' for those entries."
 			)
 		if errors:
 			raise Exception("ALEXANDRIA: ERROR! " + "\n ".join(errors))
 
+	def check_path_columns(self):
+		pass
+
 	def determine_fastq_path(self, entry, read, default_path, bucket_slash, entered_path):
 		self.log.info(f"For {entry}, read {read}:")
 		if entered_path == "NaN":
-			if read is '2':
-				self.log.info(f"{self.R2_path} was left blank, inferring single-end FASTQ. Returning empty.")
+			if read is "read 2":
+				self.log.warn(f"'{self.R2_path}' entry was left blank, inferring single-end FASTQ. Returning empty.")
 				return np.nan #Perhaps return null or ''?
 			else:
-				self.log.info("Path was not entered in alexandria_sheet, checking the constructed default path:\n" + default_path)
-				return default_path
+				raise Exception(f"ALEXANDRIA: ERROR! {self.R1_path} for {entry} left empty!")
 		elif entered_path.startswith("gs://"):
-			self.log.info("Checking entered path that begins with gsURI, checking:\n" + entered_path)
+			self.log.info("Checking entered path that begins with gsURI.")
+			self.log.verbose(entered_path)
 			return entered_path
 		else: # If not gsURI, prepend the bucket
-			self.log.info("Checking entered path:\n" + bucket_slash + entered_path)
-			return bucket_slash + entered_path
+			self.log.info("Prepending bucket to entered path and checking.")
+			constructed_path = bucket_slash + entered_path
+			self.log.verbose(constructed_path)
+			return constructed_path
+	
+	def get_entered_fastq_paths(self, entry, read):
+		entered_paths = self.get_entered_fastq_path(entry, read)
+		return entered_paths.strip(',').split(',')
+
+	def get_validated_fastq_path(self, entry, read, bucket_slash, fastq_directory_slash):
+		if fastq_directory_slash is not '':
+			self.log.warn("fastq_directory is not supported for this workflow.")
+		pd.options.display.max_colwidth = 2048 # Ensure the entire cell prints out
+		paths = self.get_entered_fastq_paths(entry, read)
+		for i in range(len(paths)):
+			paths[i] = self.determine_path(entry, f"read {read}", bucket_slash, None, paths[i])
+			paths[i] = self.validate_fastq_path(paths[i], None)
+		return ','.join(paths)
+
+	def construct_default_mtx_path(self, bucket_slash, output_directory_slash, entry):
+		if output_directory_slash.startswith("gs://"): 
+			return output_directory_slash + "count_" + entry + "/counts_filtered/cells_x_genes.mtx"
+		else: 
+			return bucket_slash + output_directory_slash + "count_" + entry + "/counts_filtered/cells_x_genes.mtx" 
+
+	def validate_mtx_path(self, mtx_path):
+		self.log.info(f"Searching for count matrix at {mtx_path}.")
+		try:
+			sp.check_call(args=["gsutil", "ls", mtx_path], stdout=sp.DEVNULL)
+		except sp.CalledProcessError: 
+			self.log.warn(f"Matrix was not found!")
+			self.log.verbose(mtx_path)
+			self.log.warn("Trying 'spliced.mtx', the other commonly produced output, instead.")
+			spliced_mtx_path = mtx_path.replace("cells_x_genes.mtx", "spliced.mtx")
+			self.log.verbose(spliced_mtx_path)
+			try:
+				sp.check_call(args=["gsutil", "ls", spliced_mtx_path], stdout=sp.DEVNULL)
+			except sp.CalledProcessError:
+				raise Exception(f"ALEXANDRIA: ERROR! Matrix was not found. Ensure that the path is correct.")
+		self.log.info(f"FOUND {mtx_path}")
+		self.log.sep()
+		return mtx_path
+
+	def write_locations(self, sheet=None, sep='\t', header=True):
+		super().write_locations(header=header)
 
 class Cellranger(Alexandria):
 	
