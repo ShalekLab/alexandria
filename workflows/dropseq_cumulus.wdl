@@ -147,7 +147,8 @@ workflow dropseq_cumulus {
 		call cumulus.cumulus as cumulus {
 			input:
 				input_file=setup_cumulus.count_matrix,
-				output_name=bucket_slash + cumulus_output_path_slash + cumulus_output_prefix,
+				output_directory=bucket_slash + cumulus_output_path_slash,
+				output_name=cumulus_output_prefix,
 				is_dropseq=true,
 				generate_scp_outputs=true,
 				output_dense=true,
