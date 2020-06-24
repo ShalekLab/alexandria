@@ -266,8 +266,8 @@ task setup_from_bcl2fastq {
 		set -e
 		python /alexandria/scripts/setup_from_bcl2fastq.py \
 			-t=Smartseq2 \
-			-b=~{sep=' ' bcl2fastq_sheets} \
-			-i=~{alexandria_sheet}
+			-i=~{alexandria_sheet} \
+			-b ~{sep=' ' bcl2fastq_sheets}
 	>>>
 	output {
 		File smartseq2_locations = "smartseq2_locations.tsv"

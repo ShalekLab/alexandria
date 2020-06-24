@@ -242,8 +242,8 @@ task setup_from_bcl2fastq {
 		set -e
 		python /alexandria/scripts/setup_from_bcl2fastq.py \
 			-t=Kallisto-Bustools \
-			-b=~{sep=' ' bcl2fastq_sheets} \
-			-i=~{alexandria_sheet}
+			-i=~{alexandria_sheet} \
+			-b ~{sep=' ' bcl2fastq_sheets}
 	>>>
 	output {
 		File kallisto_bustools_locations = "kallisto-bustools_locations.tsv"
