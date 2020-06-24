@@ -121,11 +121,10 @@ workflow kallisto_bustools_cumulus {
 						docker_registry=bcl2fastq_registry_stripped
 				}
 			}
-			File alexandria_sheet_plates = select_first(setup_kb.alexandria_sheet_plates)
 			call setup_from_bcl2fastq {
 				input:
 					bucket_slash=bucket_slash,
-					alexandria_sheet=alexandria_sheet_plates,
+					alexandria_sheet=alexandria_sheet,
 					bcl2fastq_sheets=bcl2fastq.fastqs,
 					alexandria_docker=alexandria_docker,
 					zones=zones,
@@ -152,7 +151,7 @@ workflow kallisto_bustools_cumulus {
 		call setup_cumulus {
 			input: 
 				check_inputs=check_inputs,
-				alexandria_sheet=select_first([alexandria_sheet_plates, alexandria_sheet]),
+				alexandria_sheet=alexandria_sheet,
 				reference=cumulus_reference,
 				bucket_slash=bucket_slash,
 				kallisto_bustools_output_path_slash=kallisto_bustools_output_path_slash,
@@ -178,7 +177,7 @@ workflow kallisto_bustools_cumulus {
 		# Segregate the output scp files and map the alexandria_sheet's metadata to create the alexandria_metadata.txt
 		call scp_outputs {
 			input:
-				alexandria_sheet=select_first([alexandria_sheet_plates, alexandria_sheet]),
+				alexandria_sheet=alexandria_sheet,
 				bucket_slash=bucket_slash,
 				cumulus_output_path_slash=cumulus_output_path_slash, 
 				output_scp_files=cumulus.output_scp_files,
@@ -188,8 +187,8 @@ workflow kallisto_bustools_cumulus {
 		}
 	}
 	output {
-		String? kallisto_bustools_output_path = bucket_slash+kallisto_bustools_output_path_slash
-		String? cumulus_output_path = bucket_slash+cumulus_output_path_slash
+		String? kallisto_bustools_output_path = bucket_slash + kallisto_bustools_output_path_slash
+		String? cumulus_output_path = bucket_slash + cumulus_output_path_slash
 		
 		File? alexandria_metadata = scp_outputs.alexandria_metadata
 		File? fitsne_coords = scp_outputs.fitsne_coords
@@ -222,7 +221,6 @@ task setup_kallisto_bustools {
 	>>>
 	output {
 		File kallisto_bustools_locations = "kallisto-bustools_locations.tsv"
-		Array[File?] alexandria_sheet_plates = glob("alexandria_sheet_plates.tsv")
 	}
 	runtime {
 		docker: "~{alexandria_docker}"

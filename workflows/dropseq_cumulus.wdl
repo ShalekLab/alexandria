@@ -198,20 +198,20 @@ task setup_dropseq {
 		set -e
 		python /alexandria/scripts/setup_tool.py \
 			-t=dropseq \
-			-i=${alexandria_sheet} \
-			-g=${bucket_slash} \
-			${true="--is_bcl" false='' is_bcl} \
-			-f=${fastq_directory_slash} \
-			-r=${reference}
-		gsutil cp dropseq_locations.tsv ${bucket_slash}${dropseq_output_path_slash}
+			-i=~{alexandria_sheet} \
+			-g=~{bucket_slash} \
+			~{true="--is_bcl" false='' is_bcl} \
+			-f=~{fastq_directory_slash} \
+			-r=~{reference}
+		gsutil cp dropseq_locations.tsv ~{bucket_slash}~{dropseq_output_path_slash}
 	>>>
 	output {
 		File dropseq_locations = "dropseq_locations.tsv"
 	}
 	runtime {
-		docker: "${alexandria_docker}"
-		preemptible: "${preemptible}"
-		zones: "${zones}"
+		docker: "~{alexandria_docker}"
+		preemptible: "~{preemptible}"
+		zones: "~{zones}"
 	}
 }
 
@@ -231,21 +231,21 @@ task setup_cumulus {
 	command <<<
 		set -e
 		python /alexandria/scripts/setup_cumulus.py \
-			-i=${alexandria_sheet} \
+			-i=~{alexandria_sheet} \
 			-t=dropseq \
-			-g=${bucket_slash} \
-			${true="--check_inputs" false='' check_inputs} \
-			-r=${reference} \
-			-o=${dropseq_output_path_slash}
-		gsutil cp count_matrix.csv ${bucket_slash}${cumulus_output_path_slash}
+			-g=~{bucket_slash} \
+			~{true="--check_inputs" false='' check_inputs} \
+			-r=~{reference} \
+			-o=~{dropseq_output_path_slash}
+		gsutil cp count_matrix.csv ~{bucket_slash}~{cumulus_output_path_slash}
 	>>>
 	output {
 		File count_matrix = "count_matrix.csv"
 	}
 	runtime {
-		docker: "${alexandria_docker}"
-		preemptible: "${preemptible}"
-		zones: "${zones}"
+		docker: "~{alexandria_docker}"
+		preemptible: "~{preemptible}"
+		zones: "~{zones}"
 	}
 }
 
@@ -261,12 +261,12 @@ task scp_outputs {
 	}
 	command <<<
 		set -e
-		printf "${sep='\n' output_scp_files}" >> output_scp_files.txt
+		printf "~{sep='\n' output_scp_files}" >> output_scp_files.txt
 		python /alexandria/scripts/scp_outputs.py \
 			-t dropseq \
-			-i ${alexandria_sheet} \
+			-i ~{alexandria_sheet} \
 			-s output_scp_files.txt
-		gsutil cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_path_slash}
+		gsutil cp alexandria_metadata.txt ~{bucket_slash}~{cumulus_output_path_slash}
 	>>>
 	output {
 		File alexandria_metadata = "alexandria_metadata.txt"
@@ -276,8 +276,8 @@ task scp_outputs {
 		File pca_coords = glob("*scp.X_pca.coords.txt")[0]
 	}
 	runtime {
-		docker: "${alexandria_docker}"
-		preemptible: "${preemptible}"
-		zones: "${zones}"
+		docker: "~{alexandria_docker}"
+		preemptible: "~{preemptible}"
+		zones: "~{zones}"
 	}
 }
