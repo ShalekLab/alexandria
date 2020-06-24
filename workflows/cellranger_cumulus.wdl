@@ -35,7 +35,7 @@ workflow cellranger_cumulus {
 		String cumulus_feature_barcoding_version = "0.2.0"
 		
 		# alexandria docker image: <alexandria_docker>
-		String alexandria_docker = "shaleklab/alexandria:0.2" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
+		String alexandria_docker = "shaleklab/alexandria:0.3" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
 
 		Int preemptible = 2
 		String zones = "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-west1-a us-west1-b us-west1-c"

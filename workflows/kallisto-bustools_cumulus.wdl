@@ -72,7 +72,7 @@ workflow kallisto_bustools_cumulus {
 		String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
 		String cumulus_version = "0.16.0"
 		# alexandria docker image: <alexandria_docker>
-		String alexandria_docker = "shaleklab/alexandria:dev" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
+		String alexandria_docker = "shaleklab/alexandria:0.3" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
 		
 		# The maximum number of attempts Cromwell will request Google for a preemptible VM.
 		# Preemptible VMs are about 5 times cheaper than non-preemptible, but Google can yank them

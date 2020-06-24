@@ -14,75 +14,77 @@
 # Set new defaults for cumulus_output_prefix and zones
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
-import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/9/plain-WDL/descriptor" as dropseq
-import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/17/plain-WDL/descriptor" as cumulus
+version 1.0
+
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:dropseq_workflow/versions/10/plain-WDL/descriptor" as dropseq
+import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/24/plain-WDL/descriptor" as cumulus
 
 workflow dropseq_cumulus {
-	# User-inputted .tsv file that contains in whatever order:
-	#	(REQUIRED) the 'Sample' column, 
-	#	(OPTIONAL) both 'R1_Path' and 'R2_Path' columns
-	#	(OPTIONAL) 'BCL_Path' column
-	#	(OPTIONAL) 'SS_Path' column
-	#	(OPTIONAL) other metadata columns that currently aren't used/outputted by the workflow
-	File alexandria_sheet
+	input {
+		# User-inputted .tsv file that contains in whatever order:
+		#	(REQUIRED) the 'Sample' column, 
+		#	(OPTIONAL) both 'R1_Path' and 'R2_Path' columns
+		#	(OPTIONAL) 'BCL_Path' column
+		#	(OPTIONAL) 'SS_Path' column
+		#	(OPTIONAL) other metadata columns that currently aren't used/outputted by the workflow
+		File alexandria_sheet
 
-	# The gsURI of your Google Bucket, ex: "gs://your-bucket-id/FASTQs/"
-	# Alexandria/The Single Cell Portal requires this variable.
-	String bucket
+		# The gsURI of your Google Bucket, ex: "gs://your-bucket-id/FASTQs/"
+		# Alexandria/The Single Cell Portal requires this variable.
+		String bucket
 
-	# The gsURI path following the bucket root to the folder where you wish the pipeline to deposit files
-	# ex: "dropseq_cumulus/my-job/" from gs://your-bucket-id/dropseq_cumulus/my-job/
-	# Inside this folder (ex: my-job/) folders for each tool will be created ("dropseq/" and "cumulus/")
-	String output_path
-	
-	# Accepted references are "hg19", "mm10", "hg19_mm10", "mmul_8.0.1", and "GRCh38"
-	# For making and linking custom dropseq-compatible references, see the Cumulus documentation.
-	String reference
+		# The gsURI path following the bucket root to the folder where you wish the pipeline to deposit files
+		# ex: "dropseq_cumulus/my-job/" from gs://your-bucket-id/dropseq_cumulus/my-job/
+		# Inside this folder (ex: my-job/) folders for each tool will be created ("dropseq/" and "cumulus/")
+		String output_path
+		
+		# Accepted references are "hg19", "mm10", "hg19_mm10", "mmul_8.0.1", and "GRCh38"
+		# For making and linking custom dropseq-compatible references, see the Cumulus documentation.
+		String reference
 
-	# OPTIONAL:
-	# If you have some/all of your FASTQs in one folder object on the bucket,
-	# enter the gsURI path to that folder object following the bucket root.
-	# ex: "FASTQs/" from full gsURI gs://your-bucket-id/FASTQs/
-	String fastq_directory = ''
-	
-	# Set true to run alignment by Drop-Seq tools
-	Boolean run_dropseq
-	
-	# Set to true to convert your BCLs to FASTQs via bcl2fastq
-	Boolean is_bcl #= false
-	
-	# Set to true to produce clustering/visualization data via Cumulus
-	# Alexandria/The Single Cell Portal require these data files.
-	Boolean run_cumulus
+		# OPTIONAL:
+		# If you have some/all of your FASTQs in one folder object on the bucket,
+		# enter the gsURI path to that folder object following the bucket root.
+		# ex: "FASTQs/" from full gsURI gs://your-bucket-id/FASTQs/
+		String fastq_directory = ''
+		
+		# Set true to run alignment by Drop-Seq tools
+		Boolean run_dropseq
+		
+		# Set to true to convert your BCLs to FASTQs via bcl2fastq
+		Boolean is_bcl #= false
+		
+		# Set to true to produce clustering/visualization data via Cumulus
+		# Alexandria/The Single Cell Portal require these data files.
+		Boolean run_cumulus
 
-	#The filename prefix assigned to the Cumulus outputs.
-	String cumulus_output_prefix = "dsc"
+		#The filename prefix assigned to the Cumulus outputs.
+		String cumulus_output_prefix = "dsc"
 
-	### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
-	# dropseq_workflow docker image: <dropseq_registry>/dropseq:<dropseq_tools_version>
-	String dropseq_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/dropseq/tags
-	String dropseq_tools_version = "2.3.0"
-	# bcl2fastq docker image: <bcl2fastq_registry>/bcl2fastq:<bcl2fastq_version>
-	# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
-	# If not Broad-affiliated, see the Alexandria documentation appendix for creating your own bcl2fastq image.
-	String bcl2fastq_registry = "gcr.io/broad-cumulus" # Privately hosted on Regev Lab GCR
-	String bcl2fastq_version = "2.20.0.422"
-	# cumulus workflow docker image: <cumulus_registry>/cumulus:<cumulus_version>
-	String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
-	String cumulus_version = "0.15.0"
-	# alexandria docker image: <alexandria_docker>
-	String alexandria_docker = "shaleklab/alexandria:0.2" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
-	
-	# The maximum number of attempts Cromwell will request Google for a preemptible VM.
-	# Preemptible VMs are about 5 times cheaper than non-preemptible, but Google can yank them
-	# out from under you at anytime. If in a rush, set it to 0 but remember costs will be higher!
-	Int preemptible = 2
-	
-	# The priority queue for requesting a Google Cloud Platform zone.
-	# Change the default value to reflect where your bucket is located.
-	String zones = "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-west1-a us-west1-b us-west1-c"
-	
-	### MANIPULATIONS: PLEASE IGNORE ###
+		### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
+		# dropseq_workflow docker image: <dropseq_registry>/dropseq:<dropseq_tools_version>
+		String dropseq_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/dropseq/tags
+		String dropseq_tools_version = "2.3.0"
+		# bcl2fastq docker image: <bcl2fastq_registry>/bcl2fastq:<bcl2fastq_version>
+		# To use bcl2fastq you MUST locally `docker login` to your broadinstitute.org-affiliated docker account.
+		# If not Broad-affiliated, see the Alexandria documentation appendix for creating your own bcl2fastq image.
+		String bcl2fastq_registry = "gcr.io/broad-cumulus" # Privately hosted on Regev Lab GCR
+		String bcl2fastq_version = "2.20.0.422"
+		# cumulus workflow docker image: <cumulus_registry>/cumulus:<cumulus_version>
+		String cumulus_registry = "cumulusprod" # https://hub.docker.com/r/cumulusprod/cumulus/tags
+		String cumulus_version = "0.15.0"
+		# alexandria docker image: <alexandria_docker>
+		String alexandria_docker = "shaleklab/alexandria:0.3" # https://hub.docker.com/repository/docker/shaleklab/alexandria/tags
+		
+		# The maximum number of attempts Cromwell will request Google for a preemptible VM.
+		# Preemptible VMs are about 5 times cheaper than non-preemptible, but Google can yank them
+		# out from under you at anytime. If in a rush, set it to 0 but remember costs will be higher!
+		Int preemptible = 2
+		
+		# The priority queue for requesting a Google Cloud Platform zone.
+		# Change the default value to reflect where your bucket is located.
+		String zones = "us-central1-a us-central1-b us-central1-c us-central1-f us-east1-b us-east1-c us-east1-d us-west1-a us-west1-b us-west1-c"
+	}
 	String bucket_slash = sub(bucket, "/+$", '')+'/'
 	String output_path_slash = if output_path == '' then '' else sub(output_path, "/+$", '')+'/' 
 	String fastq_directory_slash = if fastq_directory == '' then '' else sub(fastq_directory, "/+$", '')+'/'
@@ -180,18 +182,18 @@ workflow dropseq_cumulus {
 }
 
 task setup_dropseq {
-	
-	String bucket_slash
-	Boolean is_bcl
-	File alexandria_sheet
-	String reference
-	String dropseq_output_path_slash
-	String? fastq_directory_slash
-	String alexandria_docker
-	Int preemptible
-	String zones
-	
-	command {
+	input {
+		String bucket_slash
+		Boolean is_bcl
+		File alexandria_sheet
+		String reference
+		String dropseq_output_path_slash
+		String? fastq_directory_slash
+		String alexandria_docker
+		Int preemptible
+		String zones
+	}
+	command <<<
 		set -e
 		python /alexandria/scripts/setup_tool.py \
 			-t=dropseq \
@@ -201,7 +203,7 @@ task setup_dropseq {
 			-f=${fastq_directory_slash} \
 			-r=${reference}
 		gsutil cp dropseq_locations.tsv ${bucket_slash}${dropseq_output_path_slash}
-	}
+	>>>
 	output {
 		File dropseq_locations = "dropseq_locations.tsv"
 	}
@@ -213,19 +215,19 @@ task setup_dropseq {
 }
 
 task setup_cumulus {
-	
-	Boolean check_inputs
-	File alexandria_sheet
-	String reference
-	String bucket_slash
-	String dropseq_output_path_slash
-	String cumulus_output_path_slash
-	String alexandria_docker
-	Int preemptible
-	String zones
-	Array[String?]? dges
-	
-	command {
+	input {
+		Boolean check_inputs
+		File alexandria_sheet
+		String reference
+		String bucket_slash
+		String dropseq_output_path_slash
+		String cumulus_output_path_slash
+		String alexandria_docker
+		Int preemptible
+		String zones
+		Array[String?]? dges
+	}
+	command <<<
 		set -e
 		python /alexandria/scripts/setup_cumulus.py \
 			-i=${alexandria_sheet} \
@@ -235,7 +237,7 @@ task setup_cumulus {
 			-r=${reference} \
 			-o=${dropseq_output_path_slash}
 		gsutil cp count_matrix.csv ${bucket_slash}${cumulus_output_path_slash}
-	}
+	>>>
 	output {
 		File count_matrix = "count_matrix.csv"
 	}
@@ -247,16 +249,16 @@ task setup_cumulus {
 }
 
 task scp_outputs {
-	
-	File alexandria_sheet
-	String cumulus_output_path_slash
-	Array[File] output_scp_files
-	String bucket_slash
-	String alexandria_docker
-	Int preemptible
-	String zones
-	
-	command {
+	input {
+		File alexandria_sheet
+		String cumulus_output_path_slash
+		Array[File]? output_scp_files
+		String bucket_slash
+		String alexandria_docker
+		Int preemptible
+		String zones
+	}
+	command <<<
 		set -e
 		printf "${sep='\n' output_scp_files}" >> output_scp_files.txt
 		python /alexandria/scripts/scp_outputs.py \
@@ -264,7 +266,7 @@ task scp_outputs {
 			-i ${alexandria_sheet} \
 			-s output_scp_files.txt
 		gsutil cp alexandria_metadata.txt ${bucket_slash}${cumulus_output_path_slash}
-	}
+	>>>
 	output {
 		File alexandria_metadata = "alexandria_metadata.txt"
 		File cumulus_metadata = glob("*scp.metadata.txt")[0]

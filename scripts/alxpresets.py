@@ -209,7 +209,7 @@ class Kallisto_Bustools(Alexandria):
 			)
 			self.R1_path="R1_Path"
 			self.R2_path="R2_Path"
-		if not self.R2_path in self.sheet.columns:
+		if self.R1_path in self.sheet.columns and not self.R2_path in self.sheet.columns:
 			errors.append(
 				f"Please include an '{self.R2_path}' column. "
 				"If your FASTQs are single-end, simply enter 'null' for those entries."
