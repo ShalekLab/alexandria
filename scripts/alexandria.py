@@ -135,10 +135,6 @@ class Alexandria(object):
 			df = pd.concat(objs=[df, sheet], join="outer")
 		return df
 
-	def get_plate(self, entry, that):
-		#Bcl2fastq --> SS2
-		pass
-
 	def write_locations(self, sheet=None, sep='\t', header=False):
 		if sheet is None:
 			sheet = self.sheet

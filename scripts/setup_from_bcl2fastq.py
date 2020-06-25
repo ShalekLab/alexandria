@@ -10,10 +10,6 @@ def main(args):
 	alx.log.info("Concatenating Bcl2fastq FASTQ sheets from each converted BCL directory.")
 	fastqs = alx.concatenate_sheets(args.bcl2fastq_sheets)
 	alx.log.info("Getting plate column from Alexandria Sheet. This column may have been added by the prior script, setup_tool.py.")
-	fastqs[alx.plate] = fastqs[alx.entry].apply(
-		func=alx.get_plate,
-		args=()
-	)
 	alx.write_locations(fastqs)
 	alx.log.success(f"Wrote {alx.name}_locations.tsv! Proceeding to run {alx.name} workflow.")
 	alx.log.sep('=')

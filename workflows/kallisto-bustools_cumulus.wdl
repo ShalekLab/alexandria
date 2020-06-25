@@ -9,7 +9,8 @@
 # ------------------------------------------------------------------------------------------------------------------------------------------
 
 version 1.0
-import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:kallisto-bustools/versions/3/plain-WDL/descriptor" as kallisto_bustools
+import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:kallisto-bustools_reference/versions/2/plain-WDL/descriptor" as kb_ref
+import "https://api.firecloud.org/ga4gh/v1/tools/alexandria:kallisto-bustools_count/versions/3/plain-WDL/descriptor" as kb_count
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:cumulus/versions/24/plain-WDL/descriptor" as cumulus
 import "https://api.firecloud.org/ga4gh/v1/tools/cumulus:bcl2fastq/versions/5/plain-WDL/descriptor" as bcl2fastq
 
@@ -31,15 +32,33 @@ workflow kallisto_bustools_cumulus {
 		# ex: "kallisto_bustools_cumulus/my-job/" from gs://your-bucket-id/kallisto_bustools_cumulus/my-job/
 		# Inside this folder (ex: my-job/) folders for each tool will be created ("kallisto_bustools/" and "cumulus/")
 		String output_path
-
-		String? download_kb_index
 		
 		# Set true to run pseudoalignment by Kallisto-Bustools tools
 		Boolean run_kallisto_bustools
 		Boolean run_build_reference
-		String technology
 		Boolean use_lamanno
+
+		# REF
+		String? download_index # human, mouse, linnarsson
+		File? genomic_fasta
+		File? reference_gtf
+		String ref_disks = "local-disk 256 SSD"
+		Int ref_number_cpu_threads = 32
+		Int ref_task_memory_GB = 128
+		Int ref_boot_disk_size_GB = 10
+
+		# COUNT
+		String technology # DROPSEQ, 10XV1, 10XV2, 10XV3 or see kb --list for more
+		File? preexisting_index # If run_build_reference is false
+		File? preexisting_T2G_mapping # If run_build_reference is false
+		File? preexisting_cDNA_transcripts_to_capture # If run_build_reference is false
+		File? preexisting_intron_transcripts_to_capture # If run_build_reference is false
 		Boolean delete_bus_files
+		String count_disks = "local-disk 256 SSD"
+		Int count_number_cpu_threads = 32
+		Int count_task_memory_GB = 256
+		Float count_program_memory_multiplier = 0.75
+		Int count_boot_disk_size_GB = 10
 
 		# Set to true to convert your BCLs to FASTQs via bcl2fastq
 		Boolean is_bcl #= false
@@ -52,13 +71,6 @@ workflow kallisto_bustools_cumulus {
 
 		# The filename prefix assigned to the Cumulus outputs.
 		String cumulus_output_prefix = "kbc"
-
-		# Recommended Cumulus parameters values for Kallisto-Bustools data:
-		#Int cumulus_tsne_perplexity = 10
-		#Int cumulus_nPC = 15 # Number of Principal Components
-		#Int cumulus_knn_K = 10 # Number of nearest neighbors per node
-		#Int cumulus_max_genes = 15000
-		#Int cumulus_max_umis = 3000000
 
 		### Docker image information. Addresses are formatted as <registry name>/<image name>:<version tag>
 		# kallisto_bustools docker image: <registry>/kallisto_bustools:<tag version>
@@ -131,19 +143,44 @@ workflow kallisto_bustools_cumulus {
 					preemptible=preemptible
 			}
 		}
-		call kallisto_bustools.kallisto_bustools as kb {
+		if (run_build_reference) {
+			call kb_ref.kallisto_bustools_reference as build_reference {
+				input:
+					bucket=bucket_slash,
+					output_path=kallisto_bustools_output_path_slash,
+					docker=kallisto_bustools_docker,
+					preemptible=preemptible,
+					zones=zones,
+					use_lamanno=use_lamanno,
+					download_index=download_index,
+					genomic_fasta=genomic_fasta,
+					reference_gtf=reference_gtf,
+					disks=ref_disks,
+					number_cpu_threads=ref_number_cpu_threads,
+					task_memory_GB=ref_task_memory_GB,
+					boot_disk_size_GB=ref_boot_disk_size_GB
+			}
+		}
+		call kb_count.kallisto_bustools_count as count {
 			input:
 				bucket=bucket_slash,
 				output_path=kallisto_bustools_output_path_slash,
-				sample_sheet=select_first([setup_from_bcl2fastq.kallisto_bustools_locations, setup_kb.kallisto_bustools_locations]),
-				download_index=download_kb_index,
-				run_build_reference=run_build_reference,
+				docker=kallisto_bustools_docker,
+				preemptible=preemptible,
+				zones=zones,
 				technology=technology,
 				use_lamanno=use_lamanno,
+				cDNA_transcripts_to_capture=if use_lamanno then select_first([build_reference.cDNA_transcripts_to_capture, preexisting_cDNA_transcripts_to_capture]) else preexisting_cDNA_transcripts_to_capture,
+				intron_transcripts_to_capture=if use_lamanno then select_first([build_reference.intron_transcripts_to_capture, preexisting_intron_transcripts_to_capture]) else preexisting_intron_transcripts_to_capture,
+				index=select_first([build_reference.index, preexisting_index]),
+				T2G_mapping=select_first([build_reference.T2G_mapping, preexisting_T2G_mapping]),
+				sample_sheet=select_first([setup_from_bcl2fastq.kallisto_bustools_locations, setup_kb.kallisto_bustools_locations]),
 				delete_bus_files=delete_bus_files,
-				docker=kallisto_bustools_docker,
-				zones=zones,
-				preemptible=preemptible
+				disks=count_disks,
+				number_cpu_threads=count_number_cpu_threads,
+				task_memory_GB=count_task_memory_GB,
+				program_memory_multiplier=count_program_memory_multiplier,
+				boot_disk_size_GB=count_boot_disk_size_GB
 		}
 	}
 	if (run_cumulus) {
@@ -156,7 +193,7 @@ workflow kallisto_bustools_cumulus {
 				bucket_slash=bucket_slash,
 				kallisto_bustools_output_path_slash=kallisto_bustools_output_path_slash,
 				cumulus_output_path_slash=cumulus_output_path_slash,
-				count_output_paths=kb.count_output_paths,
+				count_output_paths=count.count_output_paths,
 				alexandria_docker=alexandria_docker,
 				preemptible=preemptible,
 				zones=zones

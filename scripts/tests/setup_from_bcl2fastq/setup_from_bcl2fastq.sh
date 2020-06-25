@@ -20,7 +20,7 @@ cd $scripts
 # WDL COMMAND START
 python setup_from_bcl2fastq.py \
 	-t=${tool} \
-	-b=${bcl2fastq_sheets} \
+	-b ${bcl2fastq_sheets} \
 	-i=${alexandria_sheet}
 # WDL COMMAND END
 

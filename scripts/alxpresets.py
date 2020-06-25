@@ -6,7 +6,6 @@ import numpy as np
 import os
 import os.path as osp
 
-
 class Dropseq(Alexandria):
 
 	def __init__(self, sheet):
@@ -32,8 +31,10 @@ class Dropseq(Alexandria):
 		errors=[]
 		if self.entry not in self.sheet.columns:
 			errors.append(f"Please ensure your cell column is named '{self.entry}'.")
-		if "R1_fastq" in self.sheet.columns or "R2_fastq" in self.sheet.columns:
-			errors.append(f"Please rename both of your FASTQ path column headers to '{self.R1_path}' and '{self.R2_path}'.")
+		if self.R1_path not in self.sheet.columns and "R1_fastq" in self.sheet.columns:
+			self.log.warn("'R1_Path'/'R2_Path' columns not detected but 'R1_fastq'/'fastq' are, overriding the latter as FASTQ columns.")
+			self.R1_path="R1_fastq"
+			self.R2_path="R2_fastq"
 		if errors:
 			raise Exception("ALEXANDRIA: ERROR! " + "\n".join(errors))
 
@@ -68,7 +69,7 @@ class Smartseq2(Alexandria):
 		if self.entry not in self.sheet.columns:
 			errors.append(f"Please ensure your cell column is named '{self.entry}'.")
 		if self.R1_path not in self.sheet.columns and "R1_Path" in self.sheet.columns:
-			print("'Read1'/'Read2' columns not detected but 'R1_Path'/'R2_Path' are, overriding the latter as FASTQ columns.")
+			self.log.warn("'Read1'/'Read2' columns not detected but 'R1_Path'/'R2_Path' are, overriding the latter as FASTQ columns.")
 			self.R1_path="R1_Path"
 			self.R2_path="R2_Path"
 		if self.R1_path in self.sheet.columns and self.plate not in self.sheet.columns: # FASTQs
@@ -121,6 +122,15 @@ class Smartseq2(Alexandria):
 			self.sheet[self.plate] = self.sheet[self.entry].replace(self.sheet[self.entry], np.nan)
 		super().setup_bcl2fastq_sheet(bucket_slash)
 		self.sheet.to_csv("alexandria_sheet_plates.tsv", sep='\t', header=True, index=False)
+
+	def concatenate_sheets(self, sheets):
+		sheet = super().concatenate_sheets(sheets)
+		self.log.info("Getting plate column from Alexandria Sheet. This column may have been added by the prior script, setup_tool.py.")
+		sheet[self.plate] = sheet[self.entry].apply(
+			func=self.get_plate,
+			args=()
+		)
+		return sheet
 
 	def check_entry(self, entry, ss):
 		super().check_entry(entry, ss)
@@ -271,13 +281,16 @@ class Kallisto_Bustools(Alexandria):
 			try:
 				sp.check_call(args=["gsutil", "ls", spliced_mtx_path], stdout=sp.DEVNULL)
 			except sp.CalledProcessError:
-				raise Exception(f"ALEXANDRIA: ERROR! Matrix was not found. Ensure that the path is correct.")
+				raise Exception(
+					"ALEXANDRIA: ERROR! Matrix was not found. "
+					"Ensure that the path is correct."
+				)
 		self.log.info(f"FOUND {mtx_path}")
 		self.log.sep()
 		return mtx_path
 
-	def write_locations(self, sheet=None, sep='\t', header=True):
-		super().write_locations(header=header)
+	def write_locations(self, sheet=None, sep='\t', header=False):
+		super().write_locations(sheet, header=True)
 
 class Cellranger(Alexandria):
 	
@@ -410,5 +423,3 @@ class Cellranger(Alexandria):
 			args=(bucket_slash, output_directory_slash)
 		)
 		return cumulus_sheet
-
-	
