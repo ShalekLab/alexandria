@@ -161,7 +161,8 @@ task count {
 		# '#N/A', '#NA', '-NaN', '-nan','N/A', 'NA', 'NULL', 'NaN', 'n/a', 'nan', 'null'
 		fastq_pairs_filtered = [fastq for fastq in fastq_pairs if fastq != "NaN"]
 		if not fastq_pairs_filtered:
-			raise Exception("ERROR: No FASTQs were detected. If you have more than one FASTQ pair per sample, "
+			raise Exception(
+				"ERROR: No FASTQs were detected. If you have more than one FASTQ pair per sample, "
 				"please separate FASTQs with only a comma, no whitespace. "
 				"If you have only one single-pair FASTQ, enter 'null' under 'R2_Paths' for each entry"
 			)

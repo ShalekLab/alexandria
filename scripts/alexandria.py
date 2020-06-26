@@ -36,7 +36,8 @@ class Alexandria(object):
 		elif name == "cellranger":
 			return Cellranger(sheet)
 		else:
-			raise Exception(f"ALEXANDRIA: ERROR! Preset {name} is invalid must be one of the "
+			raise Exception(
+				f"ALEXANDRIA: ERROR! Preset {name} is invalid must be one of the "
 				"valid options: (Dropseq, Smartseq2, Kallisto_Bustools, Cellranger)"
 			)
 
@@ -426,7 +427,8 @@ class Alexandria(object):
 		elif attribute_type in ["number", "numeric"]:
 			return "numeric"
 		else:
-			raise Exception(f"ALEXANDRIA: ERROR! attribute type {attribute_type} is not a recognized value! "
+			raise Exception(
+				f"ALEXANDRIA: ERROR! attribute type {attribute_type} is not a recognized value! "
 				"Valid values for Alexandria Metadata Convention: ('string', 'number', 'boolean')."
 			)
 

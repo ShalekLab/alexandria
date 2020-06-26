@@ -9,9 +9,9 @@ function default_preset {
 }
 
 function is_bcl_preset {
-	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/bcl.tsv"
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/kbc_bcl.tsv"
 	tool="Dropseq"
-	output_scp_files="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/scp_outputs/inputs/???"
+	output_scp_files="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/scp_outputs/inputs/bcl.txt"
 }
 
 function ss2_default {
@@ -24,4 +24,10 @@ function cr_default {
 	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/BIOCRO_PILOT1.tsv"
 	tool="Cellranger"
 	output_scp_files="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/scp_outputs/inputs/cr_scp_outputs.txt"
+}
+
+function kb_bcl {
+	alexandria_sheet="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/common_inputs/kbc_bcl.tsv"
+	tool="Kallisto-Bustools"
+	output_scp_files="/Users/jggatter/Desktop/Alexandria/alexandria_repository/scripts/tests/scp_outputs/inputs/bcl.txt"
 }

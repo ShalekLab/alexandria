@@ -31,6 +31,8 @@ class Dropseq(Alexandria):
 		errors=[]
 		if self.entry not in self.sheet.columns:
 			errors.append(f"Please ensure your cell column is named '{self.entry}'.")
+		elif any(self.sheet[self.entry].duplicated()):
+			errors.append(f"Duplicate values found in entry column! Please remove!")
 		if self.R1_path not in self.sheet.columns and "R1_fastq" in self.sheet.columns:
 			self.log.warn("'R1_Path'/'R2_Path' columns not detected but 'R1_fastq'/'fastq' are, overriding the latter as FASTQ columns.")
 			self.R1_path="R1_fastq"
@@ -68,6 +70,8 @@ class Smartseq2(Alexandria):
 			self.entry = "Sample"
 		if self.entry not in self.sheet.columns:
 			errors.append(f"Please ensure your cell column is named '{self.entry}'.")
+		elif any(self.sheet[self.entry].duplicated()):
+			errors.append(f"Duplicate values found in entry column! Please remove!")
 		if self.R1_path not in self.sheet.columns and "R1_Path" in self.sheet.columns:
 			self.log.warn("'Read1'/'Read2' columns not detected but 'R1_Path'/'R2_Path' are, overriding the latter as FASTQ columns.")
 			self.R1_path="R1_Path"
@@ -212,6 +216,8 @@ class Kallisto_Bustools(Alexandria):
 		errors=[]
 		if self.entry not in self.sheet.columns:
 			errors.append(f"Please ensure your cell column is named '{self.entry}'.")
+		elif any(self.sheet[self.entry].duplicated()):
+			errors.append(f"Duplicate values found in entry column! Please remove!")
 		if self.R1_path not in self.sheet.columns and "R1_Path" in self.sheet.columns:
 			self.log.warn(
 				"'R1_Paths'/'R2_Paths' columns not detected but 'R1_Path'/'R2_Path' are, "
@@ -320,6 +326,8 @@ class Cellranger(Alexandria):
 		errors=[]
 		if self.entry not in self.sheet.columns:
 			errors.append(f"Please ensure your entry column is named '{self.entry}'.")
+		elif any(self.sheet[self.entry].duplicated()):
+			errors.append(f"Duplicate values found in entry column! Please remove!")
 		if self.reference not in self.sheet.columns:
 			errors.append(f"Please ensure your reference column is named '{self.entry}'.")
 		if self.flowcell not in self.sheet.columns:
