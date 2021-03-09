@@ -42,7 +42,7 @@ Boolean valued metadata may take the values `True` or `False` and is read by Sin
 
 ### Controlled-list metadata
 
-ex. sample_type
+ex. biosample_type
 
 Some metadata attributes do not fit into existing ontologies but can be described using a limited set of categories. For this metadata, the Alexandria team has selected a controlled list of values. These metadata have type `enum` in the AMC spreadsheet and their possible values can be found in the `controlled_list_entries` column. 
 
@@ -76,7 +76,7 @@ If the array-valued metadata attribute is a dependant metadata attribute, the or
 
 The AMC spreadsheet can be used as a guide in writing an Alexandria metadata file but includes more information than is necessary for this process.
 
-See the below table for descriptions of columns in this spreadsheet that are useful in building this file: w
+See the below table for descriptions of columns in this spreadsheet that are useful in building this file:  
 
 ```eval_rst
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------+
@@ -95,7 +95,8 @@ See the below table for descriptions of columns in this spreadsheet that are use
 +-------------------------+--------------------------------------------------------------------------------------------------------------------------+
 | class                   | The classes of a string-type metadata attribute:                                                                         |
 |                         |                                                                                                                          |
-|                         |  - **[blank]**: no class, ontology: this attribute should be an ontology ID.                                             |
+|                         |  - **[blank]**: no class
+|                         |  - **ontology**: this attribute should be an ontology ID.                                             |
 |                         |  - **ontology_label**: This attribute should be the human-readable label corresponding to it's ontology ID.              |
 |                         |  - **enum**: a value from a controlled list.                                                                             |
 |                         |  - **unit_label**: the name of the unit, either a free-text string or the ontology label from the unit ontology          |
