@@ -8,6 +8,10 @@
 
 [The Alexandria Portal](https://singlecell.broadinstitute.org/single_cell?scpbr=the-alexandria-project) is branded space of the Single Cell Portal, which is built upon Terra and Google Cloud Platform. When you have created a study on Alexandria, you can visit the Terra interface for your Alexandria study. The current way of doing so is to first visit the My Studies page, click "Show Details" for your study of choice, then click "View the Terra Workspace". Terra and SCP integration is an ongoing development thus this method is subject to change in the future.
 
+![](imgs/notebooks/homepage.png)
+![](imgs/notebooks/showdetails.png)
+![](imgs/notebooks/viewterra.png)
+
 ## Uploading an Alexandria notebook and customizing your notebook runtime
 
 You can download Alexandria notebooks from the [Alexandria GitHub repository](https://github.com/ShalekLab/alexandria/tree/master/notebooks). In the Notebooks tab of your Terra workspace, you will see the option to add an existing ipynb (iPython Notebook) file. Upload the notebook file of your choice.
@@ -20,7 +24,7 @@ You should click the "Customize" button.
 ![](imgs/notebooks/customize.png)
 
 Under "Application Configuration", you should scroll down to select "Custom Environment".
-![](imgs/notebooks/custom.png)
+![](imgs/notebooks/environment.png)
 
 The name of the container image will be referenced in the Notebook file. You should enter in that image address. Alexandria images can be found on [Docker Hub](https://hub.docker.com/orgs/shaleklab/repositories) as well. Configure the cloud compute profile based on recommendations from the notebook. In general, CPUs are expensive and not as impactful for these notebooks as RAM and diskspace are. While dependent on the size of your datasets, approximately 16GB RAM and 100GB disk space should work in most scenarios. You can always reconfigure your runtime if your parameters are too small (the consequences of doing so varies, e.g. changing diskspace will most likely delete your persistent disk and create a new one).
 ![](imgs/notebooks/configure.png)
