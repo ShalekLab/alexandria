@@ -14,12 +14,12 @@ The Alexandria Metadata Convention contains 4 categories of structured metadata 
 
 Examples: disease, species, organ
 
-To allow query at varying levels of specificities, the Alexandria Metadata Convention uses ontology-valued metadata whenever possible. These ontologies are tree-structured hierarchies curated by experts and easily accessible through a [Lookup Service](https://www.ebi.ac.uk/ols/index) maintained by EBI. For the purposes of the Alexandria Metadata Convention, please select the most specific value in the hierarchy as possible. For use of this metadata during query of the Alexandria database, a query option can allow the inclusion of all child values of the query term. Single Cell Portal treats these values as group, or categorical variables. 
+To allow query at varying levels of specificities, the Alexandria Metadata Convention uses ontology-valued metadata whenever possible. These ontologies are tree-structured hierarchies curated by experts and easily accessible through a [Lookup Service](https://www.ebi.ac.uk/ols/index) maintained by EBI. For the purposes of the Alexandria Metadata Convention, please select the most specific value in the hierarchy as possible. Single Cell Portal treats these values as group, or categorical variables. 
 
 **Navigating ontologies to manually annotate your metadata:** The EBI OLS (ontology lookup service) provides an interface as well as an API to explore these ontologies which may be useful in preparing your metadata. The API is documented [here](https://www.ebi.ac.uk/ols/docs/developer), and the API endpoints for a given ontology are found in the `ontology` column in the AMC spreadsheet. The graphical interface can be accessed through the same URL with `api` substituted with `ols` (ex. `https://www.ebi.ac.uk/ols/ontologies/UBERON`). Because some ontologies include more areas than are covered by Alexandria, we have a recommended _root_ for some ontologies, specified in the `ontology_root` column of the AMC spreadsheet. Entries in Alexandria metadata should come from below that root in the ontology tree.  To visit the page described by the root use the URL: `https://www.ebi.ac.uk/ols/ontologies/<ontology name>/terms?iri=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2F<alexandria ontology root>`. For example, for the species attribute, from the `NCBITaxon` ontology with root `NCBITaxon_2759` can be accessed using the URL `https://www.ebi.ac.uk/ols/ontologies/ncbitaxon/terms?iri=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FNCBITaxon_2759`.
 
 
-**Formatting ontology-valued metadata in the metadata file:** In the Alexandria Metadata Convention, two columns should be included for each ontology-valued metadata entry. The first, named `<metadata attribute>` contains the ontology ID with the format `<ontology name>_<numeric ID>` or `<ontology name>:<numeric ID>`. The second column, `<metadata attribute>__ontology_label`, should contain the human-readable label for the ontology ID and should exactly match the name in the EBI database. This name is the title of the page on OLS. Ex. for attribute `species`, value: `NCBITaxon_9606` has `species__ontology_label`, with value: `homo sapiens`. The label attribute is required for required metadata but may be left blank for optional metadata. It is recommended that users fill in this value to allow for more thorough validation of metadata files.
+**Formatting ontology-valued metadata in the metadata file:** In the Alexandria Metadata Convention, two columns should be included for each ontology-valued metadata entry. The first, named `<metadata attribute>` contains the ontology ID with the format `<ontology name>_<numeric ID>` or `<ontology name>:<numeric ID>`. The second column, `<metadata attribute>__ontology_label`, should contain the human-readable label for the ontology ID and should exactly match the label (or listed synonym) in the EBI database. The label is the title of the page on OLS. Ex. for attribute `species`, value: `NCBITaxon_9606` has `species__ontology_label`, with value: `homo sapiens`. The label attribute is required for required metadata but may be left blank for optional metadata. It is recommended that users fill in this value to allow for more thorough validation of metadata files.
 
 ### Numeric-valued metadata
 
@@ -80,21 +80,44 @@ If the array-valued metadata attribute is a dependant metadata attribute, the or
 
 The AMC spreadsheet can be used as a guide in writing an Alexandria metadata file but includes more information than is necessary for this process.
 
-See the below table for descriptions of columns in this spreadsheet that are useful in building this file: w
+See the below table for descriptions of columns in this spreadsheet that are useful in building this file:
 
 
-**Column**|**Description**
-:---------|:--------------
-attribute | Serve as valid metadata column headers in the [input_csv_file](https://alexandria-scrna-data-library.readthedocs.io/en/latest/dropseq_scCloud/#formatting-your-input_csv_file) for dropseq_scCloud tool or the cell-level metadata file. Spaces between words are denoted by a single '\_' while subattributes are denoted with a double '\_' between the attribute parent and the attribute child.
-required | Whether the attribute **MUST** be included as a column in the metadata file of the data you are uploading to Alexandria.
-default | The default value which you should include in the metadata file for a required value if it does not apply to your data. _There is currently no system to automatically fill this data._
-type | The datatype of the attribute that Alexandria expects. `strings` can be text without quotation marks  `booleans` can be either `True` or `False`. `numbers` are any numeric character, e.g. 0, 1, 2, ...
-array | TRUE if the metadata is an array-valued metadata type.
-class | The class of a string-type metadata attribute. <ul><li>**[blank]**: no class, ontology: this attribute should be an ontology ID.</li><li>**ontology_label**: This attribute should be the human-readable label corresponding to it's ontology ID.</li><li>**enum**: a value from a controlled list.</li><li>**unit_label**: the name of the unit, either a free-text string or the ontology label from the unit ontology</li></ul>
-ontology | A URL to the ontology entry on the European Bioinformatics Insitute domain.
-ontology_root | The recommended highest value in the ontology tree applicable to this metadata attribute
-controlled_list_entries | For attributes of class enum, the value is expected to be one value from the list of entries displayed here.
-dependency | The parent ontology that the attribute is dependent upon.
-dependency_condition | The condition on the dependency under which the attribute is dependant
-dependent | The attribute that is dependent upon this attribute.
-attribute_description | A description of what the attribute is.
+```eval_rst
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| **Column**              | **Description**                                                                                                          |
++=========================+==========================================================================================================================+
+| attribute               | Serve as valid metadata column headers in the `Alexandria Sheet <dropseq_cumulus.html#the-alexandria-sheet>`_ for        |
+|                         | dropseq_cumulus workflow or the cell-level metadata file. Spaces between words are denoted by a single '_' while         |
+|                         | subattributes are denoted with a double '\_' between the attribute parent and the attribute child.                       |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| required                | Whether the attribute **MUST** be included as a column in the metadata file of the data you are uploading to Alexandria. |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| type                    | The datatype of the attribute that Alexandria expects. ``strings`` can be text without quotation marks  `booleans` can   |
+|                         | be either ``True`` or ``False``. ``numbers`` are any numeric character, e.g. ``0``, ``1``, ``2``, ...                    |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| array                   | ``TRUE`` if the metadata is an array-valued metadata type.                                                               |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| class                   | The classes of a string-type metadata attribute:                                                                         |
+|                         |                                                                                                                          |
+|                         |  - **[blank]**: no class
+|                         |  - **ontology**: this attribute should be an ontology ID.                                             |
+|                         |  - **ontology_label**: This attribute should be the human-readable label (or synonym) corresponding to it's ontology ID.              |
+|                         |  - **enum**: a value from a controlled list.                                                                             |
+|                         |  - **unit_label**: the name of the unit, either a free-text string or the ontology label from the unit ontology          |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| ontology                | A URL to the ontology entry on the European Bioinformatics Insitute domain.                                              |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| ontology_root           | The highest value in the ontology tree applicable to this metadata attribute.                                            |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| controlled_list_entries | For attributes of class enum, the value is expected to be one value from the list of entries displayed here.             |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| dependency              | The parent ontology that the attribute is dependent upon.                                                                |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| dependency_condition    | The condition on the dependency under which the attribute is dependent.                                                  |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| dependent               | The attribute that is dependent upon this attribute.                                                                     |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+| attribute_description   | A description of what the attribute is.                                                                                  |
++-------------------------+--------------------------------------------------------------------------------------------------------------------------+
+```

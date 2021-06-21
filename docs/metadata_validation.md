@@ -5,6 +5,7 @@ git clone https://github.com/broadinstitute/single_cell_portal.git
 cd single_cell_portal
 python3 -m venv env --copies
 source env/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
